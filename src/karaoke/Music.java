@@ -2,7 +2,6 @@ package karaoke;
 
 import java.util.List;
 import java.util.Map;
-
 import karaoke.sound.SequencePlayer;
 
 /**
@@ -15,7 +14,7 @@ public interface Music {
     //  + Note(duration: Double, pitch: Pitch, instrument: Instrument)
     //  + Lyrics(lyricLine: String, voice: String)
     //  + Concat(first: Music, second: Music)
-    //  + Together(top: Music, bottom: Music)
+    //  + Together(m1: Music, m2: Music)
     
     /**
      * @return total duration of this piece in beats
