@@ -253,7 +253,7 @@ public class SequencePlayerTest {
         player.addNote(piano, new Pitch('D'), startBeat, numBeats*2);
         player.addEvent(startBeat, new Consumer<Double>() {
             public void accept(Double atBeat) {
-                System.out.println("*A*-maz-ing grace! How sweet the sound That save a wretch like me.");
+                System.out.println("*A*-maz-ing grace! How sweet the sound That saved a wretch like me.");
             }
         });
         startBeat+=numBeats*2;
@@ -262,14 +262,14 @@ public class SequencePlayerTest {
         player.addNote(piano, new Pitch('G'), startBeat, numBeats*4);
         player.addEvent(startBeat, new Consumer<Double>() {
             public void accept(Double atBeat) {
-                System.out.println("A-*maz*-ing grace! How sweet the sound That save a wretch like me.");
+                System.out.println("A-*maz*-ing grace! How sweet the sound That saved a wretch like me.");
             }
         });
         startBeat+=numBeats*4;  
         player.addNote(piano, new Pitch('B'), startBeat, numBeats);
         player.addEvent(startBeat, new Consumer<Double>() {
             public void accept(Double atBeat) {
-                System.out.println("A-maz-*ing* grace! How sweet the sound That save a wretch like me.");
+                System.out.println("A-maz-*ing* grace! How sweet the sound That saved a wretch like me.");
             }
         });
         startBeat+=numBeats; 
@@ -277,22 +277,95 @@ public class SequencePlayerTest {
         startBeat+=numBeats; 
         
         // Third measure 
-        // TODO 
+        player.addNote(piano, new Pitch('B'), startBeat, numBeats*4);
+        player.addEvent(startBeat, new Consumer<Double>() {
+            public void accept(Double atBeat) {
+                System.out.println("A-maz-ing *grace!* How sweet the sound That saved a wretch like me.");
+            }
+        });
+        startBeat+=numBeats*4;  
+        player.addNote(piano, new Pitch('A'), startBeat, numBeats*2);
+        player.addEvent(startBeat, new Consumer<Double>() {
+            public void accept(Double atBeat) {
+                System.out.println("A-maz-ing grace! *How* sweet the sound That saved a wretch like me.");
+            }
+        });
+        startBeat+=numBeats*2;
         
         // Fourth measure
-        // TODO
+        player.addNote(piano, new Pitch('G'), startBeat, numBeats*4);
+        player.addEvent(startBeat, new Consumer<Double>() {
+            public void accept(Double atBeat) {
+                System.out.println("A-maz-ing grace! How *sweet* the sound That saved a wretch like me.");
+            }
+        });
+        startBeat+=numBeats*4;  
+        player.addNote(piano, new Pitch('E'), startBeat, numBeats*2);
+        player.addEvent(startBeat, new Consumer<Double>() {
+            public void accept(Double atBeat) {
+                System.out.println("A-maz-ing grace! How sweet *the* sound That saved a wretch like me.");
+            }
+        });
+        startBeat+=numBeats*2;
         
         // Fifth measure
-        // TODO
+        player.addNote(piano, new Pitch('D'), startBeat, numBeats*4);
+        player.addEvent(startBeat, new Consumer<Double>() {
+            public void accept(Double atBeat) {
+                System.out.println("A-maz-ing grace! How sweet the *sound* That saved a wretch like me.");
+            }
+        });
+        startBeat+=numBeats*4;  
+        player.addNote(piano, new Pitch('D'), startBeat, numBeats*2);
+        player.addEvent(startBeat, new Consumer<Double>() {
+            public void accept(Double atBeat) {
+                System.out.println("A-maz-ing grace! How sweet the sound *That* saved a wretch like me.");
+            }
+        });
+        startBeat+=numBeats*2;
         
         // Sixth measure
-        // TODO
+        player.addNote(piano, new Pitch('G'), startBeat, numBeats*4);
+        player.addEvent(startBeat, new Consumer<Double>() {
+            public void accept(Double atBeat) {
+                System.out.println("A-maz-ing grace! How sweet the sound That *saved* a wretch like me.");
+            }
+        });
+        startBeat+=numBeats*4;  
+        player.addNote(piano, new Pitch('B'), startBeat, numBeats);
+        player.addEvent(startBeat, new Consumer<Double>() {
+            public void accept(Double atBeat) {
+                System.out.println("A-maz-ing grace! How sweet the sound That saved *a* wretch like me.");
+            }
+        });
+        startBeat+=numBeats; 
+        player.addNote(piano, new Pitch('G'), startBeat, numBeats);
+        startBeat+=numBeats; 
         
         // Seventh measure
-        // TODO
+        player.addNote(piano, new Pitch('B'), startBeat, numBeats*4);
+        player.addEvent(startBeat, new Consumer<Double>() {
+            public void accept(Double atBeat) {
+                System.out.println("A-maz-ing grace! How sweet the sound That saved a *wretch* like me.");
+            }
+        });
+        startBeat+=numBeats*4;  
+        player.addNote(piano, new Pitch('A'), startBeat, numBeats*2);
+        player.addEvent(startBeat, new Consumer<Double>() {
+            public void accept(Double atBeat) {
+                System.out.println("A-maz-ing grace! How sweet the sound That saved a wretch *like* me.");
+            }
+        });
+        startBeat+=numBeats*2;
         
         // Eighth measure 
-        // TODO 
+        player.addNote(piano, new Pitch('D').transpose(Pitch.OCTAVE), startBeat, numBeats*6);
+        player.addEvent(startBeat, new Consumer<Double>() {
+            public void accept(Double atBeat) {
+                System.out.println("A-maz-ing grace! How sweet the sound That saved a wretch like *me.*");
+            }
+        });
+        startBeat+=numBeats*6; 
         
         // add a listener at the end of the piece to tell main thread when it's done
         Object lock = new Object();
