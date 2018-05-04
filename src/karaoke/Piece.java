@@ -71,7 +71,8 @@ public class Piece {
     }
     
     /**
-     * Get the number of beats played per minute.
+     * Get the number of beats played per minute. A beat is the 
+     * default note length 
      * @return frequency as int.
      */
     public int beatsPerMinute() {
