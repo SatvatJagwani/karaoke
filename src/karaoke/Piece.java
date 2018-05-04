@@ -24,7 +24,7 @@ public class Piece {
      * Get the name of the composer of this piece.
      * @return the name as String
      */
-    public String nameOfComposer() {
+    public String getNameOfComposer() {
         throw new RuntimeException("Unimplemented");
     }
     
