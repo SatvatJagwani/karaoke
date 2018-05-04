@@ -43,4 +43,5 @@ public class Concat implements Music {
     public String toString() {
         throw new RuntimeException("Unimplemented");
     }
+    
 }

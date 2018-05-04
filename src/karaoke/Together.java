@@ -2,7 +2,6 @@ package karaoke;
 
 import java.util.List;
 import java.util.Map;
-
 import karaoke.sound.SequencePlayer;
 
 /**
@@ -10,9 +9,11 @@ import karaoke.sound.SequencePlayer;
  * Immutable and thread-safe. 
  */
 public class Together implements Music {
-
+    
     /**
-     * Make a Music sequence that plays m1 and m2 in parallel 
+     * Make a Music sequence that plays m1 and m2 in parallel and has a 
+     *      duration given by m1.duration(). Note that the time it takes to play
+     *      m1 and m2 in parallel may be longer than the duration of this sequence. 
      * @param m1 piece of music to play in parallel with m2
      * @param m2 piece of music to play in parallel with m1
      */
