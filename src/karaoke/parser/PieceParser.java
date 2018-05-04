@@ -6,15 +6,15 @@ import java.io.IOException;
 import edu.mit.eecs.parserlib.ParseTree;
 import edu.mit.eecs.parserlib.Parser;
 import edu.mit.eecs.parserlib.UnableToParseException;
-import karaoke.Music;
+import karaoke.Piece;
 
 /**
- * Parser for our Karaoke Music project
+ * Parser for our Karaoke project pieces of music written in standard abc notation
  * Inspiration for this code framework comes from instructor-written ps3, ExpressionParser.java
  */
-public class MusicParser {
+public class PieceParser {
     /**
-     * Main method. Parses and then reprints an example music.
+     * Main method. Parses and then reprints an example piece.
      * 
      * @param args command line arguments, not used
      * @throws UnableToParseException if example expression can't be parsed
@@ -23,8 +23,8 @@ public class MusicParser {
         throw new RuntimeException("Unimplemented");
     }
     
- // the nonterminals of the grammar
-    private static enum MusicGrammar {
+    // the nonterminals of the grammar
+    private static enum PieceGrammar {
         ABC_TUNE,
         ABC_HEADER,
         FIELD_NUMBER,
@@ -71,7 +71,7 @@ public class MusicParser {
         SPACE_OR_TAB
     }
     
-    private static Parser<MusicGrammar> parser = makeParser();
+    private static Parser<PieceGrammar> parser = makeParser();
     
     /**
      * Compile the grammar into a parser.
@@ -79,11 +79,11 @@ public class MusicParser {
      * @return parser for the grammar
      * @throws RuntimeException if grammar file can't be read or has syntax errors
      */
-    private static Parser<MusicGrammar> makeParser() {
+    private static Parser<PieceGrammar> makeParser() {
         try {
             // read the grammar as a file, relative to the project root.
             final File grammarFile = new File("src/karaoke/Abc.g");
-            return Parser.compile(grammarFile, MusicGrammar.ABC_TUNE);
+            return Parser.compile(grammarFile, PieceGrammar.ABC_TUNE);
         } catch (IOException e) {
             throw new RuntimeException("can't read the grammar file", e);
         } catch (UnableToParseException e) {
@@ -92,17 +92,17 @@ public class MusicParser {
     }
     
     /**
-     * Parse a string into an abc music.
+     * Parse a string into an abc piece.
      * @param string string to parse
      * @return Music parsed from the string
      * @throws UnableToParseException if the string doesn't match the Abc grammar
      */
-    public static Music parse(final String string) throws UnableToParseException {
+    public static Piece parse(final String string) throws UnableToParseException {
         // parse the example into a parse tree
-        final ParseTree<MusicGrammar> parseTree = parser.parse(string);
+        final ParseTree<PieceGrammar> parseTree = parser.parse(string);
         // make an AST from the parse tree
-        final Music music = makeAbstractSyntaxTree(parseTree);
-        return music;
+        final Piece piece = makeAbstractSyntaxTree(parseTree);
+        return piece;
     }
     
     /**
@@ -111,8 +111,7 @@ public class MusicParser {
      * @param parseTree constructed according to the grammar in Abc.g
      * @return abstract syntax tree corresponding to parseTree
      */
-    private static Music makeAbstractSyntaxTree(final ParseTree<MusicGrammar> parseTree) {
+    private static Piece makeAbstractSyntaxTree(final ParseTree<PieceGrammar> parseTree) {
         throw new RuntimeException("Unimplemented");
     }
-    
 }
