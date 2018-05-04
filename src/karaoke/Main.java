@@ -44,7 +44,7 @@ public class Main {
         promptEnterKey();
         
         final double warmup = 0.125;
-        SequencePlayer player = pieceOfMusic.getPlayer();
+        SequencePlayer player = pieceOfMusic.createPlayer();
         pieceOfMusic.getMusic().play(player, warmup, voiceToLyricsMap);
         
         player.play();

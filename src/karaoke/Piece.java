@@ -21,6 +21,24 @@ public class Piece {
     }
     
     /**
+     * Creates a new piece with the given parameters
+     * @param composer composer of the piece
+     * @param index index number 
+     * @param defaultNoteDuration duration for default note length
+     * @param meter meter of the piece 
+     * @param beatsPerMinute tempo 
+     * @param title title of the piece 
+     * @param voices the set of voices within the piece 
+     * @param key the default key signature of the piece 
+     * @param music the Music data type for the piece 
+     */
+    public Piece(String composer, int index, double defaultNoteDuration, 
+            String meter, int beatsPerMinute, String title, Set<String> voices,
+            String key, Music music) {
+        throw new RuntimeException("Unimplemented");
+    }
+    
+    /**
      * Get the name of the composer of this piece.
      * @return the name as String
      */
@@ -93,10 +111,10 @@ public class Piece {
     }
     
     /**
-     * Get an empty sequence player with same beats per minute as specified in the piece.
+     * Creates an empty sequence player with same beats per minute as specified in the piece.
      * @return the sequence player.
      */
-    public SequencePlayer getPlayer() {
+    public SequencePlayer createPlayer() {
         throw new RuntimeException("Unimplemented");
     }
 }
