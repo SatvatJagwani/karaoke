@@ -33,7 +33,14 @@ public class WebServer {
      *        a lyric is appended to the list of lyrics, the web server prints 
      *        out the new line at the address for that voice 
      */
-    public void run(Map<String, List<String>> voiceToLyricsMap) {
+    public void start(Map<String, List<String>> voiceToLyricsMap) {
+        throw new RuntimeException("Unimplemented");        
+    }
+    
+    /**
+     * Stop this server. Once stopped, this server cannot be restarted.
+     */
+    public void stop() {
         throw new RuntimeException("Unimplemented");        
     }
     

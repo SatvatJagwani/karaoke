@@ -234,9 +234,9 @@ public class SequencePlayerTest {
         System.out.println("done playing");
     }
     
-    
     @Test
     public void testPiece3() throws InvalidMidiDataException, MidiUnavailableException {
+        
         Instrument piano = Instrument.PIANO;
         
         // create a new player
