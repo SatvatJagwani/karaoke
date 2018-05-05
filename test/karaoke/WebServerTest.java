@@ -30,10 +30,20 @@ public class WebServerTest {
         return reader;
     }
     
-    // TODO: Testing Strategy
+    // Testing Strategy for WebServer 
+    // 
+    // port() and stop():
+    //      tested together with tests for start
+    // start():
+    //      voiceToLyricsMap contains 1 voice, > 1 voice
+    //      voiceToLyricsMap mutates once, mutates more than once 
+    //      there are 1, > 1 clients reading the same URL
+    // printing lyrics real-time with music:
+    //      tested in separate file with manual test cases 
+    //
+    // Cover each part at least once 
     
-    
-    // Example test 
+    // Example test - shows the flow for interacting with the web server
     @Test
     public void testWebServerExample() throws IOException {
         // Initialize the web-server and the voiceToLyricsMap
@@ -42,7 +52,7 @@ public class WebServerTest {
         
         String voice = "voice1";
         Map<String, List<String>> voiceToLyricsMap = new HashMap<>();
-        voiceToLyricsMap.put("voice", new ArrayList<String>());
+        voiceToLyricsMap.put(voice, new ArrayList<String>());
         
         // Start the web-server 
         server.start(voiceToLyricsMap);
@@ -65,6 +75,154 @@ public class WebServerTest {
         server.stop();
     }
     
-    // TODO: Other Tests
+    // Covers the following:
+    //
+    // start():
+    //      voiceToLyricsMap contains 1 voice
+    //      voiceToLyricsMap mutates once
+    //      there are 1 clients reading the same URL
+    @Test 
+    public void testWebServerSingleVoiceOneLyric() throws IOException {
+        // Create a map with one voice 
+        String singleVoice = "voice1";
+        Map<String, List<String>> voiceToLyricsMap = new HashMap<>();
+        voiceToLyricsMap.put(singleVoice, new ArrayList<>());
+        
+        // Start the server and get a reader for responses 
+        final int serverPort = 4567;
+        WebServer server = new WebServer(serverPort);
+        server.start(voiceToLyricsMap);
+        BufferedReader singleVoiceReader = getURLReader(server, singleVoice);
+        
+        // Add one line of lyrics to the map
+        String firstLine = "*test*-ing";
+        synchronized(voiceToLyricsMap) {
+            voiceToLyricsMap.get(singleVoice).add(firstLine);
+            voiceToLyricsMap.notifyAll();
+        }
+        assertEquals("Expected correct response", firstLine, singleVoiceReader.readLine());
+        
+        server.stop();
+    }
+    
+    // Covers the following:
+    //
+    //      voiceToLyricsMap contains 1 voice
+    //      voiceToLyricsMap mutates more than once 
+    //      there are > 1 clients reading the same URL
+    @Test 
+    public void testWebServerSingleVoiceMultipleLyrics() throws IOException {
+        // Create a map with one voice 
+        String singleVoice = "voice1";
+        Map<String, List<String>> voiceToLyricsMap = new HashMap<>();
+        voiceToLyricsMap.put(singleVoice, new ArrayList<>());
+        
+        // Start the server and get a reader for responses 
+        final int serverPort = 4567;
+        WebServer server = new WebServer(serverPort);
+        server.start(voiceToLyricsMap);
+        BufferedReader singleVoiceReader1 = getURLReader(server, singleVoice);
+        BufferedReader singleVoiceReader2 = getURLReader(server, singleVoice);
+        
+        // Add first line of lyrics to the map
+        String firstLine = "*A*-maz-ing grace how sweet";
+        synchronized(voiceToLyricsMap) {
+            voiceToLyricsMap.get(singleVoice).add(firstLine);
+            voiceToLyricsMap.notifyAll();
+        }
+        assertEquals("Expected correct response", firstLine, singleVoiceReader1.readLine());
+        assertEquals("Expected correct response", firstLine, singleVoiceReader2.readLine());
+        
+        // Add second line of lyrics
+        String secondLine = "A-*maz*-ing grace how sweet";
+        synchronized(voiceToLyricsMap) {
+            voiceToLyricsMap.get(singleVoice).add(secondLine);
+            voiceToLyricsMap.notifyAll();
+        }
+        assertEquals("Expected correct response", secondLine, singleVoiceReader1.readLine());
+        assertEquals("Expected correct response", secondLine, singleVoiceReader2.readLine());
+        
+        // Add third line of lyrics
+        String thirdLine = "A-maz-*ing* grace how sweet";
+        synchronized(voiceToLyricsMap) {
+            voiceToLyricsMap.get(singleVoice).add(secondLine);
+            voiceToLyricsMap.notifyAll();
+        }
+        assertEquals("Expected correct response", thirdLine, singleVoiceReader1.readLine());
+        assertEquals("Expected correct response", secondLine, singleVoiceReader2.readLine());
+        
+        // Add fourth line of lyrics
+        String fourthLine = "A-maz-ing *grace* how sweet";
+        synchronized(voiceToLyricsMap) {
+            voiceToLyricsMap.get(singleVoice).add(fourthLine);
+            voiceToLyricsMap.notifyAll();
+        }
+        assertEquals("Expected correct response", fourthLine, singleVoiceReader1.readLine());
+        assertEquals("Expected correct response", secondLine, singleVoiceReader2.readLine());
+        
+        server.stop();
+    }
+    
+    // Covers the following:
+    //
+    //      voiceToLyricsMap contains > 1 voice
+    //      voiceToLyricsMap mutates more than once 
+    //      there are > 1 clients reading the same URL
+    @Test
+    public void testWebServerMultipleVoices() throws IOException {
+        // Create a map with two voice 
+        String firstVoice = "voice1";
+        String secondVoice = "voice2";
+        Map<String, List<String>> voiceToLyricsMap = new HashMap<>();
+        voiceToLyricsMap.put(firstVoice, new ArrayList<>());
+        voiceToLyricsMap.put(secondVoice, new ArrayList<>());
+        
+        // Start the server and get a reader for responses 
+        final int serverPort = 4567;
+        WebServer server = new WebServer(serverPort);
+        server.start(voiceToLyricsMap);
+        BufferedReader firstVoiceReader1 = getURLReader(server, firstVoice);
+        BufferedReader firstVoiceReader2 = getURLReader(server, firstVoice);
+        BufferedReader secondVoiceReader1 = getURLReader(server, secondVoice);
+        BufferedReader secondVoiceReader2 = getURLReader(server, secondVoice);
+        
+        // Add first line for the first voice 
+        String firstLineFirstVoice = "*A*-maz-ing grace how sweet";
+        synchronized(voiceToLyricsMap) {
+            voiceToLyricsMap.get(firstVoice).add(firstLineFirstVoice);
+            voiceToLyricsMap.notifyAll();
+        }
+        assertEquals("Expected correct response", firstLineFirstVoice, firstVoiceReader1.readLine());
+        assertEquals("Expected correct response", firstLineFirstVoice, firstVoiceReader2.readLine());
+        
+        // Add first line for the second voice 
+        String firstLineSecondVoice = "*test*-ing";
+        synchronized(voiceToLyricsMap) {
+            voiceToLyricsMap.get(secondVoice).add(firstLineSecondVoice);
+            voiceToLyricsMap.notifyAll();
+        }
+        assertEquals("Expected correct response", firstLineSecondVoice, secondVoiceReader1.readLine());
+        assertEquals("Expected correct response", firstLineSecondVoice, secondVoiceReader2.readLine());
+        
+        // Add second line for the first voice
+        String secondLineFirstVoice = "A-*maz*-ing grace how sweet";
+        synchronized(voiceToLyricsMap) {
+            voiceToLyricsMap.get(firstVoice).add(secondLineFirstVoice);
+            voiceToLyricsMap.notifyAll();
+        }
+        assertEquals("Expected correct response", secondLineFirstVoice, firstVoiceReader1.readLine());
+        assertEquals("Expected correct response", secondLineFirstVoice, firstVoiceReader2.readLine());
+        
+        // Add second line for the second voice 
+        String secondLineSecondVoice = "test-*ing*";
+        synchronized(voiceToLyricsMap) {
+            voiceToLyricsMap.get(secondVoice).add(secondLineSecondVoice);
+            voiceToLyricsMap.notifyAll();
+        }
+        assertEquals("Expected correct response", secondLineSecondVoice, secondVoiceReader1.readLine());
+        assertEquals("Expected correct response", secondLineSecondVoice, secondVoiceReader2.readLine());
+        
+        server.stop();
+    }
     
 }
