@@ -121,6 +121,7 @@ public class PieceParserTest {
     //
     // key signature:
     //      major, minor, sharp, flat
+    @Test
     public void testPieceParserKeySignature() throws UnableToParseException {
         // G major
         String header = "X: 1" + "\n";
@@ -220,6 +221,7 @@ public class PieceParserTest {
     //      separated by |, |], [|, ||
     //      octaves are normal, raised 1, raised > 1, lowered 1, lowered < 1
     //      lengths are whole numbers, fractions, missing numerator, missing denominator
+    @Test
     public void testPieceParserNotes() throws UnableToParseException {
         // Test different sections 
         String header = "X: 1" + "\n";
@@ -307,6 +309,7 @@ public class PieceParserTest {
     // notes:
     //      includes sharp, flat, natural, double sharp, double flat
     //      used with C major key signature, other key signature 
+    @Test
     public void testPieceParserAccidental() throws UnableToParseException {
         // used with C major key
         String header = "X: 1" + "\n";
@@ -490,6 +493,7 @@ public class PieceParserTest {
     //
     // notes:
     //      lengths are whole numbers, fractions, missing numerator, missing denominator
+    @Test 
     public void testPieceParserRests() throws UnableToParseException {
         // Tests whole numbers and fractions, unsimplified and simplified, and missing numerators and denominators
         String header = "X: 1" + "\n";
@@ -541,6 +545,7 @@ public class PieceParserTest {
     // notes:
     //      includes 2 notes, > 2 notes
     //      notes are normal, have accidental, have multiplicative factors
+    @Test
     public void testPieceParserChords() throws UnableToParseException { 
         String header = "X: 1" + "\n";
         header += "T: simple song" + "\n";
