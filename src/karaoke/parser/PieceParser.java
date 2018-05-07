@@ -2,6 +2,9 @@ package karaoke.parser;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 import edu.mit.eecs.parserlib.ParseTree;
 import edu.mit.eecs.parserlib.Parser;
@@ -112,6 +115,36 @@ public class PieceParser {
      * @return abstract syntax tree corresponding to parseTree
      */
     private static Piece makeAbstractSyntaxTree(final ParseTree<PieceGrammar> parseTree) {
+        if(parseTree.name().equals(PieceGrammar.ABC_TUNE)) {
+            final ParseTree<PieceGrammar> headerTree = parseTree.children().get(0);
+            final ParseTree<PieceGrammar> bodyTree = parseTree.children().get(1);
+            String composer = "Unknown";
+            int index = 0;
+            double defaultNoteDuration = 0.125;
+            String meter = "4/4";
+            int beatsPerMinute = 100;
+            String title = "";
+            Set<String> voices = Collections.EMPTY_SET;
+            String key = "C";
+            final List<ParseTree<PieceGrammar>> headerFields = headerTree.children();
+            for(int i = 0; i < headerFields.size(); i++) {
+                ParseTree<PieceGrammar> givenField = headerFields.get(i);
+                switch(givenField.name()) {
+                case FIELD_NUMBER:
+                    String digits = "";
+                    for(int j = 0; j < givenField.children().size() - 1; j++) {
+                        digits += givenField.children().get(j).text();
+                    }
+                    index = Integer.parseInt(digits);
+                case FIELD_TITLE:
+                    //TODO
+                case OTHER_FIELDS:
+                    //TODO
+                case FIELD_KEY:
+                    //TODO
+                }
+            }
+        }
         throw new RuntimeException("Unimplemented");
     }
 }
