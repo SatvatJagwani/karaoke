@@ -120,8 +120,10 @@ public class PieceParser {
             final ParseTree<PieceGrammar> bodyTree = parseTree.children().get(1);
             String composer = "Unknown";
             int index = 0;
-            double defaultNoteDuration = 0.125;
+            final double invalidDuration = -1;
+            double defaultNoteDuration = invalidDuration;
             String meter = "4/4";
+            String tempo = "";
             int beatsPerMinute = 100;
             String title = "";
             Set<String> voices = Collections.EMPTY_SET;
@@ -129,22 +131,73 @@ public class PieceParser {
             final List<ParseTree<PieceGrammar>> headerFields = headerTree.children();
             for(int i = 0; i < headerFields.size(); i++) {
                 ParseTree<PieceGrammar> givenField = headerFields.get(i);
+                List<ParseTree<PieceGrammar>> givenFieldChildren = givenField.children();
                 switch(givenField.name()) {
                 case FIELD_NUMBER:
                     String digits = "";
-                    for(int j = 0; j < givenField.children().size() - 1; j++) {
-                        digits += givenField.children().get(j).text();
+                    for(int j = 0; j < givenFieldChildren.size() - 1; j++) {
+                        digits += givenFieldChildren.get(j).text();
                     }
                     index = Integer.parseInt(digits);
+                    break;
                 case FIELD_TITLE:
-                    //TODO
+                    title = givenFieldChildren.get(0).text();
+                    break;
                 case OTHER_FIELDS:
-                    //TODO
+                    final ParseTree<PieceGrammar> otherField = givenField.children().get(0);
+                    switch(otherField.name()) {
+                    case FIELD_COMPOSER: 
+                        composer = otherField.children().get(0).text();
+                        break;
+                    case FIELD_DEFAULT_LENGTH:
+                        String noteLength = otherField.children().get(0).text();
+                        String[] bothHalves = noteLength.split("/");
+                        double firstHalf = Integer.parseInt(bothHalves[0]);
+                        double secondHalf = Integer.parseInt(bothHalves[1]);
+                        defaultNoteDuration = firstHalf/secondHalf;
+                        break;
+                    case FIELD_METER:
+                        meter = otherField.children().get(0).text();
+                        break;
+                    case FIELD_TEMPO:
+                        tempo = otherField.children().get(0).text();
+                        break;
+                    case FIELD_VOICE:
+                        String voice = otherField.children().get(0).text();
+                        voices.add(voice);
+                        break;
+                    case COMMENT:
+                        break;
+                    default:
+                        throw new AssertionError("Should never get here.");
+                    }
+                    break;
                 case FIELD_KEY:
-                    //TODO
+                    key = givenFieldChildren.get(0).text();
+                    break;
+                case COMMENT:
+                    break;
+                default:
+                    throw new AssertionError("Should never get here.");
                 }
             }
+            if(defaultNoteDuration==invalidDuration) {
+                String[] bothHalves = meter.split("/");
+                double firstHalf = Integer.parseInt(bothHalves[0]);
+                double secondHalf = Integer.parseInt(bothHalves[1]);
+                double meterFraction = firstHalf/secondHalf;
+                if(meterFraction < 0.75) {
+                    defaultNoteDuration = 1.0/16;
+                }
+                else {
+                    defaultNoteDuration = 1.0/8;
+                }
+            }
+            if(!tempo.equals("")) {
+                //TODO
+            }
         }
+        //TODO Convert tempo into beats per minute according to default note length
         throw new RuntimeException("Unimplemented");
     }
 }
