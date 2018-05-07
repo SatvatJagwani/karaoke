@@ -622,9 +622,11 @@ public class PieceParserTest {
         
         // Create the correct music 
         Music firstMeasure = Music.rest(0);
-        firstMeasure = Music.concat(firstMeasure, 
-                Music.concat(Music.note(1.5, new Pitch('A'), Instrument.PIANO),
-                             Music.note(1.5, new Pitch('B'), Instrument.PIANO)));
+        firstMeasure = Music.concat(firstMeasure,
+                Music.together(
+                        Music.concat(Music.note(1.5, new Pitch('A'), Instrument.PIANO),
+                                     Music.note(1.5, new Pitch('B'), Instrument.PIANO)),
+                        Music.lyrics("*no lyrics*", "voice1")));
         firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('A'), Instrument.PIANO));
         
         Music secondMeasure = Music.rest(0);
@@ -652,10 +654,12 @@ public class PieceParserTest {
         
         // Create the correct music 
         firstMeasure = Music.rest(0);
-        firstMeasure = Music.concat(firstMeasure, 
-                Music.concat(Music.concat(Music.note(1/3, new Pitch('A'), Instrument.PIANO), 
-                                          Music.note(1/3, new Pitch('B'), Instrument.PIANO)),
-                             Music.note(1/3, new Pitch('C'), Instrument.PIANO)));
+        firstMeasure = Music.concat(firstMeasure,
+                Music.together(
+                        Music.concat(Music.concat(Music.note(1/3, new Pitch('A'), Instrument.PIANO), 
+                                                  Music.note(1/3, new Pitch('B'), Instrument.PIANO)),
+                                     Music.note(1/3, new Pitch('C'), Instrument.PIANO)),
+                        Music.lyrics("*no lyrics*", "voice1")));
         firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('A'), Instrument.PIANO));
         
         secondMeasure = Music.rest(0);
@@ -686,10 +690,12 @@ public class PieceParserTest {
         // Create the correct music 
         firstMeasure = Music.rest(0);
         firstMeasure = Music.concat(firstMeasure, 
-                Music.concat(Music.concat(Music.note(0.75, new Pitch('A'), Instrument.PIANO),
-                                          Music.note(0.75, new Pitch('B'), Instrument.PIANO)),
-                             Music.concat(Music.note(0.75, new Pitch('C'), Instrument.PIANO),
-                                          Music.note(0.75, new Pitch('D'), Instrument.PIANO))));
+                Music.together(
+                        Music.concat(Music.concat(Music.note(0.75, new Pitch('A'), Instrument.PIANO),
+                                                  Music.note(0.75, new Pitch('B'), Instrument.PIANO)),
+                                     Music.concat(Music.note(0.75, new Pitch('C'), Instrument.PIANO),
+                                                  Music.note(0.75, new Pitch('D'), Instrument.PIANO))),
+                        Music.lyrics("*no lyrics*", "voice1")));
         firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('A'), Instrument.PIANO));
         
         secondMeasure = Music.rest(0);
@@ -727,7 +733,9 @@ public class PieceParserTest {
         
         // Create the correct music 
         Music firstMeasure = Music.rest(0);
-        firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('A'), Instrument.PIANO));
+        firstMeasure = Music.together(
+                       Music.concat(firstMeasure, Music.note(1, new Pitch('A'), Instrument.PIANO)),
+                       Music.lyrics("*no lyrics*", "voice1"));
         firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('B'), Instrument.PIANO));
         firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('C'), Instrument.PIANO));
         firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('D'), Instrument.PIANO));
@@ -757,7 +765,9 @@ public class PieceParserTest {
         
         // Create the correct music 
         firstMeasure = Music.rest(0);
-        firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('A'), Instrument.PIANO));
+        firstMeasure = Music.together(
+                       Music.concat(firstMeasure, Music.note(1, new Pitch('A'), Instrument.PIANO)),
+                       Music.lyrics("*no lyrics*", "voice1"));
         firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('B'), Instrument.PIANO));
         
         secondMeasure = Music.rest(0);
@@ -793,7 +803,9 @@ public class PieceParserTest {
         
         // Create the correct music 
         firstMeasure = Music.rest(0);
-        firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('A'), Instrument.PIANO));
+        firstMeasure = Music.together(
+                       Music.concat(firstMeasure, Music.note(1, new Pitch('A'), Instrument.PIANO)),
+                       Music.lyrics("*no lyrics*", "voice1"));
         firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('B'), Instrument.PIANO));
         
         secondMeasure = Music.rest(0);
@@ -823,7 +835,9 @@ public class PieceParserTest {
         
         // Create the correct music 
         firstMeasure = Music.rest(0);
-        firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('C'), Instrument.PIANO));
+        firstMeasure = Music.together(
+                       Music.concat(firstMeasure, Music.note(1, new Pitch('C'), Instrument.PIANO)),
+                       Music.lyrics("*no lyrics*", "voice1"));
         firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('D'), Instrument.PIANO));
         firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('E'), Instrument.PIANO));
         firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('F'), Instrument.PIANO));
@@ -858,7 +872,81 @@ public class PieceParserTest {
     //      number of voices is 1, > 1
     @Test
     public void testPieceParserMultipleVoices() throws UnableToParseException { 
-        // TODO
+        // Tests 1 voice
+        String header = "X: 1" + "\n";
+        header += "T: simple song" + "\n";
+        header += "M: 4/4" + "\n";
+        header += "L: 1/4" + "\n";
+        header += "Q: 1/4=100" + "\n";
+        header += "V: voice1" + "\n";
+        header += "K: C" + "\n";
+        String body = "V: voice1" + "\n";
+        body += "A B C D" + "\n";
+        
+        // Parse the string 
+        Piece piece = PieceParser.parse(header + body);
+        
+        // Create the correct music 
+        Music firstMeasure = Music.rest(0);
+        firstMeasure = Music.together(
+                       Music.concat(firstMeasure, Music.note(1, new Pitch('A'), Instrument.PIANO)),
+                       Music.lyrics("*no lyrics*", "voice1"));
+        firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('B'), Instrument.PIANO));
+        firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('C'), Instrument.PIANO));
+        firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('D'), Instrument.PIANO));
+        
+        assertEquals("expected correct music", firstMeasure, piece.getMusic());
+        
+        // Tests >1 voices
+        header = "X: 1" + "\n";
+        header += "T: simple song" + "\n";
+        header += "M: 4/4" + "\n";
+        header += "L: 1/4" + "\n";
+        header += "Q: 1/4=100" + "\n";
+        header += "V: voice1" + "\n";
+        header += "V: voice2" + "\n";
+        header += "V: voice3" + "\n";
+        header += "K: C" + "\n";
+        body = "V: voice1" + "\n";
+        body += "A B C D" + "\n";
+        body = "V: voice2" + "\n";
+        body += "E E E E" + "\n";
+        body = "V: voice3" + "\n";
+        body += "F A F A" + "\n";
+        
+        // Parse the string 
+        piece = PieceParser.parse(header + body);
+        
+        // Create the correct music 
+        Music firstVoice = Music.rest(0);
+        firstVoice = Music.together(
+                       Music.concat(firstVoice, Music.note(1, new Pitch('A'), Instrument.PIANO)),
+                       Music.lyrics("*no lyrics*", "voice1"));
+        firstVoice = Music.concat(firstVoice, Music.note(1, new Pitch('B'), Instrument.PIANO));
+        firstVoice = Music.concat(firstVoice, Music.note(1, new Pitch('C'), Instrument.PIANO));
+        firstVoice = Music.concat(firstVoice, Music.note(1, new Pitch('D'), Instrument.PIANO));
+        
+        Music secondVoice = Music.rest(0);
+        secondVoice = Music.together(
+                       Music.concat(secondVoice, Music.note(1, new Pitch('E'), Instrument.PIANO)),
+                       Music.lyrics("*no lyrics*", "voice2"));
+        secondVoice = Music.concat(secondVoice, Music.note(1, new Pitch('E'), Instrument.PIANO));
+        secondVoice = Music.concat(secondVoice, Music.note(1, new Pitch('E'), Instrument.PIANO));
+        secondVoice = Music.concat(secondVoice, Music.note(1, new Pitch('E'), Instrument.PIANO));
+        
+        Music thirdVoice = Music.rest(0);
+        thirdVoice = Music.together(
+                       Music.concat(thirdVoice, Music.note(1, new Pitch('E'), Instrument.PIANO)),
+                       Music.lyrics("*no lyrics*", "voice3"));
+        thirdVoice = Music.concat(thirdVoice, Music.note(1, new Pitch('E'), Instrument.PIANO));
+        thirdVoice = Music.concat(thirdVoice, Music.note(1, new Pitch('E'), Instrument.PIANO));
+        thirdVoice = Music.concat(thirdVoice, Music.note(1, new Pitch('E'), Instrument.PIANO));
+        
+        Music correctMusic = Music.concat(firstVoice, secondVoice);
+        correctMusic = Music.concat(correctMusic, thirdVoice);
+        
+        assertEquals("expected correct music", correctMusic, piece.getMusic());
+        
     }
     
     // Covers the following:
@@ -867,9 +955,242 @@ public class PieceParserTest {
     //      number of syllables is fewer, same, more than number of notes
     //      contains syllable held for more than one note, skipped notes, multiple words
     //          under one note, multiple syllables under one note 
+    //      advancing to the next bar
     @Test
-    public void testPieceParserLyrics() throws UnableToParseException { 
-        // TODO
+    public void testPieceParserLyrics() throws UnableToParseException {         
+        // Tests number of syllables is same as number of notes
+        String header = "X: 1" + "\n";
+        header += "T: simple song" + "\n";
+        header += "M: 3/4" + "\n";
+        header += "L: 1/4" + "\n";
+        header += "Q: 1/4=100" + "\n";
+        header += "K: C" + "\n";
+        String body = "A B C " + "\n";
+        body += "w: syll-a-ble" + "\n";
+        
+        // Parse the string 
+        Piece piece = PieceParser.parse(header + body);
+        
+        // Create the correct music 
+        Music correctMusic = Music.rest(0);
+        correctMusic = Music.concat(correctMusic, 
+                                    Music.together(Music.note(1, new Pitch('A'), Instrument.PIANO),
+                                    Music.lyrics("*syll*-a-ble", "voice1")));
+        correctMusic = Music.concat(correctMusic, 
+                                    Music.together(Music.note(1, new Pitch('B'), Instrument.PIANO),
+                                    Music.lyrics("syll-*a*-ble", "voice1")));
+        correctMusic = Music.concat(correctMusic, 
+                                    Music.together(Music.note(1, new Pitch('C'), Instrument.PIANO),
+                                    Music.lyrics("syll-a-*ble*", "voice1")));
+        
+        assertEquals("expected correct music", correctMusic, piece.getMusic());
+        
+        // Tests number of syllables is fewer than number of notes
+        header = "X: 1" + "\n";
+        header += "T: simple song" + "\n";
+        header += "M: 4/4" + "\n";
+        header += "L: 1/4" + "\n";
+        header += "Q: 1/4=100" + "\n";
+        header += "K: C" + "\n";
+        body = "A B C D" + "\n";
+        body += "w: syll-a-ble" + "\n";
+        
+        // Parse the string 
+        piece = PieceParser.parse(header + body);
+        
+        // Create the correct music 
+        correctMusic = Music.rest(0);
+        correctMusic = Music.concat(correctMusic, 
+                                    Music.together(Music.note(1, new Pitch('A'), Instrument.PIANO),
+                                    Music.lyrics("*syll*-a-ble", "voice1")));
+        correctMusic = Music.concat(correctMusic, 
+                                    Music.together(Music.note(1, new Pitch('B'), Instrument.PIANO),
+                                    Music.lyrics("syll-*a*-ble", "voice1")));
+        correctMusic = Music.concat(correctMusic, 
+                                    Music.together(Music.note(1, new Pitch('C'), Instrument.PIANO),
+                                    Music.lyrics("syll-a-*ble*", "voice1")));
+        correctMusic = Music.concat(correctMusic,
+                                    Music.note(1, new Pitch('D'), Instrument.PIANO));
+        
+        assertEquals("expected correct music", correctMusic, piece.getMusic());
+        
+        // Tests number of syllables is greater than number of notes
+        header = "X: 1" + "\n";
+        header += "T: simple song" + "\n";
+        header += "M: 4/4" + "\n";
+        header += "L: 1/4" + "\n";
+        header += "Q: 1/4=100" + "\n";
+        header += "K: C" + "\n";
+        body = "A B C D" + "\n";
+        body += "w: syll-a-ble too many" + "\n";
+        
+        // Parse the string 
+        piece = PieceParser.parse(header + body);
+        
+        // Create the correct music 
+        correctMusic = Music.rest(0);
+        correctMusic = Music.concat(correctMusic, 
+                                    Music.together(Music.note(1, new Pitch('A'), Instrument.PIANO),
+                                    Music.lyrics("*syll*-a-ble too many", "voice1")));
+        correctMusic = Music.concat(correctMusic, 
+                                    Music.together(Music.note(1, new Pitch('B'), Instrument.PIANO),
+                                    Music.lyrics("syll-*a*-ble too many", "voice1")));
+        correctMusic = Music.concat(correctMusic, 
+                                    Music.together(Music.note(1, new Pitch('C'), Instrument.PIANO),
+                                    Music.lyrics("syll-a-*ble* too many", "voice1")));
+        correctMusic = Music.concat(correctMusic, 
+                                    Music.together(Music.note(1, new Pitch('D'), Instrument.PIANO),
+                                    Music.lyrics("syll-a-ble *too* many", "voice1")));
+        
+        assertEquals("expected correct music", correctMusic, piece.getMusic());
+        
+        // Tests syllable held for more than one note
+        header = "X: 1" + "\n";
+        header += "T: simple song" + "\n";
+        header += "M: 4/4" + "\n";
+        header += "L: 1/4" + "\n";
+        header += "Q: 1/4=100" + "\n";
+        header += "K: C" + "\n";
+        body = "A B C D" + "\n";
+        body += "w: syll-a-_ble" + "\n";
+        
+        // Parse the string 
+        piece = PieceParser.parse(header + body);
+        
+        // Create the correct music 
+        correctMusic = Music.rest(0);
+        correctMusic = Music.concat(correctMusic, 
+                                    Music.together(Music.note(1, new Pitch('A'), Instrument.PIANO),
+                                    Music.lyrics("*syll*-a-ble", "voice1")));
+        correctMusic = Music.concat(correctMusic, 
+                                    Music.together(Music.note(1, new Pitch('B'), Instrument.PIANO),
+                                    Music.lyrics("syll-*a*-ble", "voice1")));
+        correctMusic = Music.concat(correctMusic, 
+                                    Music.together(Music.note(1, new Pitch('C'), Instrument.PIANO),
+                                    Music.lyrics("syll-*a*-ble", "voice1")));
+        correctMusic = Music.concat(correctMusic, 
+                                    Music.together(Music.note(1, new Pitch('D'), Instrument.PIANO),
+                                    Music.lyrics("syll-a-*ble*", "voice1")));
+        
+        assertEquals("expected correct music", correctMusic, piece.getMusic());
+        
+        // Tests skipped noted
+        header = "X: 1" + "\n";
+        header += "T: simple song" + "\n";
+        header += "M: 3/4" + "\n";
+        header += "L: 1/4" + "\n";
+        header += "Q: 1/4=100" + "\n";
+        header += "K: C" + "\n";
+        body = "A B C" + "\n";
+        body += "w: two * words" + "\n";
+        
+        // Parse the string 
+        piece = PieceParser.parse(header + body);
+        
+        // Create the correct music 
+        correctMusic = Music.rest(0);
+        correctMusic = Music.concat(correctMusic, 
+                                    Music.together(Music.note(1, new Pitch('A'), Instrument.PIANO),
+                                    Music.lyrics("*two* words", "voice1")));
+        correctMusic = Music.concat(correctMusic, 
+                                    Music.together(Music.note(1, new Pitch('B'), Instrument.PIANO),
+                                    Music.lyrics("two words", "voice1")));
+        correctMusic = Music.concat(correctMusic, 
+                                    Music.together(Music.note(1, new Pitch('C'), Instrument.PIANO),
+                                    Music.lyrics("two *words*", "voice1")));
+        
+        assertEquals("expected correct music", correctMusic, piece.getMusic());
+        
+        // Tests for multiple words under one note
+        header = "X: 1" + "\n";
+        header += "T: simple song" + "\n";
+        header += "M: 3/4" + "\n";
+        header += "L: 1/4" + "\n";
+        header += "Q: 1/4=100" + "\n";
+        header += "K: C" + "\n";
+        body = "A B C" + "\n";
+        body += "w: the test lyrics~of~the~day" + "\n";
+        
+        // Parse the string 
+        piece = PieceParser.parse(header + body);
+        
+        // Create the correct music 
+        correctMusic = Music.rest(0);
+        correctMusic = Music.concat(correctMusic, 
+                                    Music.together(Music.note(1, new Pitch('A'), Instrument.PIANO),
+                                    Music.lyrics("*the* test lyrics of the day", "voice1")));
+        correctMusic = Music.concat(correctMusic, 
+                                    Music.together(Music.note(1, new Pitch('B'), Instrument.PIANO),
+                                    Music.lyrics("the *test* lyrics of the day", "voice1")));
+        correctMusic = Music.concat(correctMusic, 
+                                    Music.together(Music.note(1, new Pitch('C'), Instrument.PIANO),
+                                    Music.lyrics("the test *lyrics of the day*", "voice1")));
+        
+        assertEquals("expected correct music", correctMusic, piece.getMusic());
+        
+        // Tests for multiple syllables under one note
+        header = "X: 1" + "\n";
+        header += "T: simple song" + "\n";
+        header += "M: 3/4" + "\n";
+        header += "L: 1/4" + "\n";
+        header += "Q: 1/4=100" + "\n";
+        header += "K: C" + "\n";
+        body = "A B C" + "\n";
+        body += "w: test of syll\\-a\\-ble" + "\n";
+        
+        // Parse the string 
+        piece = PieceParser.parse(header + body);
+        
+        // Create the correct music 
+        correctMusic = Music.rest(0);
+        correctMusic = Music.concat(correctMusic, 
+                                    Music.together(Music.note(1, new Pitch('A'), Instrument.PIANO),
+                                    Music.lyrics("*test* of syll-a-ble", "voice1")));
+        correctMusic = Music.concat(correctMusic, 
+                                    Music.together(Music.note(1, new Pitch('B'), Instrument.PIANO),
+                                    Music.lyrics("test *of* syll-a-ble", "voice1")));
+        correctMusic = Music.concat(correctMusic, 
+                                    Music.together(Music.note(1, new Pitch('C'), Instrument.PIANO),
+                                    Music.lyrics("test of *syll-a-ble*", "voice1")));
+        
+        assertEquals("expected correct music", correctMusic, piece.getMusic());
+        
+        // Tests for advancing to the next bar
+        header = "X: 1" + "\n";
+        header += "T: simple song" + "\n";
+        header += "M: 3/4" + "\n";
+        header += "L: 1/4" + "\n";
+        header += "Q: 1/4=100" + "\n";
+        header += "K: C" + "\n";
+        body = "A B C | A B C" + "\n";
+        body += "w: test | test of day" + "\n";
+        
+        // Parse the string 
+        piece = PieceParser.parse(header + body);
+        
+        // Create the correct music 
+        correctMusic = Music.rest(0);
+        correctMusic = Music.concat(correctMusic, 
+                                    Music.together(Music.note(1, new Pitch('A'), Instrument.PIANO),
+                                    Music.lyrics("*test* test of day", "voice1")));
+        correctMusic = Music.concat(correctMusic, 
+                                    Music.together(Music.note(1, new Pitch('B'), Instrument.PIANO),
+                                    Music.lyrics("test test of day", "voice1")));
+        correctMusic = Music.concat(correctMusic, 
+                                    Music.together(Music.note(1, new Pitch('C'), Instrument.PIANO),
+                                    Music.lyrics("test test of day", "voice1")));
+        correctMusic = Music.concat(correctMusic, 
+                                    Music.together(Music.note(1, new Pitch('A'), Instrument.PIANO),
+                                    Music.lyrics("test *test* of day", "voice1")));
+        correctMusic = Music.concat(correctMusic, 
+                                    Music.together(Music.note(1, new Pitch('B'), Instrument.PIANO),
+                                    Music.lyrics("test test *of* day", "voice1")));
+        correctMusic = Music.concat(correctMusic, 
+                                    Music.together(Music.note(1, new Pitch('C'), Instrument.PIANO),
+                                    Music.lyrics("test test of *day*", "voice1")));
+        
+        assertEquals("expected correct music", correctMusic, piece.getMusic());
+        
     }
     
 }
