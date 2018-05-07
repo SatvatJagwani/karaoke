@@ -713,7 +713,143 @@ public class PieceParserTest {
     //      ending is normal, has alternate endings 
     @Test
     public void testPieceParserRepeats() throws UnableToParseException { 
-        // TODO
+        // Tests repeating from the beginning
+        String header = "X: 1" + "\n";
+        header += "T: simple song" + "\n";
+        header += "M: 4/4" + "\n";
+        header += "L: 1/4" + "\n";
+        header += "Q: 1/4=100" + "\n";
+        header += "K: C" + "\n";
+        String body = "A B C D | D C B A :|" + "\n";
+        
+        // Parse the string 
+        Piece piece = PieceParser.parse(header + body);
+        
+        // Create the correct music 
+        Music firstMeasure = Music.rest(0);
+        firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('A'), Instrument.PIANO));
+        firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('B'), Instrument.PIANO));
+        firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('C'), Instrument.PIANO));
+        firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('D'), Instrument.PIANO));
+        
+        Music secondMeasure = Music.rest(0);
+        secondMeasure = Music.concat(secondMeasure, Music.note(1, new Pitch('D'), Instrument.PIANO));
+        secondMeasure = Music.concat(secondMeasure, Music.note(1, new Pitch('C'), Instrument.PIANO));
+        secondMeasure = Music.concat(secondMeasure, Music.note(1, new Pitch('B'), Instrument.PIANO));
+        secondMeasure = Music.concat(secondMeasure, Music.note(1, new Pitch('A'), Instrument.PIANO));
+        
+        Music correctMusic = Music.concat(Music.concat(firstMeasure, secondMeasure),
+                                    Music.concat(firstMeasure, secondMeasure));
+        
+        assertEquals("expected correct music", correctMusic, piece.getMusic());
+        
+        // Tests repeating from a major section
+        header = "X: 1" + "\n";
+        header += "T: simple song" + "\n";
+        header += "M: 2/4" + "\n";
+        header += "L: 1/4" + "\n";
+        header += "Q: 1/4=100" + "\n";
+        header += "K: C" + "\n";
+        body = "[| A B | C D || D C | B A :|" + "\n";
+        
+        // Parse the string 
+        piece = PieceParser.parse(header + body);
+        
+        // Create the correct music 
+        firstMeasure = Music.rest(0);
+        firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('A'), Instrument.PIANO));
+        firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('B'), Instrument.PIANO));
+        
+        secondMeasure = Music.rest(0);
+        secondMeasure = Music.concat(secondMeasure, Music.note(1, new Pitch('C'), Instrument.PIANO));
+        secondMeasure = Music.concat(secondMeasure, Music.note(1, new Pitch('D'), Instrument.PIANO));
+        
+        Music thirdMeasure = Music.rest(0);
+        thirdMeasure = Music.concat(thirdMeasure, Music.note(1, new Pitch('D'), Instrument.PIANO));
+        thirdMeasure = Music.concat(thirdMeasure, Music.note(1, new Pitch('C'), Instrument.PIANO));
+        
+        Music fourthMeasure = Music.rest(0);
+        fourthMeasure = Music.concat(fourthMeasure, Music.note(1, new Pitch('B'), Instrument.PIANO));
+        fourthMeasure = Music.concat(fourthMeasure, Music.note(1, new Pitch('A'), Instrument.PIANO));
+        
+        Music firstMajorSection = Music.concat(firstMeasure, secondMeasure);
+        Music secondMajorSection = Music.concat(thirdMeasure, fourthMeasure);
+        correctMusic = Music.concat(firstMajorSection,
+                                    Music.concat(secondMajorSection, secondMajorSection));
+        
+        assertEquals("expected correct music", correctMusic, piece.getMusic());
+        
+        // Tests repeating from a begin repeat bar
+        header = "X: 1" + "\n";
+        header += "T: simple song" + "\n";
+        header += "M: 2/4" + "\n";
+        header += "L: 1/4" + "\n";
+        header += "Q: 1/4=100" + "\n";
+        header += "K: C" + "\n";
+        body = "A B |: C D :| E F" + "\n";
+        
+        // Parse the string 
+        piece = PieceParser.parse(header + body);
+        
+        // Create the correct music 
+        firstMeasure = Music.rest(0);
+        firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('A'), Instrument.PIANO));
+        firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('B'), Instrument.PIANO));
+        
+        secondMeasure = Music.rest(0);
+        secondMeasure = Music.concat(secondMeasure, Music.note(1, new Pitch('C'), Instrument.PIANO));
+        secondMeasure = Music.concat(secondMeasure, Music.note(1, new Pitch('D'), Instrument.PIANO));
+        
+        thirdMeasure = Music.rest(0);
+        thirdMeasure = Music.concat(thirdMeasure, Music.note(1, new Pitch('E'), Instrument.PIANO));
+        thirdMeasure = Music.concat(thirdMeasure, Music.note(1, new Pitch('F'), Instrument.PIANO));
+        
+        Music repeatMeasure = Music.concat(secondMeasure, secondMeasure);
+        correctMusic = Music.concat(Music.concat(firstMeasure, repeatMeasure), thirdMeasure);
+        
+        assertEquals("expected correct music", correctMusic, piece.getMusic());
+        
+        // Tests alternate ending
+        header = "X: 1" + "\n";
+        header += "T: simple song" + "\n";
+        header += "M: 4/4" + "\n";
+        header += "L: 1/4" + "\n";
+        header += "Q: 1/4=100" + "\n";
+        header += "K: C" + "\n";
+        body = "|: C D E F |[1 G A B C | G A B B :|[2 F E D C |" + "\n";
+        
+        // Parse the string 
+        piece = PieceParser.parse(header + body);
+        
+        // Create the correct music 
+        firstMeasure = Music.rest(0);
+        firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('C'), Instrument.PIANO));
+        firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('D'), Instrument.PIANO));
+        firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('E'), Instrument.PIANO));
+        firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('F'), Instrument.PIANO));
+        
+        Music firstPass = Music.rest(0);
+        firstPass = Music.concat(firstPass, Music.note(1, new Pitch('G'), Instrument.PIANO));
+        firstPass = Music.concat(firstPass, Music.note(1, new Pitch('A'), Instrument.PIANO));
+        firstPass = Music.concat(firstPass, Music.note(1, new Pitch('B'), Instrument.PIANO));
+        firstPass = Music.concat(firstPass, Music.note(1, new Pitch('C'), Instrument.PIANO)); 
+        firstPass = Music.concat(firstPass, Music.note(1, new Pitch('G'), Instrument.PIANO));
+        firstPass = Music.concat(firstPass, Music.note(1, new Pitch('A'), Instrument.PIANO));
+        firstPass = Music.concat(firstPass, Music.note(1, new Pitch('B'), Instrument.PIANO));
+        firstPass = Music.concat(firstPass, Music.note(1, new Pitch('B'), Instrument.PIANO));
+        
+        Music secondPass = Music.rest(0);
+        secondPass = Music.concat(secondPass, Music.note(1, new Pitch('F'), Instrument.PIANO));
+        secondPass = Music.concat(secondPass, Music.note(1, new Pitch('E'), Instrument.PIANO));
+        secondPass = Music.concat(secondPass, Music.note(1, new Pitch('D'), Instrument.PIANO));
+        secondPass = Music.concat(secondPass, Music.note(1, new Pitch('C'), Instrument.PIANO));
+        
+        Music firstTimeThrough = Music.concat(firstMeasure, firstPass);
+        Music secondTimeThrough = Music.concat(firstMeasure, secondPass);
+        correctMusic = Music.concat(firstTimeThrough, secondTimeThrough);
+        
+        assertEquals("expected correct music", correctMusic, piece.getMusic());
+        
     }
     
     // Covers the following:
