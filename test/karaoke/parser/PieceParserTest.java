@@ -1,6 +1,7 @@
 package karaoke.parser;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -53,7 +54,10 @@ public class PieceParserTest {
     // comments:
     //      comments on a new line, comments at the end of a line
     //      comments in the header, comments in the body
-    
+    // checked exceptions thrown:
+    //      none, UnableToParseException
+    //
+    // Covers each part at least once 
     
     /*
      * Tests for PieceParser.parse() 
@@ -1228,6 +1232,42 @@ public class PieceParserTest {
         firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('D'), Instrument.PIANO));
         
         assertEquals("expected correct music", firstMeasure, piece.getMusic());
+    }
+    
+    // checked exceptions thrown:
+    //      none, UnableToParseException
+    @Test
+    public void testCheckedExceptions() {
+        // A string the parser can parse 
+        String header = "X:1" + "\n";
+        header += "% comment1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:4/4" + "%comment2" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "V:voice1" + "\n";
+        header += "K:C" + "\n";
+        String body = "V:voice1" + "%comment3" + "\n";
+        body += "%comment4" + "\n";
+        body += "A B C D" + "\n";
+        
+        // Parse the valid string 
+        try {
+            PieceParser.parse(header + body);
+        } catch (UnableToParseException e) {
+            // no exceptions should be thrown 
+            fail();
+        }
+        
+        // Parse an invalid string 
+        try {
+            PieceParser.parse("Piece.java");
+            // Fail the test if it does not throw an exception 
+            fail();
+        } catch (UnableToParseException e) {
+            // Should throw an UnableToParseException
+            assert true;
+        }
     }
     
 }
