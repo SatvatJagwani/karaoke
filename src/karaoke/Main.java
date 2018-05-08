@@ -25,6 +25,12 @@ public class Main {
      * @throws UnableToParseException if the abc file is not in right format.
      */
     public static void main(String[] args) throws IOException, UnableToParseException {
+        // Thread safety argument: 
+        //      The main thread only creates multiple threads through the web-server 
+        //      The only data type modified on multiple threads is the voiceToLyricsMap
+        //      Every time the voiceToLyricsMap is read or modified, it is done inside a 
+        //          synchronized block 
+        
         // Get the filename and parse the file into a Piece 
         String path = args[0];
         Piece pieceOfMusic = Piece.parseFromFile(path);

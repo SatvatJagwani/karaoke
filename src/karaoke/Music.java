@@ -76,6 +76,9 @@ public interface Music {
 
     /**
      * Play this piece and add events to player for modifying the map while playing the music.
+     * Whenever an event is added to the player to modify the map, the modification of the map
+     * occurs inside a synchronized block. At the end of the mutation in the synchronized block, 
+     * the event then calls notifyAll().  
      * @param player player to play on
      * @param atBeat when to play
      * @param voiceToLyricsMap player modifies this whenever a lyric is to be printed.
