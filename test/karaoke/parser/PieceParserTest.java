@@ -50,6 +50,9 @@ public class PieceParserTest {
     //      number of syllables is fewer, same, more than number of notes
     //      contains syllable held for more than one note, skipped notes, multiple words
     //          under one note, multiple syllables under one note 
+    // comments:
+    //      comments on a new line, comments at the end of a line
+    //      comments in the header, comments in the body
     
     
     /*
@@ -1191,6 +1194,40 @@ public class PieceParserTest {
         
         assertEquals("expected correct music", correctMusic, piece.getMusic());
         
+    }
+    
+    // Covers the following:
+    //
+    // comments:
+    //      comments on a new line, comments at the end of a line
+    //      comments in the header, comments in the body
+    @Test
+    public void testPieceParserComments() throws UnableToParseException {
+        String header = "X:1" + "\n";
+        header += "% comment1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:4/4" + "%comment2" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "V:voice1" + "\n";
+        header += "K:C" + "\n";
+        String body = "V:voice1" + "%comment3" + "\n";
+        body += "%comment4" + "\n";
+        body += "A B C D" + "\n";
+        
+        // Parse the string 
+        Piece piece = PieceParser.parse(header + body);
+        
+        // Create the correct music 
+        Music firstMeasure = Music.rest(0);
+        firstMeasure = Music.together(
+                       Music.concat(firstMeasure, Music.note(1, new Pitch('A'), Instrument.PIANO)),
+                       Music.lyrics("*no lyrics*", "voice1"));
+        firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('B'), Instrument.PIANO));
+        firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('C'), Instrument.PIANO));
+        firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('D'), Instrument.PIANO));
+        
+        assertEquals("expected correct music", firstMeasure, piece.getMusic());
     }
     
 }
