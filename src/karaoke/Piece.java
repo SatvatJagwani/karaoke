@@ -1,8 +1,13 @@
 package karaoke;
 
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Set;
 
+import edu.mit.eecs.parserlib.UnableToParseException;
+import karaoke.parser.PieceParser;
 import karaoke.sound.SequencePlayer;
 
 /**
@@ -15,9 +20,18 @@ public class Piece {
      * Get a piece from a file.
      * @param filename name of the abc file to parse and store
      * @return a piece object with all information of abc file.
+     * @throws IOException if no abc file is found at path filename
+     * @throws UnableToParseException if the abc file is not in right format.
      */
-    public static Piece parseFromFile(String filename) {
-        throw new RuntimeException("Unimplemented");
+    public static Piece parseFromFile(String filename) throws IOException, UnableToParseException {
+        BufferedReader br = new BufferedReader(new FileReader(filename));
+        String fileContents = "";
+        String input;
+        while((input=br.readLine())!=null) {
+            fileContents += input + "\n";
+        }
+        br.close();
+        return PieceParser.parse(fileContents);
     }
     
     /**

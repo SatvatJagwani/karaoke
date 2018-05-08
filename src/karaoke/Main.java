@@ -1,11 +1,13 @@
 package karaoke;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import edu.mit.eecs.parserlib.UnableToParseException;
 import karaoke.sound.SequencePlayer;
 
 /**
@@ -19,8 +21,10 @@ public class Main {
      * stream the lyrics with a web browser. Instructions on how to start music play-back
      * are also printed out. 
      * @param args contains a path to a valid abc file 
+     * @throws IOException if no abc file is found at path filename
+     * @throws UnableToParseException if the abc file is not in right format.
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, UnableToParseException {
         // Get the filename and parse the file into a Piece 
         String path = args[0];
         Piece pieceOfMusic = Piece.parseFromFile(path);
