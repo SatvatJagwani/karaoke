@@ -219,5 +219,19 @@ public class PieceTest {
         assertEquals(givenPiece, Piece.parseFromFile("sample-abc/sample3.abc"));
     }
     
-    //TODO Tests for parseFromFile() for IOException, UnableToParseException
+    // covers
+    // parseFromFile():
+    //     filename: file not present
+    @Test(expected=IOException.class)
+    public void testFileNotFound() throws IOException, UnableToParseException {
+        Piece.parseFromFile("sample-abc/non-existent.abc");
+    }
+    
+    // covers
+    // parseFromFile():
+    //     filename: file not in right format
+    @Test(expected=UnableToParseException.class)
+    public void testFileNotValidMusic() throws IOException, UnableToParseException {
+        Piece.parseFromFile("Piece.java");
+    }
 }
