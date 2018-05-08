@@ -10,6 +10,13 @@ import com.sun.net.httpserver.HttpServer;
  */
 public class WebServer {
     
+    // Thread safety argument:
+    //     Not a thread safe datatype by itself.
+    //     We only use one web server.
+    //     However, its use of multiple threads is safe.
+    //     Server acquires the lock for voiceToLyricsMap whenever checking for mutation.
+    //     Thread safety by synchronization (through locking).
+    
     /**
      * Initialize an HttpServer at the given serverPort
      * @param serverPort port for the HttpServer 
