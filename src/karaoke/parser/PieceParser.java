@@ -212,7 +212,6 @@ public class PieceParser {
             }
             
             if(!tempo.equals("")) {
-                tempo = tempo.replaceAll("//s", "");
                 String[] tempoArr = tempo.split("=");
                 double beatLength = fractionToDouble(tempoArr[0]);
                 int numBeats = Integer.parseInt(tempoArr[1]);
@@ -236,11 +235,10 @@ public class PieceParser {
     
     /**
      * Converts a fraction represented as a string into a double
-     * @param fraction represented as a string, may include white-space
+     * @param fraction represented as a string
      * @return the fraction simplified as a double 
      */
     private static double fractionToDouble(String fraction) {
-        fraction = fraction.replace("//s", "");
         String[] fractionArr = fraction.split("/"); 
         double numerator = Double.parseDouble(fractionArr[0]);
         double denominator = Double.parseDouble(fractionArr[1]);

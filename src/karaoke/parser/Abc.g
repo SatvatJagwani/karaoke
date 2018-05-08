@@ -58,12 +58,12 @@ lyrical_element ::= " "+ | "-" | "_" | "*" | "~" | backslash_hyphen | "|" | lyri
 lyric_text ::= [a-zA-Z\".?!]*;
 
 comment ::= space_or_tab* "%" comment_text newline;
-comment_text ::= [^newline]*;
+comment_text ::= [^\n\r]*;
 
 end_of_line ::= comment | newline;
 
 digit ::= [0-9];
 newline ::= "\n"| "\r" "\n"?;
 space_or_tab ::= " " | "\t";
-text ::= [0-9a-zA-Z'.\t ]*;
+text ::= [^\n\r]*;
 backslash_hyphen ::= "\\" "-";
