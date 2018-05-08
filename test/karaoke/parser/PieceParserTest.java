@@ -63,9 +63,9 @@ public class PieceParserTest {
     @Test
     public void testPieceParserHeader() throws UnableToParseException {
         // Simple header
-        String header = "X: 1" + "\n";
-        header += "T: simple song" + "\n";
-        header += "K: C" + "\n";
+        String header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "K:C" + "\n";
         String body = "C" + "\n";
         
         // Parse the simple header 
@@ -87,15 +87,15 @@ public class PieceParserTest {
         assertEquals("expected correct music", correctMusic, piece.getMusic());
         
         // More complicated header 
-        header = "X: 2" + "\n";
-        header += "T: harder song" + "\n";
-        header += "C: Matt" + "\n";
-        header += "M: 7/8" + "\n";
-        header += "L: 1/16" + "\n";
-        header += "Q: 1/8=100" + "\n"; // beats per minute is 200
-        header += "V: upper" + "\n";
-        header += "K: F#m" + "\n";
-        body = "V: upper" + "\n";
+        header = "X:2" + "\n";
+        header += "T:harder song" + "\n";
+        header += "C:Matt" + "\n";
+        header += "M:7/8" + "\n";
+        header += "L:1/16" + "\n";
+        header += "Q:1/8=100" + "\n"; // beats per minute is 200
+        header += "V:upper" + "\n";
+        header += "K:F#m" + "\n";
+        body = "V:upper" + "\n";
         body += "C" + "\n";
         
         // Parse the complicated header 
@@ -104,7 +104,7 @@ public class PieceParserTest {
         // Create the correct voices and music 
         correctVoices = new HashSet<>(); 
         correctVoices.add("upper");
-        correctMusic = Music.concat(Music.rest(0), Music.together(Music.note(1, Pitch.MIDDLE_C, Instrument.PIANO), Music.lyrics("*no lyrics*", "voice1")));
+        correctMusic = Music.concat(Music.rest(0), Music.together(Music.note(1, Pitch.MIDDLE_C, Instrument.PIANO), Music.lyrics("*no lyrics*", "upper")));
         
         assertEquals("expected correct index", 2, piece.getIndex());
         assertEquals("expected correct title", "harder song", piece.getTitle());
@@ -124,12 +124,12 @@ public class PieceParserTest {
     @Test
     public void testPieceParserKeySignature() throws UnableToParseException {
         // G major
-        String header = "X: 1" + "\n";
-        header += "T: simple song" + "\n";
-        header += "M: 2/4" + "\n";
-        header += "L: 1/4" + "\n";
-        header += "Q: 1/4=100" + "\n";
-        header += "K: G" + "\n";
+        String header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:2/4" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "K:G" + "\n";
         String body = "f A" + "\n";
         
         // Parse the string 
@@ -146,12 +146,12 @@ public class PieceParserTest {
         assertEquals("expected correct music", correctMusic, piece.getMusic());
         
         // F minor
-        header = "X: 1" + "\n";
-        header += "T: simple song" + "\n";
-        header += "M: 2/4" + "\n";
-        header += "L: 1/4" + "\n";
-        header += "Q: 1/4=100" + "\n";
-        header += "K: Fm" + "\n";
+        header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:2/4" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "K:Fm" + "\n";
         body = "A B" + "\n";
         
         // Parse the string 
@@ -168,12 +168,12 @@ public class PieceParserTest {
         assertEquals("expected correct music", correctMusic, piece.getMusic());
         
         // A sharp minor
-        header = "X: 1" + "\n";
-        header += "T: simple song" + "\n";
-        header += "M: 2/4" + "\n";
-        header += "L: 1/4" + "\n";
-        header += "Q: 1/4=100" + "\n";
-        header += "K: A#m" + "\n";
+        header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:2/4" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "K:A#m" + "\n";
         body = "A e | F F" + "\n";
         
         // Parse the string 
@@ -193,12 +193,12 @@ public class PieceParserTest {
         assertEquals("expected correct music", correctMusic, piece.getMusic());
         
         // E flat minor
-        header = "X: 1" + "\n";
-        header += "T: simple song" + "\n";
-        header += "M: 2/4" + "\n";
-        header += "L: 1/4" + "\n";
-        header += "Q: 1/4=100" + "\n";
-        header += "K: Ebm" + "\n";
+        header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:2/4" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "K:Ebm" + "\n";
         body = "F A" + "\n";
         
         // Parse the string  
@@ -224,12 +224,12 @@ public class PieceParserTest {
     @Test
     public void testPieceParserNotes() throws UnableToParseException {
         // Test different sections 
-        String header = "X: 1" + "\n";
-        header += "T: simple song" + "\n";
-        header += "M: 2/4" + "\n";
-        header += "L: 1/4" + "\n";
-        header += "Q: 1/4=100" + "\n";
-        header += "K: C" + "\n";
+        String header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:2/4" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "K:C" + "\n";
         String body = "[| A B | C D || E F | G A |]" + "\n";
         
         // Parse the string 
@@ -268,12 +268,12 @@ public class PieceParserTest {
         assertEquals("expected correct music", correctMusic, piece.getMusic());
         
         // Test octaves and lengths
-        header = "X: 1" + "\n";
-        header += "T: simple song" + "\n";
-        header += "M: 2/4" + "\n";
-        header += "L: 1/4" + "\n";
-        header += "Q: 1/4=100" + "\n";
-        header += "K: C" + "\n";
+        header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:2/4" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "K:C" + "\n";
         body = "A,,2 | B,/ C3/ | d'/4 e''7/4 " + "\n";
         
         // Parse the string 
@@ -312,12 +312,12 @@ public class PieceParserTest {
     @Test
     public void testPieceParserAccidental() throws UnableToParseException {
         // used with C major key
-        String header = "X: 1" + "\n";
-        header += "T: simple song" + "\n";
-        header += "M: 2/4" + "\n";
-        header += "L: 1/4" + "\n";
-        header += "Q: 1/4=100" + "\n";
-        header += "K: C" + "\n";
+        String header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:2/4" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "K:C" + "\n";
         String body = "[| ^A B | ^^C D || =E F | _G A || __G A | __G A |]" + "\n";
         
         // Parse the string 
@@ -371,12 +371,12 @@ public class PieceParserTest {
         assertEquals("expected correct music", correctMusic, piece.getMusic());
         
         // used with other key signature (G major)
-        header = "X: 1" + "\n";
-        header += "T: simple song" + "\n";
-        header += "M: 2/4" + "\n";
-        header += "L: 1/4" + "\n";
-        header += "Q: 1/4=100" + "\n";
-        header += "K: G" + "\n";
+        header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:2/4" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "K:G" + "\n";
         body = "[| ^f B | ^^f D || =f F | _f A || __f A | f A |]" + "\n";
         
         // Parse the string 
@@ -430,12 +430,12 @@ public class PieceParserTest {
         assertEquals("expected correct music", correctMusic, piece.getMusic());
         
         // used with other key signature (F major / D minor)
-        header = "X: 1" + "\n";
-        header += "T: simple song" + "\n";
-        header += "M: 2/4" + "\n";
-        header += "L: 1/4" + "\n";
-        header += "Q: 1/4=100" + "\n";
-        header += "K: F" + "\n";
+        header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:2/4" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "K:F" + "\n";
         body = "[| ^B B | ^^B D || =B F | _B A || __B A | B A |]" + "\n";
         
         // Parse the string 
@@ -496,12 +496,12 @@ public class PieceParserTest {
     @Test 
     public void testPieceParserRests() throws UnableToParseException {
         // Tests whole numbers and fractions, unsimplified and simplified, and missing numerators and denominators
-        String header = "X: 1" + "\n";
-        header += "T: simple song" + "\n";
-        header += "M: 2/4" + "\n";
-        header += "L: 1/4" + "\n";
-        header += "Q: 1/4=100" + "\n";
-        header += "K: C" + "\n";
+        String header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:2/4" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "K:C" + "\n";
         String body = "[| A z | C z1/2 z/ || E z2/4 z3/6 | G z/2 z1/ |]" + "\n";
         
         // Parse the string 
@@ -547,12 +547,12 @@ public class PieceParserTest {
     //      notes are normal, have accidental, have multiplicative factors
     @Test
     public void testPieceParserChords() throws UnableToParseException { 
-        String header = "X: 1" + "\n";
-        header += "T: simple song" + "\n";
-        header += "M: 2/4" + "\n";
-        header += "L: 1/4" + "\n";
-        header += "Q: 1/4=100" + "\n";
-        header += "K: C" + "\n";
+        String header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:2/4" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "K:C" + "\n";
         String body = "[| [AB] [ABC] | [^AB] [A_B] || [__AB] [A^^B] |[AB/2] [A/2B]A/2 |]" + "\n";
         
         // Parse the string 
@@ -609,12 +609,12 @@ public class PieceParserTest {
     @Test
     public void testPieceParserTuplets() throws UnableToParseException { 
         // Tests duplet
-        String header = "X: 1" + "\n";
-        header += "T: simple song" + "\n";
-        header += "M: 4/4" + "\n";
-        header += "L: 1/4" + "\n";
-        header += "Q: 1/4=100" + "\n";
-        header += "K: C" + "\n";
+        String header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:4/4" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "K:C" + "\n";
         String body = "[| (2AB A | (2[AB]C A |]" + "\n";
         
         // Parse the string 
@@ -641,12 +641,12 @@ public class PieceParserTest {
         assertEquals("expected correct music", correctMusic, piece.getMusic());
         
         // Tests triplet
-        header = "X: 1" + "\n";
-        header += "T: simple song" + "\n";
-        header += "M: 2/4" + "\n";
-        header += "L: 1/4" + "\n";
-        header += "Q: 1/4=100" + "\n";
-        header += "K: C" + "\n";
+        header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:2/4" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "K:C" + "\n";
         body = "[| (3A/2B/2C/2 A | (3[A/2B/2C/2]C/2D/2 A |]" + "\n";
         
         // Parse the string 
@@ -676,12 +676,12 @@ public class PieceParserTest {
         assertEquals("expected correct music", correctMusic, piece.getMusic());
         
         // Tests quadruplet
-        header = "X: 1" + "\n";
-        header += "T: simple song" + "\n";
-        header += "M: 4/4" + "\n";
-        header += "L: 1/4" + "\n";
-        header += "Q: 1/4=100" + "\n";
-        header += "K: C" + "\n";
+        header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:4/4" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "K:C" + "\n";
         body = "[| (4ABCD A | (4[AB]CDE A |]" + "\n";
         
         // Parse the string 
@@ -720,12 +720,12 @@ public class PieceParserTest {
     @Test
     public void testPieceParserRepeats() throws UnableToParseException { 
         // Tests repeating from the beginning
-        String header = "X: 1" + "\n";
-        header += "T: simple song" + "\n";
-        header += "M: 4/4" + "\n";
-        header += "L: 1/4" + "\n";
-        header += "Q: 1/4=100" + "\n";
-        header += "K: C" + "\n";
+        String header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:4/4" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "K:C" + "\n";
         String body = "A B C D | D C B A :|" + "\n";
         
         // Parse the string 
@@ -752,12 +752,12 @@ public class PieceParserTest {
         assertEquals("expected correct music", correctMusic, piece.getMusic());
         
         // Tests repeating from a major section
-        header = "X: 1" + "\n";
-        header += "T: simple song" + "\n";
-        header += "M: 2/4" + "\n";
-        header += "L: 1/4" + "\n";
-        header += "Q: 1/4=100" + "\n";
-        header += "K: C" + "\n";
+        header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:2/4" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "K:C" + "\n";
         body = "[| A B | C D || D C | B A :|" + "\n";
         
         // Parse the string 
@@ -790,12 +790,12 @@ public class PieceParserTest {
         assertEquals("expected correct music", correctMusic, piece.getMusic());
         
         // Tests repeating from a begin repeat bar
-        header = "X: 1" + "\n";
-        header += "T: simple song" + "\n";
-        header += "M: 2/4" + "\n";
-        header += "L: 1/4" + "\n";
-        header += "Q: 1/4=100" + "\n";
-        header += "K: C" + "\n";
+        header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:2/4" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "K:C" + "\n";
         body = "A B |: C D :| E F" + "\n";
         
         // Parse the string 
@@ -822,12 +822,12 @@ public class PieceParserTest {
         assertEquals("expected correct music", correctMusic, piece.getMusic());
         
         // Tests alternate ending
-        header = "X: 1" + "\n";
-        header += "T: simple song" + "\n";
-        header += "M: 4/4" + "\n";
-        header += "L: 1/4" + "\n";
-        header += "Q: 1/4=100" + "\n";
-        header += "K: C" + "\n";
+        header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:4/4" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "K:C" + "\n";
         body = "|: C D E F |[1 G A B C | G A B B :|[2 F E D C |" + "\n";
         
         // Parse the string 
@@ -873,14 +873,14 @@ public class PieceParserTest {
     @Test
     public void testPieceParserMultipleVoices() throws UnableToParseException { 
         // Tests 1 voice
-        String header = "X: 1" + "\n";
-        header += "T: simple song" + "\n";
-        header += "M: 4/4" + "\n";
-        header += "L: 1/4" + "\n";
-        header += "Q: 1/4=100" + "\n";
-        header += "V: voice1" + "\n";
-        header += "K: C" + "\n";
-        String body = "V: voice1" + "\n";
+        String header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:4/4" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "V:voice1" + "\n";
+        header += "K:C" + "\n";
+        String body = "V:voice1" + "\n";
         body += "A B C D" + "\n";
         
         // Parse the string 
@@ -898,20 +898,20 @@ public class PieceParserTest {
         assertEquals("expected correct music", firstMeasure, piece.getMusic());
         
         // Tests >1 voices
-        header = "X: 1" + "\n";
-        header += "T: simple song" + "\n";
-        header += "M: 4/4" + "\n";
-        header += "L: 1/4" + "\n";
-        header += "Q: 1/4=100" + "\n";
-        header += "V: voice1" + "\n";
-        header += "V: voice2" + "\n";
-        header += "V: voice3" + "\n";
-        header += "K: C" + "\n";
-        body = "V: voice1" + "\n";
+        header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:4/4" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "V:voice1" + "\n";
+        header += "V:voice2" + "\n";
+        header += "V:voice3" + "\n";
+        header += "K:C" + "\n";
+        body = "V:voice1" + "\n";
         body += "A B C D" + "\n";
-        body = "V: voice2" + "\n";
+        body = "V:voice2" + "\n";
         body += "E E E E" + "\n";
-        body = "V: voice3" + "\n";
+        body = "V:voice3" + "\n";
         body += "F A F A" + "\n";
         
         // Parse the string 
@@ -959,14 +959,14 @@ public class PieceParserTest {
     @Test
     public void testPieceParserLyrics() throws UnableToParseException {         
         // Tests number of syllables is same as number of notes
-        String header = "X: 1" + "\n";
-        header += "T: simple song" + "\n";
-        header += "M: 3/4" + "\n";
-        header += "L: 1/4" + "\n";
-        header += "Q: 1/4=100" + "\n";
-        header += "K: C" + "\n";
+        String header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:3/4" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "K:C" + "\n";
         String body = "A B C " + "\n";
-        body += "w: syll-a-ble" + "\n";
+        body += "w:syll-a-ble" + "\n";
         
         // Parse the string 
         Piece piece = PieceParser.parse(header + body);
@@ -986,14 +986,14 @@ public class PieceParserTest {
         assertEquals("expected correct music", correctMusic, piece.getMusic());
         
         // Tests number of syllables is fewer than number of notes
-        header = "X: 1" + "\n";
-        header += "T: simple song" + "\n";
-        header += "M: 4/4" + "\n";
-        header += "L: 1/4" + "\n";
-        header += "Q: 1/4=100" + "\n";
-        header += "K: C" + "\n";
+        header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:4/4" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "K:C" + "\n";
         body = "A B C D" + "\n";
-        body += "w: syll-a-ble" + "\n";
+        body += "w:syll-a-ble" + "\n";
         
         // Parse the string 
         piece = PieceParser.parse(header + body);
@@ -1015,14 +1015,14 @@ public class PieceParserTest {
         assertEquals("expected correct music", correctMusic, piece.getMusic());
         
         // Tests number of syllables is greater than number of notes
-        header = "X: 1" + "\n";
-        header += "T: simple song" + "\n";
-        header += "M: 4/4" + "\n";
-        header += "L: 1/4" + "\n";
-        header += "Q: 1/4=100" + "\n";
-        header += "K: C" + "\n";
+        header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:4/4" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "K:C" + "\n";
         body = "A B C D" + "\n";
-        body += "w: syll-a-ble too many" + "\n";
+        body += "w:syll-a-ble too many" + "\n";
         
         // Parse the string 
         piece = PieceParser.parse(header + body);
@@ -1045,14 +1045,14 @@ public class PieceParserTest {
         assertEquals("expected correct music", correctMusic, piece.getMusic());
         
         // Tests syllable held for more than one note
-        header = "X: 1" + "\n";
-        header += "T: simple song" + "\n";
-        header += "M: 4/4" + "\n";
-        header += "L: 1/4" + "\n";
-        header += "Q: 1/4=100" + "\n";
-        header += "K: C" + "\n";
+        header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:4/4" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "K:C" + "\n";
         body = "A B C D" + "\n";
-        body += "w: syll-a-_ble" + "\n";
+        body += "w:syll-a-_ble" + "\n";
         
         // Parse the string 
         piece = PieceParser.parse(header + body);
@@ -1075,14 +1075,14 @@ public class PieceParserTest {
         assertEquals("expected correct music", correctMusic, piece.getMusic());
         
         // Tests skipped noted
-        header = "X: 1" + "\n";
-        header += "T: simple song" + "\n";
-        header += "M: 3/4" + "\n";
-        header += "L: 1/4" + "\n";
-        header += "Q: 1/4=100" + "\n";
-        header += "K: C" + "\n";
+        header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:3/4" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "K:C" + "\n";
         body = "A B C" + "\n";
-        body += "w: two * words" + "\n";
+        body += "w:two * words" + "\n";
         
         // Parse the string 
         piece = PieceParser.parse(header + body);
@@ -1102,14 +1102,14 @@ public class PieceParserTest {
         assertEquals("expected correct music", correctMusic, piece.getMusic());
         
         // Tests for multiple words under one note
-        header = "X: 1" + "\n";
-        header += "T: simple song" + "\n";
-        header += "M: 3/4" + "\n";
-        header += "L: 1/4" + "\n";
-        header += "Q: 1/4=100" + "\n";
-        header += "K: C" + "\n";
+        header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:3/4" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "K:C" + "\n";
         body = "A B C" + "\n";
-        body += "w: the test lyrics~of~the~day" + "\n";
+        body += "w:the test lyrics~of~the~day" + "\n";
         
         // Parse the string 
         piece = PieceParser.parse(header + body);
@@ -1129,14 +1129,14 @@ public class PieceParserTest {
         assertEquals("expected correct music", correctMusic, piece.getMusic());
         
         // Tests for multiple syllables under one note
-        header = "X: 1" + "\n";
-        header += "T: simple song" + "\n";
-        header += "M: 3/4" + "\n";
-        header += "L: 1/4" + "\n";
-        header += "Q: 1/4=100" + "\n";
-        header += "K: C" + "\n";
+        header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:3/4" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "K:C" + "\n";
         body = "A B C" + "\n";
-        body += "w: test of syll\\-a\\-ble" + "\n";
+        body += "w:test of syll\\-a\\-ble" + "\n";
         
         // Parse the string 
         piece = PieceParser.parse(header + body);
@@ -1156,14 +1156,14 @@ public class PieceParserTest {
         assertEquals("expected correct music", correctMusic, piece.getMusic());
         
         // Tests for advancing to the next bar
-        header = "X: 1" + "\n";
-        header += "T: simple song" + "\n";
-        header += "M: 3/4" + "\n";
-        header += "L: 1/4" + "\n";
-        header += "Q: 1/4=100" + "\n";
-        header += "K: C" + "\n";
+        header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:3/4" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "K:C" + "\n";
         body = "A B C | A B C" + "\n";
-        body += "w: test | test of day" + "\n";
+        body += "w:test | test of day" + "\n";
         
         // Parse the string 
         piece = PieceParser.parse(header + body);

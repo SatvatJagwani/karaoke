@@ -1,5 +1,5 @@
 // Grammar for ABC music notation 
-abc_tune ::= abc_header abc_body
+abc_tune ::= abc_header abc_body;
 
 
 abc_header ::= field_number comment* field_title other_fields* field_key;
@@ -23,6 +23,7 @@ meter ::= "C" | "C|" | meter_fraction;
 meter_fraction ::= digit+ "/" digit+;
 
 tempo ::= meter_fraction "=" digit+;
+
 
 abc_body ::= abc_line+;
 abc_line ::= element+ end_of_line (lyric end_of_line)?  | middle_of_body_field | comment;
@@ -53,14 +54,16 @@ nth_repeat ::= "[1" | "[2";
 middle_of_body_field ::= field_voice;
 
 lyric ::= "w:" lyrical_element*;
-lyrical_element ::= " "+ | "-" | "_" | "*" | "~" | "\-" | "|" | lyric_text;
-lyric_text ::= "[a-zA-Z\'.?!]*";
+lyrical_element ::= " "+ | "-" | "_" | "*" | "~" | backslash_hyphen | "|" | lyric_text;
+lyric_text ::= [a-zA-Z\".?!]*;
 
 comment ::= space_or_tab* "%" comment_text newline;
-comment_text ::= "[^newline]"*;
+comment_text ::= [^newline]*;
 
-end_of_line ::= comment | newline
+end_of_line ::= comment | newline;
 
-digit ::= [0-9]
-newline ::= "\n" | "\r" "\n"?
-space_or_tab ::= " " | "\t"
+digit ::= [0-9];
+newline ::= "\n"| "\r" "\n"?;
+space_or_tab ::= " " | "\t";
+text ::= [0-9a-zA-Z'.\t ]*;
+backslash_hyphen ::= "\\" "-";
