@@ -2,12 +2,14 @@ package karaoke;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Test;
 
+import edu.mit.eecs.parserlib.UnableToParseException;
 import karaoke.sound.Instrument;
 import karaoke.sound.Pitch;
 
@@ -21,7 +23,7 @@ public class PieceTest {
     // Testing Strategy:
     // 
     // parseFromFile():
-    //     valid filename
+    //     filename: valid filename, file not present, file not in right format 
     // Piece():
     //     composer: unknown, known
     //     index: >=0
@@ -55,7 +57,7 @@ public class PieceTest {
     //           no. of lyrics: 0
     //           no. of voices: 1
     @Test
-    public void testSimplePiece() {
+    public void testSimplePiece() throws IOException, UnableToParseException {
         Instrument instrument = Instrument.PIANO;
         Music correctMusic = Music.rest(0);
         correctMusic = Music.concat(correctMusic, Music.note(2, Pitch.MIDDLE_C.transpose(-Pitch.OCTAVE), instrument));
@@ -158,7 +160,7 @@ public class PieceTest {
     //           no. of lyrics: 0
     //           no. of voices: 1
     @Test
-    public void testPieceWithChords() {
+    public void testPieceWithChords() throws IOException, UnableToParseException {
         Instrument instrument = Instrument.PIANO;
         Music correctMusic = Music.rest(0);
         correctMusic = Music.concat(correctMusic, Music.note(1, new Pitch('E'), instrument));
@@ -194,7 +196,7 @@ public class PieceTest {
     //           no. of lyrics: 0
     //           no. of voices: >1
     @Test
-    public void testPieceWithMultipleVoices() {
+    public void testPieceWithMultipleVoices() throws IOException, UnableToParseException {
         Instrument instrument = Instrument.PIANO;
         Music correctMusic = Music.rest(0);
         correctMusic = Music.concat(correctMusic, Music.note(1, new Pitch('C'), instrument));
@@ -217,4 +219,5 @@ public class PieceTest {
         assertEquals(givenPiece, Piece.parseFromFile("sample-abc/sample3.abc"));
     }
     
+    //TODO Tests for parseFromFile() for IOException, UnableToParseException
 }
