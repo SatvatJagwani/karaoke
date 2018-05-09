@@ -1,6 +1,6 @@
 package karaoke.sound;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,42 +16,207 @@ import org.junit.Test;
 import edu.mit.eecs.parserlib.UnableToParseException;
 import karaoke.Music;
 import karaoke.Piece;
+import karaoke.WebServer;
 
 /**
  * A class for testing correct sound from Music, Piece, and WebServer ADTs.
  * @category no_didit
  */
 public class AllADTsTest {
-
+    
+    @Test(expected=AssertionError.class)
+    public void testAssertionsEnabled() {
+        assert false; // make sure assertions are enabled with VM argument: -ea
+    }
+    
+    // Testing strategy:
+    //
+    // Music.play() and SequencePlayer.play()
+    //      music created with music constructors, music created with parser 
+    // voiceToLyricsMap
+    //      streamed to web server, not streamed to web server
+    //
+    // Cover each part at least once 
+    
+    // Covers the following:
+    //
+    // Music.play() and SequencePlayer.play()
+    //      music created with music constructors, music created with parser 
+    // voiceToLyricsMap
+    //      not streamed to web server
     @Test
     public void testMusic() throws MidiUnavailableException, InvalidMidiDataException {
-        Music music = null; //TODO
-        Map<String, List<String>> voiceToLyricsMap = new HashMap<>(); //TODO
-        Instrument piano = Instrument.PIANO;
+        Music music = Music.rest(0);
+        music = Music.concat(music, Music.together(
+                Music.note(1, new Pitch('C'), Instrument.PIANO), 
+                Music.lyrics("*C*-D-E-F-G-A-B-c", "voice1")));
+        music = Music.concat(music, Music.together(
+                Music.note(1, new Pitch('D'), Instrument.PIANO), 
+                Music.lyrics("C-*D*-E-F-G-A-B-c", "voice1")));
+        music = Music.concat(music, Music.together(
+                Music.note(1, new Pitch('E'), Instrument.PIANO), 
+                Music.lyrics("C-D-*E*-F-G-A-B-c", "voice1")));
+        music = Music.concat(music, Music.together(
+                Music.note(1, new Pitch('F'), Instrument.PIANO), 
+                Music.lyrics("C-D-E-*F*-G-A-B-c", "voice1")));
+        music = Music.concat(music, Music.together(
+                Music.note(1, new Pitch('G'), Instrument.PIANO), 
+                Music.lyrics("C-D-E-F-*G*-A-B-c", "voice1")));
+        music = Music.concat(music, Music.together(
+                Music.note(1, new Pitch('A'), Instrument.PIANO), 
+                Music.lyrics("C-D-E-F-G-*A*-B-c", "voice1")));
+        music = Music.concat(music, Music.together(
+                Music.note(1, new Pitch('B'), Instrument.PIANO), 
+                Music.lyrics("C-D-E-F-G-A-*B*-c", "voice1")));
+        music = Music.concat(music, Music.together(
+                Music.note(1, new Pitch('C').transpose(Pitch.OCTAVE), Instrument.PIANO), 
+                Music.lyrics("C-D-E-F-G-A-B-*c*", "voice1")));
+
+        Map<String, List<String>> voiceToLyricsMap = new HashMap<>(); 
+        voiceToLyricsMap.put("voice1", new ArrayList<String>());
         
         // create a new player
         final int beatsPerMinute = 100; // a beat is a quarter note, so this is 100 quarter notes per minute
         final int ticksPerBeat = 64; // allows up to 1/64-beat notes to be played with fidelity
+        final double warmup = 0.125;
         SequencePlayer player = new MidiSequencePlayer(beatsPerMinute, ticksPerBeat);
-        music.play(player, 0, voiceToLyricsMap);
+        music.play(player, warmup, voiceToLyricsMap);
+        
+        // Add a listener at the end of the piece to tell main thread when it's done
+        Object lock = new Object();
+        player.addEvent(music.duration() + warmup, (Double beat) -> {
+            synchronized (lock) {
+                lock.notify();
+            }
+        });
+        
+        // Play the music with the sequence player 
         player.play();
+        
+        // Wait until player is done
+        synchronized (lock) {
+            try {
+                lock.wait();
+            } catch (InterruptedException e) {
+                return;
+            }
+        }
+                        
+        Map<String, List<String>> correctVoiceToLyricsMap = new HashMap<>(); 
+        correctVoiceToLyricsMap.put("voice1", new ArrayList<String>());  
+        correctVoiceToLyricsMap.get("voice1").add("*C*-D-E-F-G-A-B-c");
+        correctVoiceToLyricsMap.get("voice1").add("C-*D*-E-F-G-A-B-c");
+        correctVoiceToLyricsMap.get("voice1").add("C-D-*E*-F-G-A-B-c");
+        correctVoiceToLyricsMap.get("voice1").add("C-D-E-*F*-G-A-B-c");
+        correctVoiceToLyricsMap.get("voice1").add("C-D-E-F-*G*-A-B-c");
+        correctVoiceToLyricsMap.get("voice1").add("C-D-E-F-G-*A*-B-c");
+        correctVoiceToLyricsMap.get("voice1").add("C-D-E-F-G-A-*B*-c");
+        correctVoiceToLyricsMap.get("voice1").add("C-D-E-F-G-A-B-*c*");
+        assertEquals("Expected correct map", correctVoiceToLyricsMap, voiceToLyricsMap);
     }
     
+    // Covers the following:
+    //
+    // Music.play() and SequencePlayer.play()
+    //      music created with parser 
+    // voiceToLyricsMap
+    //      not streamed to web server
     @Test
-    public void testPiece() throws UnableToParseException, IOException {
+    public void testPiece() throws UnableToParseException, IOException, MidiUnavailableException, InvalidMidiDataException {
         Piece piece = Piece.parseFromFile("sample-abc/little_night_music.abc");
         Map<String, List<String>> voiceToLyricsMap = new HashMap<>();
         for (String voice : piece.getVoices()) {
             voiceToLyricsMap.put(voice, new ArrayList<String>());
         }
         SequencePlayer player = piece.createPlayer();
-        piece.getMusic().play(player, 0, voiceToLyricsMap);
+        final double warmup = 0.125;
+        Music music = piece.getMusic();
+        music.play(player, warmup, voiceToLyricsMap);
+        
+        // Add a listener at the end of the piece to tell main thread when it's done
+        Object lock = new Object();
+        player.addEvent(music.duration() + warmup, (Double beat) -> {
+            synchronized (lock) {
+                lock.notify();
+            }
+        });
+        
+        // Play the music with the sequence player 
         player.play();
+        
+        // Wait until player is done
+        synchronized (lock) {
+            try {
+                lock.wait();
+            } catch (InterruptedException e) {
+                return;
+            }
+        }
+        
+        Map<String, List<String>> correctVoiceToLyricsMap = new HashMap<>(); 
+        correctVoiceToLyricsMap.put("voice1", new ArrayList<String>());  
+        for (int i = 0; i < 17; i++) {
+            correctVoiceToLyricsMap.get("voice1").add("*no lyrics*");
+        }
+        assertEquals("Expected correct map", correctVoiceToLyricsMap, voiceToLyricsMap);
     }
     
+    // Covers the following:
+    //
+    // Music.play() and SequencePlayer.play()
+    //      music created with parser 
+    // voiceToLyricsMap
+    //      streamed to web server
     @Test
-    public void testWebServer() {
-        fail("Not yet implemented");
+    public void testWebServer() throws IOException, UnableToParseException, MidiUnavailableException, InvalidMidiDataException {
+        // Parse the file, create a voiceToLyricsMap and a sequence player 
+        Piece piece = Piece.parseFromFile("sample-abc/piece4.abc");
+        Map<String, List<String>> voiceToLyricsMap = new HashMap<>();
+        for (String voice : piece.getVoices()) {
+            voiceToLyricsMap.put(voice, new ArrayList<String>());
+        }
+        SequencePlayer player = piece.createPlayer();
+        
+        // Start the web-server
+        final int serverPort = 5000;
+        WebServer server = new WebServer(serverPort);
+        server.start(voiceToLyricsMap);
+        
+        /*
+         * Manually: navigate to the printed out URL's, open each URL on more than one tab
+         */
+        System.out.println("Open each URL on more than one tab");
+        for (String voice : piece.getVoices()) {
+            System.out.println("For voice " + voice + ", go to http://localhost:" + serverPort + "/textStream/" + voice);
+        }
+        
+        // Initialize the sequence player 
+        final double warmup = 0.125;
+        Music music = piece.getMusic();
+        music.play(player, warmup, voiceToLyricsMap);
+        
+        // Add a listener at the end of the piece to tell main thread when it's done
+        Object lock = new Object();
+        player.addEvent(music.duration() + warmup, (Double beat) -> {
+            synchronized (lock) {
+                lock.notify();
+            }
+        });
+        
+        // Play the music with the sequence player 
+        player.play();
+        
+        // Wait until player is done
+        synchronized (lock) {
+            try {
+                lock.wait();
+            } catch (InterruptedException e) {
+                return;
+            }
+        }
+        
+        // Then close the server
+        server.stop();
     }
 
 }

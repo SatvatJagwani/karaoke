@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MidiUnavailableException;
+
 import edu.mit.eecs.parserlib.UnableToParseException;
 import karaoke.sound.SequencePlayer;
 
@@ -23,8 +26,10 @@ public class Main {
      * @param args contains a path to a valid abc file 
      * @throws IOException if no abc file is found at path filename
      * @throws UnableToParseException if the abc file is not in right format.
+     * @throws InvalidMidiDataException if MIDI device unavailable
+     * @throws MidiUnavailableException if MIDI play fails
      */
-    public static void main(String[] args) throws IOException, UnableToParseException {
+    public static void main(String[] args) throws IOException, UnableToParseException, MidiUnavailableException, InvalidMidiDataException {
         // Thread safety argument: 
         //      The main thread only creates multiple threads through the web-server 
         //      The only data type modified on multiple threads is the voiceToLyricsMap
@@ -62,11 +67,12 @@ public class Main {
         // Initialize the sequence player 
         final double warmup = 0.125;
         SequencePlayer player = pieceOfMusic.createPlayer();
-        pieceOfMusic.getMusic().play(player, warmup, voiceToLyricsMap);
+        Music music = pieceOfMusic.getMusic();
+        music.play(player, warmup, voiceToLyricsMap);
         
         // Add a listener at the end of the piece to tell main thread when it's done
         Object lock = new Object();
-        player.addEvent(warmup, (Double beat) -> {
+        player.addEvent(music.duration() + warmup, (Double beat) -> {
             synchronized (lock) {
                 lock.notify();
             }

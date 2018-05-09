@@ -33,10 +33,6 @@ public class MusicTest {
     //      music includes rest, note, lyrics, concat, together
     //
     // Cover each part at least once 
-
-    /*
-     * Tests for Music.toString() and Music.duration()
-     */
     
     // Covers the following:
     //
