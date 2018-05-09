@@ -40,7 +40,7 @@ public class Main {
         System.out.println("Composer: " + pieceOfMusic.getNameOfComposer());
         
         // Initialize the web server and the voiceToLyricsMap
-        final int serverPort = 4567;
+        final int serverPort = 5000;
         WebServer server = new WebServer(serverPort);
         
         Map<String, List<String>> voiceToLyricsMap = new HashMap<>();

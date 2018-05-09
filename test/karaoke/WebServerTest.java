@@ -51,7 +51,7 @@ public class WebServerTest {
     @Test
     public void testWebServerExample() throws IOException {
         // Initialize the web-server and the voiceToLyricsMap
-        final int serverPort = 4567;
+        final int serverPort = 5000;
         WebServer server = new WebServer(serverPort);
         
         String voice = "voice1";
@@ -94,7 +94,7 @@ public class WebServerTest {
         voiceToLyricsMap.put(singleVoice, new ArrayList<>());
         
         // Start the server and get a reader for responses 
-        final int serverPort = 4568;
+        final int serverPort = 5001;
         WebServer server = new WebServer(serverPort);
         server.start(voiceToLyricsMap);
         BufferedReader singleVoiceReader = getURLReader(server, singleVoice);
@@ -124,7 +124,7 @@ public class WebServerTest {
         voiceToLyricsMap.put(singleVoice, new ArrayList<>());
         
         // Start the server and get a reader for responses 
-        final int serverPort = 4569;
+        final int serverPort = 5002;
         WebServer server = new WebServer(serverPort);
         server.start(voiceToLyricsMap);
         BufferedReader singleVoiceReader1 = getURLReader(server, singleVoice);
@@ -186,7 +186,7 @@ public class WebServerTest {
         voiceToLyricsMap.put(secondVoice, new ArrayList<>());
         
         // Start the server and get a reader for responses 
-        final int serverPort = 4570;
+        final int serverPort = 5003;
         WebServer server = new WebServer(serverPort);
         server.start(voiceToLyricsMap);
         BufferedReader firstVoiceReader1 = getURLReader(server, firstVoice);
