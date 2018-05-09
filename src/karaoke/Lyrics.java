@@ -9,7 +9,7 @@ import karaoke.sound.SequencePlayer;
  * Immutable and thread-safe. 
  */
 public class Lyrics implements Music {
-
+    
     /**
      * A line of lyrics sung by voice that highlights the specific syllable surrounded by 
      *      two asterisks in the given lyricLine
