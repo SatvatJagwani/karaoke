@@ -17,7 +17,8 @@ public class Lyrics implements Music {
     //                            sung by voice voice
     // Representation invariant:
     //     voice has no newline.
-    //     lyricLine has no character other than alphabets, quotations, period, question mark, exclamation mark, hyphens and asterisks.
+    //     lyricLine has no character other than alphabets, quotations, period, question mark, exclamation mark, 
+    //          hyphens, asterisks, commas, apostrophe, semicolon, space.
     //     lyricLine is non-empty.
     //     lyricLine has exactly two asterisks enclosing at least one character.
     //     Asterisks with enclosed string are surrounded by either spaces or hyphens or a combination of these two.
@@ -36,7 +37,7 @@ public class Lyrics implements Music {
         assert !lyricLine.isEmpty();
         int firstAsteriskPosition = -1;
         int secondAsteriskPosition = -1;
-        String allowedLyricAlphabets = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\".?!-* ";
+        String allowedLyricAlphabets = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\".?!-*,'; ";
         for(int i=0; i<lyricLine.length(); i++) {
             if(lyricLine.charAt(i)=='*') {
                 if(firstAsteriskPosition == -1)

@@ -62,11 +62,12 @@ public class Main {
         // Initialize the sequence player 
         final double warmup = 0.125;
         SequencePlayer player = pieceOfMusic.createPlayer();
-        pieceOfMusic.getMusic().play(player, warmup, voiceToLyricsMap);
+        Music music = pieceOfMusic.getMusic();
+        music.play(player, warmup, voiceToLyricsMap);
         
         // Add a listener at the end of the piece to tell main thread when it's done
         Object lock = new Object();
-        player.addEvent(warmup, (Double beat) -> {
+        player.addEvent(music.duration() + warmup, (Double beat) -> {
             synchronized (lock) {
                 lock.notify();
             }

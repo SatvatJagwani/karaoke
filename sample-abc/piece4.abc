@@ -1,0 +1,14 @@
+X:1
+T:Piece No.3
+M:3/4
+L:1/8
+Q:1/8=100
+V:firstVoice
+V:secondVoice
+K:C
+V:firstVoice
+z4 D2 | G4 B G | B4 A2 | G4 E2 | D4 D2 | G4 B G | B4 A2 | d6
+w: A-maz-ing_ grace! How sweet the sound That save a_ wretch like me.
+V:secondVoice
+z4 d2 | g4 b g | b4 a2 | g4 e2 | d4 d2 | g4 b g | b4 a2 | d'6
+w: A-maz-ing_ test! How sweet the test That save a_ test like me.
