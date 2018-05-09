@@ -168,7 +168,7 @@ public class AllADTsTest {
     // voiceToLyricsMap
     //      streamed to web server
     @Test
-    public void testWebServer() throws IOException, UnableToParseException {
+    public void testWebServer() throws IOException, UnableToParseException, MidiUnavailableException, InvalidMidiDataException {
         // Parse the file, create a voiceToLyricsMap and a sequence player 
         Piece piece = Piece.parseFromFile("sample-abc/piece4.abc");
         Map<String, List<String>> voiceToLyricsMap = new HashMap<>();
