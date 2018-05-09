@@ -4,10 +4,15 @@ package karaoke;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Set;
+
+import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MidiUnavailableException;
 
 import edu.mit.eecs.parserlib.UnableToParseException;
 import karaoke.parser.PieceParser;
+import karaoke.sound.MidiSequencePlayer;
 import karaoke.sound.SequencePlayer;
 
 /**
@@ -16,8 +21,40 @@ import karaoke.sound.SequencePlayer;
  */
 public class Piece {
     
+    private final String composer;
+    private final int index;
+    private final double defaultNoteDuration;
+    private final String meter;
+    private final int beatsPerMinute;
+    private final String title;
+    private final Set<String> voices;
+    private final String key;
+    private final Music music;
+    
+    // Abstraction Function
+    //    AF(composer, index, defaultNoteDuration, meter, beatsPerMinute,
+    //       title, meter, beatsPerMinute, title, voices, key, music) =   a piece of music, title,  by composer
+    //                                                                    with track index, notes with
+    //                                                                    defaultNoteDuration, meter, and
+    //                                                                    beatsPerMinute sang by voices in key
+    //                                                                    with accompanying music
+    // Rep Invariant
+    //    - index >= 0
+    //    - composer cannot have a newline character
+    //    - defaultNoteDuration > 0
+    //    - meter must be in form "number / number"
+    //    - beatsPerMinute > 0
+    //    - title cannot have a newline character
+    //    - each voice in voices cannot have a newline character
+    //    - voices.size() >= 1
+    //    - key must be [A-G](# | b)?m?
+    //    - music must not be null
+    // Safety from rep exposure
+    //    - every field is private, final, and immmutable type except for the set
+    //    - for the set, we use defensive copying in the constructor and the observer
     // Thread safety argument:
-    //     Immutable references to immutable objects. No beneficent mutation.
+    //    - Immutable references to immutable objects. No beneficent mutation.
+    //    - voices does not need to be threadsafe because we only create one in each instance of Piece
     
     /**
      * Get a piece from a file.
@@ -52,7 +89,47 @@ public class Piece {
     public Piece(String composer, int index, double defaultNoteDuration, 
             String meter, int beatsPerMinute, String title, Set<String> voices,
             String key, Music music) {
-        throw new RuntimeException("Unimplemented");
+        this.composer = composer;
+        this.index = index;
+        this.defaultNoteDuration = defaultNoteDuration;
+        this.meter = meter;
+        this.beatsPerMinute = beatsPerMinute;
+        this.title = title;
+        this.voices = new HashSet<>();
+        for (String v: voices) {
+            this.voices.add(v);
+        }
+        this.key = key;
+        this.music = music;
+        checkRep();
+    }
+    
+    /**
+     * Checks the rep invariant
+     */
+    private void checkRep() {
+        // index >= 0
+        assert index >= 0;
+        // composer cannot have a newline character
+        assert !(composer.contains("\n") | composer.contains("\r"));
+        // defaultNoteDuration > 0
+        assert defaultNoteDuration > 0;
+        // meter must be in form "number / number"
+        assert meter.matches("[0-9]+/[0-9]+");
+        // beatsPerMinute > 0
+        assert beatsPerMinute > 0;
+        // title cannot have a newline character
+        assert !(title.contains("\n") | title.contains("\r"));
+        // each voice in voices cannot have a newline character
+        for (String voice: voices) {
+            assert !(voice.contains("\n") | voice.contains("\r"));
+        }
+        // voices.size() >= 1
+        assert voices.size() >= 1;
+        // key must be [A-G](# | b)?m?
+        assert key.matches("[A-G](# | b)?m?");
+        // music must not be null
+        assert music != null;
     }
     
     /**
@@ -60,7 +137,8 @@ public class Piece {
      * @return the name as String
      */
     public String getNameOfComposer() {
-        throw new RuntimeException("Unimplemented");
+        checkRep();
+        return composer;
     }
     
     /**
@@ -68,7 +146,8 @@ public class Piece {
      * @return the number as int.
      */
     public int getIndex() {
-        throw new RuntimeException("Unimplemented");
+        checkRep();
+        return index;
     }
     
     /**
@@ -76,7 +155,8 @@ public class Piece {
      * @return duration as a fraction.
      */
     public double getNoteDuration() {
-        throw new RuntimeException("Unimplemented");
+        checkRep();
+        return defaultNoteDuration;
     }
     
     /**
@@ -84,7 +164,8 @@ public class Piece {
      * @return the meter as string in the format "x/y"
      */
     public String getMeter() {
-        throw new RuntimeException("Unimplemented");
+        checkRep();
+        return meter;
     }
     
     /**
@@ -93,7 +174,8 @@ public class Piece {
      * @return frequency as int.
      */
     public int beatsPerMinute() {
-        throw new RuntimeException("Unimplemented");
+        checkRep();
+        return beatsPerMinute;
     }
     
     /**
@@ -101,7 +183,8 @@ public class Piece {
      * @return the title as string.
      */
     public String getTitle() {
-        throw new RuntimeException("Unimplemented");
+        checkRep();
+        return title;
     }
     
     /**
@@ -109,7 +192,12 @@ public class Piece {
      * @return set of all the names of voices.
      */
     public Set<String> getVoices() {
-        throw new RuntimeException("Unimplemented");
+        Set<String> result = new HashSet<>();
+        for (String v: voices) {
+            result.add(v);
+        }
+        checkRep();
+        return result;
     }
     
     /**
@@ -117,7 +205,8 @@ public class Piece {
      * @return key as string.
      */
     public String getKey() {
-        throw new RuntimeException("Unimplemented");
+        checkRep();
+        return key;
     }
     
     /**
@@ -125,15 +214,29 @@ public class Piece {
      * @return the music object storing the score.
      */
     public Music getMusic() {
-        throw new RuntimeException("Unimplemented");
+        checkRep();
+        return music;
+    }
+    
+    /**
+     * Get the beats per minute of the piece
+     * @return the beats per minute
+     */
+    public int getBeatsPerMinute() {
+        checkRep();
+        return beatsPerMinute;
     }
     
     /**
      * Creates an empty sequence player with same beats per minute as specified in the piece.
      * @return the sequence player.
+     * @throws InvalidMidiDataException if MIDI device unavailable
+     * @throws MidiUnavailableException if MIDI play fails
      */
-    public SequencePlayer createPlayer() {
-        throw new RuntimeException("Unimplemented");
+    public SequencePlayer createPlayer() throws MidiUnavailableException, InvalidMidiDataException {
+        final int ticksPerBeat = 64;
+        SequencePlayer sp = new MidiSequencePlayer(beatsPerMinute, ticksPerBeat);
+        return sp;
     }
 
     /**
@@ -143,7 +246,17 @@ public class Piece {
      */
     @Override
     public String toString() {
-        throw new RuntimeException("Unimplemented");
+        checkRep();
+        return "[" + this.getNameOfComposer() + ", "
+                   + this.getIndex() + ", "
+                   + this.getNoteDuration() + ", "
+                   + this.getMeter() + ", "
+                   + this.getBeatsPerMinute() + ", "
+                   + this.getTitle() + ", "
+                   + this.getVoices().toString() + ", "
+                   + this.getKey() + ", "
+                   + this.getMusic().toString()
+                   + "]";
     }
     
     /**
@@ -154,7 +267,24 @@ public class Piece {
      */
     @Override
     public boolean equals(Object that) {
-        throw new RuntimeException("Unimplemented");
+        return that instanceof Piece && this.sameValue((Piece) that);
+    }
+    
+    /**
+     * Compares this and that
+     * @param that the Piece to compare this against
+     * @return true if this and that have the same field values
+     */
+    private boolean sameValue(Piece that) {
+        return this.composer.equals(that.composer)
+            && this.index == that.index
+            && this.defaultNoteDuration == that.defaultNoteDuration
+            && this.meter == that.meter
+            && this.beatsPerMinute == that.beatsPerMinute
+            && this.title.equals(that.title)
+            && this.voices.equals(that.voices)
+            && this.key.equals(that.key)
+            && this.music.equals(that.music);
     }
     
     /**
@@ -163,6 +293,13 @@ public class Piece {
      */
     @Override
     public int hashCode() {
-        throw new RuntimeException("Unimplemented");
+        return this.index 
+             + Double.hashCode(this.defaultNoteDuration)
+             + this.meter.hashCode()
+             + this.beatsPerMinute
+             + this.title.hashCode()
+             + this.voices.hashCode()
+             + this.key.hashCode()
+             + this.music.hashCode();
     }
 }

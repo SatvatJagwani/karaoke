@@ -122,7 +122,7 @@ public class AllADTsTest {
     // voiceToLyricsMap
     //      not streamed to web server
     @Test
-    public void testPiece() throws UnableToParseException, IOException {
+    public void testPiece() throws UnableToParseException, IOException, MidiUnavailableException, InvalidMidiDataException {
         Piece piece = Piece.parseFromFile("sample-abc/little_night_music.abc");
         Map<String, List<String>> voiceToLyricsMap = new HashMap<>();
         for (String voice : piece.getVoices()) {
