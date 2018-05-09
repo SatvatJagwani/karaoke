@@ -38,6 +38,7 @@ public class PieceTest {
     //           no. of chords: 0, >0
     //           no. of lyrics: 0, >0
     //           no. of voices: 1, >1
+    // TODO Tests for toString(), equals(), hashCode()
 
     // covers
     // parseFromFile():

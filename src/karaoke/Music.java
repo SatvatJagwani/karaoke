@@ -85,4 +85,30 @@ public interface Music {
      */
     void play(SequencePlayer player, double atBeat, Map<String, List<String>> voiceToLyricsMap);
     
+    /**
+     * Get a string representation of the music that shows its overall structure.
+     * @return (duration, note) if this is a single note 'note' with duration 'duration'
+     *         (duration) if this is a rest with duration 'duration'
+     *         (voice: lyrics) if this represents lyrics 'lyrics' sung by voice 'voice'
+     *         (left && right) if this is a concatenation of two parts: where right is played immediately after left
+     *         (m1 || m2) if this is a combination of m1 and m2 played together, where duration is decided by m1.
+     */
+    @Override
+    public String toString();
+    
+    /**
+     * Check whether this represents same music and same structure as that
+     * @param that the other object
+     * @return true iff both are music objects with same notes, rests and lyrics arranged in the same structure.
+     *         Note that both may sound the same but not be equal because of different structure.
+     */
+    @Override
+    public boolean equals(Object that);
+    
+    /**
+     * Get a hashCode of this consistent with the definition of equals.
+     * @return an integer such that this.equals(that) -> this.hashCode()==that.hashCode()
+     */
+    @Override
+    public int hashCode();
 }

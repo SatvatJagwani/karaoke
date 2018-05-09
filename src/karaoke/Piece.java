@@ -16,6 +16,9 @@ import karaoke.sound.SequencePlayer;
  */
 public class Piece {
     
+    // Thread safety argument:
+    //     Immutable references to immutable objects. No beneficent mutation.
+    
     /**
      * Get a piece from a file.
      * @param filename name of the abc file to parse and store
@@ -130,6 +133,36 @@ public class Piece {
      * @return the sequence player.
      */
     public SequencePlayer createPlayer() {
+        throw new RuntimeException("Unimplemented");
+    }
+
+    /**
+     * Get a string representation of the piece that shows its header fields and its music.
+     * @return [composer, index, defaultNoteDuration, meter, beatsPerMinute, title, voices, key, music]
+     *         where all these fields are string representations of what we get from the observers.
+     */
+    @Override
+    public String toString() {
+        throw new RuntimeException("Unimplemented");
+    }
+    
+    /**
+     * Check whether this represents composer, index, defaultNoteDuration, meter, beatsPerMinute, title,
+     *                               voices, key, music and structure as that
+     * @param that the other object
+     * @return true iff both are piece objects with all fields same and the music represented has same structure and sounds the same.
+     */
+    @Override
+    public boolean equals(Object that) {
+        throw new RuntimeException("Unimplemented");
+    }
+    
+    /**
+     * Get a hashCode of this consistent with the definition of equals.
+     * @return an integer such that this.equals(that) -> this.hashCode()==that.hashCode()
+     */
+    @Override
+    public int hashCode() {
         throw new RuntimeException("Unimplemented");
     }
 }

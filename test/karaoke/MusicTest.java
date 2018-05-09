@@ -23,7 +23,7 @@ public class MusicTest {
     //      returns     0, 1, > 1
     // play():
     //      tested in separate file with manual test cases 
-    //
+    // TODO tests for equals() and hashCode()
     // Cover each part at least once 
 
     /*
