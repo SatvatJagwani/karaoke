@@ -1,6 +1,8 @@
 package karaoke;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -23,7 +25,13 @@ public class MusicTest {
     //      returns     0, 1, > 1
     // play():
     //      tested in separate file with manual test cases 
-    // TODO tests for equals() and hashCode()
+    // equals():
+    //      music includes rest, note, lyrics, concat, together
+    //      tests for structural equality
+    //      test for equal and not equal
+    // hashCode();
+    //      music includes rest, note, lyrics, concat, together
+    //
     // Cover each part at least once 
 
     /*
@@ -136,6 +144,126 @@ public class MusicTest {
         String togetherVoicesString = "(" + firstVoiceString + " || " + secondVoiceString + ")";
         assertEquals("Expected correct String", togetherVoicesString, togetherVoices.toString());
         assertEquals("Expected correct duration", 4, togetherVoices.duration(), 0);
+    }
+    
+    // Covers the following:
+    //
+    // equals():
+    //      music includes rest, note, lyrics, concat, together
+    //      tests for structural equality
+    //      tests for equal and not equal
+    @Test
+    public void testMusicEquals() {
+        // Tests for rest
+        Music rest1 = Music.rest(1);
+        Music rest2 = Music.rest(1);
+        Music rest3 = Music.rest(2);
+        assertTrue(rest1.equals(rest2));
+        assertFalse(rest1.equals(rest3));
+        
+        // Tests for note
+        Music note1 = Music.note(1, new Pitch('A'), Instrument.PIANO);
+        Music note2 = Music.note(1, new Pitch('A'), Instrument.PIANO);
+        Music note3 = Music.note(1, new Pitch('B'), Instrument.PIANO);
+        Music note4 = Music.note(2, new Pitch('A'), Instrument.PIANO);
+        Music note5 = Music.note(1, new Pitch('A'), Instrument.ACCORDION);
+        assertTrue(note1.equals(note2));
+        assertFalse(note1.equals(note3));
+        assertFalse(note1.equals(note4));
+        assertFalse(note1.equals(note5));
+        
+        // Tests for lyrics
+        Music lyrics1 = Music.lyrics("hello", "voice1");
+        Music lyrics2 = Music.lyrics("hello", "voice1");
+        Music lyrics3 = Music.lyrics("hello", "voice2");
+        Music lyrics4 = Music.lyrics("goodbye", "voice1");
+        assertTrue(lyrics1.equals(lyrics2));
+        assertFalse(lyrics1.equals(lyrics3));
+        assertFalse(lyrics1.equals(lyrics4));
+        
+        // Tests for concat
+        Music concat1 = Music.concat(note1, note3);
+        Music concat2 = Music.concat(note1, note3);
+        Music concat3 = Music.concat(note1, note4);
+        Music concat4 = Music.concat(note5, note3);
+        assertTrue(concat1.equals(concat2));
+        assertFalse(concat1.equals(concat3));
+        assertFalse(concat1.equals(concat4));
+        
+        // Tests for together
+        Music together1 = Music.together(note1, note3);
+        Music together2 = Music.together(note1, note3);
+        Music together3 = Music.together(note1, note4);
+        Music together4 = Music.together(note5, note3);
+        assertTrue(together1.equals(together2));
+        assertFalse(together1.equals(together3));
+        assertFalse(together1.equals(together4));
+        
+        // Tests for structural equality
+        Music concatConcats1 = Music.concat(Music.concat(note1, note2), Music.concat(note3, note4));
+        Music concatConcats2 = Music.concat(Music.concat(Music.concat(note1, note2), note3), note4);
+        assertFalse(concatConcats1.equals(concatConcats2));
+        
+        Music togetherTogethers1 = Music.together(Music.together(note1, note2), Music.together(note3, note4));
+        Music togetherTogethers2 = Music.together(Music.together(Music.together(note1, note2), note3), note4);
+        assertFalse(togetherTogethers1.equals(togetherTogethers2));
+    }
+    
+    // Covers the following:
+    //
+    // hashCode():
+    //      music includes rest, note, lyrics, concat, together
+    @Test
+    public void testMusicHashCode() {
+        // Tests rest
+        Music rest1 = Music.rest(1);
+        Music rest2 = Music.rest(1);
+        Music rest3 = Music.rest(2);
+        assertTrue(rest1.hashCode()==rest1.hashCode());
+        assertTrue(rest1.hashCode()==rest2.hashCode());
+        assertFalse(rest1.hashCode()==rest3.hashCode());
+        
+        // Tests note
+        Music note1 = Music.note(1, new Pitch('A'), Instrument.PIANO);
+        Music note2 = Music.note(1, new Pitch('A'), Instrument.PIANO);
+        Music note3 = Music.note(1, new Pitch('B'), Instrument.PIANO);
+        Music note4 = Music.note(2, new Pitch('A'), Instrument.PIANO);
+        Music note5 = Music.note(1, new Pitch('A'), Instrument.ACCORDION);
+        assertTrue(note1.hashCode()==note1.hashCode());
+        assertTrue(note1.hashCode()==note2.hashCode());
+        assertFalse(note1.hashCode()==note3.hashCode());
+        assertFalse(note1.hashCode()==note4.hashCode());
+        assertFalse(note1.hashCode()==note5.hashCode());
+        
+        // Tests lyrics
+        Music lyrics1 = Music.lyrics("hello", "voice1");
+        Music lyrics2 = Music.lyrics("hello", "voice1");
+        Music lyrics3 = Music.lyrics("hello", "voice2");
+        Music lyrics4 = Music.lyrics("goodbye", "voice1");
+        assertTrue(lyrics1.hashCode()==lyrics1.hashCode());
+        assertTrue(lyrics1.hashCode()==lyrics2.hashCode());
+        assertFalse(lyrics1.hashCode()==lyrics3.hashCode());
+        assertFalse(lyrics1.hashCode()==lyrics4.hashCode());
+        
+        // Tests concat
+        Music concat1 = Music.concat(note1, note3);
+        Music concat2 = Music.concat(note1, note3);
+        Music concat3 = Music.concat(note1, note4);
+        Music concat4 = Music.concat(note5, note3);
+        assertTrue(concat1.hashCode()==concat1.hashCode());
+        assertTrue(concat1.hashCode()==concat2.hashCode());
+        assertFalse(concat1.hashCode()==concat3.hashCode());
+        assertFalse(concat1.hashCode()==concat4.hashCode());
+        
+        // Tests together
+        Music together1 = Music.together(note1, note3);
+        Music together2 = Music.together(note1, note3);
+        Music together3 = Music.together(note1, note4);
+        Music together4 = Music.together(note5, note3);
+        assertTrue(together1.hashCode()==together1.hashCode());
+        assertTrue(together1.hashCode()==together2.hashCode());
+        assertFalse(together1.hashCode()==together3.hashCode());
+        assertFalse(together1.hashCode()==together4.hashCode());
     }
     
 }
