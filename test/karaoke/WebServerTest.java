@@ -59,6 +59,7 @@ public class WebServerTest {
         
         // Get a reader for a URL 
         BufferedReader voiceReader = getURLReader(server, voice);
+        voiceReader.readLine(); // Get rid of the first 2k spaces.
         
         // Try to put a new lyric in the map, make sure to use a synchronized block
         String lyricLine = "*A*-maz-ing grace";
@@ -93,6 +94,7 @@ public class WebServerTest {
         WebServer server = new WebServer(serverPort);
         server.start(voiceToLyricsMap);
         BufferedReader singleVoiceReader = getURLReader(server, singleVoice);
+        singleVoiceReader.readLine(); // Get rid of the first 2k spaces.
         
         // Add one line of lyrics to the map
         String firstLine = "*test*-ing";
@@ -123,6 +125,8 @@ public class WebServerTest {
         server.start(voiceToLyricsMap);
         BufferedReader singleVoiceReader1 = getURLReader(server, singleVoice);
         BufferedReader singleVoiceReader2 = getURLReader(server, singleVoice);
+        singleVoiceReader1.readLine(); // Get rid of the first 2k spaces.
+        singleVoiceReader2.readLine(); // Get rid of the first 2k spaces.
         
         // Add first line of lyrics to the map
         String firstLine = "*A*-maz-ing grace how sweet";
@@ -145,11 +149,11 @@ public class WebServerTest {
         // Add third line of lyrics
         String thirdLine = "A-maz-*ing* grace how sweet";
         synchronized(voiceToLyricsMap) {
-            voiceToLyricsMap.get(singleVoice).add(secondLine);
+            voiceToLyricsMap.get(singleVoice).add(thirdLine);
             voiceToLyricsMap.notifyAll();
         }
         assertEquals("Expected correct response", thirdLine, singleVoiceReader1.readLine());
-        assertEquals("Expected correct response", secondLine, singleVoiceReader2.readLine());
+        assertEquals("Expected correct response", thirdLine, singleVoiceReader2.readLine());
         
         // Add fourth line of lyrics
         String fourthLine = "A-maz-ing *grace* how sweet";
@@ -158,7 +162,7 @@ public class WebServerTest {
             voiceToLyricsMap.notifyAll();
         }
         assertEquals("Expected correct response", fourthLine, singleVoiceReader1.readLine());
-        assertEquals("Expected correct response", secondLine, singleVoiceReader2.readLine());
+        assertEquals("Expected correct response", fourthLine, singleVoiceReader2.readLine());
         
         server.stop();
     }
@@ -185,6 +189,10 @@ public class WebServerTest {
         BufferedReader firstVoiceReader2 = getURLReader(server, firstVoice);
         BufferedReader secondVoiceReader1 = getURLReader(server, secondVoice);
         BufferedReader secondVoiceReader2 = getURLReader(server, secondVoice);
+        firstVoiceReader1.readLine(); // Get rid of the first 2k spaces.
+        firstVoiceReader2.readLine(); // Get rid of the first 2k spaces.
+        secondVoiceReader1.readLine(); // Get rid of the first 2k spaces.
+        secondVoiceReader2.readLine(); // Get rid of the first 2k spaces.
         
         // Add first line for the first voice 
         String firstLineFirstVoice = "*A*-maz-ing grace how sweet";
