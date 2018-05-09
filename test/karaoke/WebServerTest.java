@@ -16,6 +16,10 @@ import java.util.Map;
 import org.junit.Test;
 
 public class WebServerTest {
+    
+    // serverPort numbers between the tests are different because tests were randomly failing;
+    // we suspect this is due to concurrency issues when running the tests and the port was
+    // still occupied by another test
 
     @Test(expected=AssertionError.class)
     public void testAssertionsEnabled() {
@@ -90,7 +94,7 @@ public class WebServerTest {
         voiceToLyricsMap.put(singleVoice, new ArrayList<>());
         
         // Start the server and get a reader for responses 
-        final int serverPort = 4567;
+        final int serverPort = 4568;
         WebServer server = new WebServer(serverPort);
         server.start(voiceToLyricsMap);
         BufferedReader singleVoiceReader = getURLReader(server, singleVoice);
@@ -120,7 +124,7 @@ public class WebServerTest {
         voiceToLyricsMap.put(singleVoice, new ArrayList<>());
         
         // Start the server and get a reader for responses 
-        final int serverPort = 4567;
+        final int serverPort = 4569;
         WebServer server = new WebServer(serverPort);
         server.start(voiceToLyricsMap);
         BufferedReader singleVoiceReader1 = getURLReader(server, singleVoice);
@@ -182,7 +186,7 @@ public class WebServerTest {
         voiceToLyricsMap.put(secondVoice, new ArrayList<>());
         
         // Start the server and get a reader for responses 
-        final int serverPort = 4567;
+        final int serverPort = 4570;
         WebServer server = new WebServer(serverPort);
         server.start(voiceToLyricsMap);
         BufferedReader firstVoiceReader1 = getURLReader(server, firstVoice);
