@@ -38,7 +38,27 @@ public class PieceTest {
     //           no. of chords: 0, >0
     //           no. of lyrics: 0, >0
     //           no. of voices: 1, >1
-    // TODO Tests for toString(), equals(), hashCode()
+    // toString():
+    //     music no. of notes: 0, >0
+    //           no. of rests: 0, >0
+    //           no. of chords: 0, >0
+    //           no. of lyrics: 0, >0
+    //           no. of voices: 1, >1
+    // equals():
+    //     type of that: Piece, not Piece
+    //     music no. of notes: 0, >0
+    //           no. of rests: 0, >0
+    //           no. of chords: 0, >0
+    //           no. of lyrics: 0, >0
+    //           no. of voices: 1, >1
+    //     music of this and that: same structure and sound, different structure same sound, different sound
+    //     header fields of this and that: same, different
+    // hashCode():
+    //     music no. of notes: 0, >0
+    //           no. of rests: 0, >0
+    //           no. of chords: 0, >0
+    //           no. of lyrics: 0, >0
+    //           no. of voices: 1, >1
 
     // covers
     // parseFromFile():
@@ -52,6 +72,27 @@ public class PieceTest {
     //     title: valid
     //     voices.size(): 1
     //     key: correct
+    //     music no. of notes: >0
+    //           no. of nonempty rests: 0
+    //           no. of chords: 0
+    //           no. of lyrics: 0
+    //           no. of voices: 1
+    // toString():
+    //     music no. of notes: >0
+    //           no. of nonempty rests: 0
+    //           no. of chords: 0
+    //           no. of lyrics: 0
+    //           no. of voices: 1
+    // equals():
+    //     type of that: Piece
+    //     music no. of notes: >0
+    //           no. of nonempty rests: 0
+    //           no. of chords: 0
+    //           no. of lyrics: 0
+    //           no. of voices: 1
+    //     music of this and that: same structure and sound
+    //     header fields of this and that: same
+    // hashCode():
     //     music no. of notes: >0
     //           no. of nonempty rests: 0
     //           no. of chords: 0
@@ -75,7 +116,14 @@ public class PieceTest {
         assertEquals(Collections.singleton("Voice 1"), givenPiece.getVoices());
         assertEquals("C", givenPiece.getKey());
         assertEquals(correctMusic, givenPiece.getMusic());
-        assertEquals(givenPiece, Piece.parseFromFile("sample-abc/sample1.abc"));
+        Piece parsedPiece = Piece.parseFromFile("sample-abc/sample1.abc");
+        assertEquals(givenPiece, parsedPiece);
+        assertEquals(givenPiece.hashCode(), parsedPiece.hashCode());
+        String note1 = "(2.0, " + Pitch.MIDDLE_C.transpose(-Pitch.OCTAVE).toString() + ")";
+        String note2 = "(2.0, " + Pitch.MIDDLE_C.toString() + ")";
+        String note3 = "(2.0, " + Pitch.MIDDLE_C.transpose(2*Pitch.OCTAVE).toString() + ")";
+        String note4 = "(2.0, " + Pitch.MIDDLE_C.transpose(3*Pitch.OCTAVE).toString() + ")";
+        assertEquals(givenPiece.toString(), "[Unknown, 1, 0.125, 4/4, 100, sample 1, {Voice 1}, C, (((((0.0) && " + note1 + ") && " + note2 + ") && " + note3 + ") && " + note4 + ")]");
     }
     // covers
     // Piece():
@@ -160,6 +208,27 @@ public class PieceTest {
     //           no. of chords: >0
     //           no. of lyrics: 0
     //           no. of voices: 1
+    // toString():
+    //     music no. of notes: >0
+    //           no. of nonempty rests: 0
+    //           no. of chords: >0
+    //           no. of lyrics: 0
+    //           no. of voices: 1
+    // equals():
+    //     type of that: Piece
+    //     music no. of notes: >0
+    //           no. of nonempty rests: 0
+    //           no. of chords: >0
+    //           no. of lyrics: 0
+    //           no. of voices: 1
+    //     music of this and that: same structure and sound
+    //     header fields of this and that: same
+    // hashCode():
+    //     music no. of notes: >0
+    //           no. of nonempty rests: 0
+    //           no. of chords: >0
+    //           no. of lyrics: 0
+    //           no. of voices: 1
     @Test
     public void testPieceWithChords() throws IOException, UnableToParseException {
         Instrument instrument = Instrument.PIANO;
@@ -176,7 +245,12 @@ public class PieceTest {
         assertEquals(Collections.singleton("Voice 1"), givenPiece.getVoices());
         assertEquals("C", givenPiece.getKey());
         assertEquals(correctMusic, givenPiece.getMusic());
-        assertEquals(givenPiece, Piece.parseFromFile("sample-abc/sample2.abc"));
+        Piece parsedPiece = Piece.parseFromFile("sample-abc/sample2.abc");
+        assertEquals(givenPiece, parsedPiece);
+        assertEquals(givenPiece.hashCode(), parsedPiece.hashCode());
+        String note1 = "(1.0, " + new Pitch('E').toString() + ")";
+        String note2 = "(1.0, " + new Pitch('C').toString() + ")";
+        assertEquals(givenPiece.toString(), "[Unknown, 8, 0.125, 4/4, 100, Chord, {Voice 1}, C, (((0.0) && " + note1 + ") || " + note2 + ")]");
     }
     
     // covers
@@ -196,12 +270,33 @@ public class PieceTest {
     //           no. of chords: 0
     //           no. of lyrics: 0
     //           no. of voices: >1
+    // toString():
+    //     music no. of notes: >0
+    //           no. of nonempty rests: 0
+    //           no. of chords: 0
+    //           no. of lyrics: 0
+    //           no. of voices: >1
+    // equals():
+    //     type of that: Piece
+    //     music no. of notes: >0
+    //           no. of nonempty rests: 0
+    //           no. of chords: 0
+    //           no. of lyrics: 0
+    //           no. of voices: >1
+    //     music of this and that: same structure and sound
+    //     header fields of this and that: same
+    // hashCode():
+    //     music no. of notes: >0
+    //           no. of nonempty rests: 0
+    //           no. of chords: 0
+    //           no. of lyrics: 0
+    //           no. of voices: >1
     @Test
     public void testPieceWithMultipleVoices() throws IOException, UnableToParseException {
         Instrument instrument = Instrument.PIANO;
         Music correctMusic = Music.rest(0);
         correctMusic = Music.concat(correctMusic, Music.note(1, new Pitch('C'), instrument));
-        correctMusic = Music.together(correctMusic, Music.note(1, new Pitch('E'), instrument));
+        correctMusic = Music.together(correctMusic, Music.note(1, new Pitch('E').transpose(-1), instrument));
         correctMusic = Music.together(correctMusic, Music.note(1, new Pitch('G'), instrument));
         Set<String> voices = new HashSet<>();
         voices.add("1");
@@ -217,7 +312,13 @@ public class PieceTest {
         assertEquals(voices, givenPiece.getVoices());
         assertEquals("Cm", givenPiece.getKey());
         assertEquals(correctMusic, givenPiece.getMusic());
-        assertEquals(givenPiece, Piece.parseFromFile("sample-abc/sample3.abc"));
+        Piece parsedPiece = Piece.parseFromFile("sample-abc/sample3.abc");
+        assertEquals(givenPiece, parsedPiece);
+        assertEquals(givenPiece.hashCode(), parsedPiece.hashCode());
+        String note1 = "(1.0, " + new Pitch('C').toString() + ")";
+        String note2 = "(1.0, " + new Pitch('E').transpose(-1).toString() + ")";
+        String note3 = "(1.0, " + new Pitch('G').toString() + ")";
+        assertEquals(givenPiece.toString(), "[Unknown, 1, 0.125, 4/4, 100, voices, {1, 2, 3}, Cm, ((((0.0) && " + note1 + ") || " + note2 + ") || " + note3 + ")]");
     }
     
     // covers
@@ -235,4 +336,6 @@ public class PieceTest {
     public void testFileNotValidMusic() throws IOException, UnableToParseException {
         Piece.parseFromFile("Piece.java");
     }
+    
+    //TODO Complete tests for toString(), equals(), hashCode()
 }
