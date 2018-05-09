@@ -36,7 +36,7 @@ public class Lyrics implements Music {
         assert !lyricLine.isEmpty();
         int firstAsteriskPosition = -1;
         int secondAsteriskPosition = -1;
-        String allowedLyricAlphabets = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\".?!-*";
+        String allowedLyricAlphabets = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\".?!-* ";
         for(int i=0; i<lyricLine.length(); i++) {
             if(lyricLine.charAt(i)=='*') {
                 if(firstAsteriskPosition == -1)
@@ -50,10 +50,15 @@ public class Lyrics implements Music {
         }
         assert firstAsteriskPosition != -1 && secondAsteriskPosition != -1; // at least two asterisks
         assert secondAsteriskPosition-firstAsteriskPosition >= 2; // Both asterisks should enclose at least one character
-        char beforeFirstAsterisk = lyricLine.charAt(firstAsteriskPosition-1);
-        assert beforeFirstAsterisk=='-' || beforeFirstAsterisk==' '; // character before first asterisk must be either hyphen or space
-        char afterSecondAsterisk = lyricLine.charAt(secondAsteriskPosition+1);
-        assert afterSecondAsterisk=='-' || afterSecondAsterisk==' '; // character after second asterisk must be either hyphen or space
+        
+        if (firstAsteriskPosition != 0) {
+            char beforeFirstAsterisk = lyricLine.charAt(firstAsteriskPosition-1);
+            assert beforeFirstAsterisk=='-' || beforeFirstAsterisk==' '; // character before first asterisk must be either hyphen or space
+        }
+        if (secondAsteriskPosition != lyricLine.length()-1) {
+            char afterSecondAsterisk = lyricLine.charAt(secondAsteriskPosition+1);
+            assert afterSecondAsterisk=='-' || afterSecondAsterisk==' '; // character after second asterisk must be either hyphen or space
+        }
     }
     
     /**

@@ -84,8 +84,9 @@ public class Main {
             }
         }
         
-        // Then close the server 
+        // Then close the server and terminate the program
         server.stop();
+        System.exit(1);
     }
     
     /**

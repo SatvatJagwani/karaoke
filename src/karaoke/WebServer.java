@@ -20,11 +20,18 @@ public class WebServer {
     private final HttpServer server;
     private final int port;
     
-    // Abstraction function:TODO
-    // Representation invariant:TODO
-    // Safety from rep exposure:TODO
+    // Abstraction function:
+    //     AF(server, port) = an HttpServer server, serving requests at port, that streams 
+    //                        a set of lyrics for a voice to different web-sites once 
+    //                        start(map) is called on the ADT with a properly configured map
+    // Representation invariant:
+    //     1 <= port <= 6553
+    // Safety from rep exposure:
+    //     all fields are private and final
+    //     all parameters passed into the constructor are immutable 
+    //     only immutable objects are returned to the client through observers
     // Thread safety argument:
-    //     Not a thread safe datatype by itself.
+    //     Not a thread safe data-type by itself.
     //     We only use one web server.
     //     However, its use of multiple threads is safe.
     //     Server acquires the lock for voiceToLyricsMap whenever checking for mutation.
@@ -32,12 +39,14 @@ public class WebServer {
     
     private void checkRep() {
         assert server!=null;
-        assert port>=1 && port<=65535;
+        final int maxPort = 65535;
+        assert port>=1 && port<=maxPort;
     }
     
     /**
      * Initialize an HttpServer at the given serverPort
      * @param serverPort port for the HttpServer 
+     * @throws IOException if an error occurs starting the server
      */
     public WebServer(int serverPort) throws IOException {
         // make a web server
@@ -71,7 +80,6 @@ public class WebServer {
                 try {
                     textStream(exchange, voice, voiceToLyricsMap);
                 } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
                 
@@ -96,7 +104,6 @@ public class WebServer {
      *        out the new line at the address for the specified voice 
      */
     private static void textStream(HttpExchange exchange, String voice, Map<String, List<String>> voiceToLyricsMap) throws IOException, InterruptedException {
-
         // plain text response
         exchange.getResponseHeaders().add("Content-Type", "text/plain; charset=utf-8");
 
@@ -125,12 +132,10 @@ public class WebServer {
             while(true) {
                 synchronized(voiceToLyricsMap) {
                     while(voiceToLyricsMap.get(voice).size()==counter) {
-                        voiceToLyricsMap.notifyAll();
                         voiceToLyricsMap.wait();
                     }
                     counter = voiceToLyricsMap.get(voice).size();
                     out.println(voiceToLyricsMap.get(voice).get(counter-1));
-                    voiceToLyricsMap.notifyAll();
                 }
             }
             

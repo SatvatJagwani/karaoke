@@ -173,10 +173,10 @@ public class MusicTest {
         assertFalse(note1.equals(note5));
         
         // Tests for lyrics
-        Music lyrics1 = Music.lyrics("hello", "voice1");
-        Music lyrics2 = Music.lyrics("hello", "voice1");
-        Music lyrics3 = Music.lyrics("hello", "voice2");
-        Music lyrics4 = Music.lyrics("goodbye", "voice1");
+        Music lyrics1 = Music.lyrics("*hello*", "voice1");
+        Music lyrics2 = Music.lyrics("*hello*", "voice1");
+        Music lyrics3 = Music.lyrics("*hello*", "voice2");
+        Music lyrics4 = Music.lyrics("*goodbye*", "voice1");
         assertTrue(lyrics1.equals(lyrics2));
         assertFalse(lyrics1.equals(lyrics3));
         assertFalse(lyrics1.equals(lyrics4));
@@ -236,10 +236,10 @@ public class MusicTest {
         assertFalse(note1.hashCode()==note5.hashCode());
         
         // Tests lyrics
-        Music lyrics1 = Music.lyrics("hello", "voice1");
-        Music lyrics2 = Music.lyrics("hello", "voice1");
-        Music lyrics3 = Music.lyrics("hello", "voice2");
-        Music lyrics4 = Music.lyrics("goodbye", "voice1");
+        Music lyrics1 = Music.lyrics("*hello*", "voice1");
+        Music lyrics2 = Music.lyrics("*hello*", "voice1");
+        Music lyrics3 = Music.lyrics("*hello*", "voice2");
+        Music lyrics4 = Music.lyrics("*goodbye*", "voice1");
         assertTrue(lyrics1.hashCode()==lyrics1.hashCode());
         assertTrue(lyrics1.hashCode()==lyrics2.hashCode());
         assertFalse(lyrics1.hashCode()==lyrics3.hashCode());

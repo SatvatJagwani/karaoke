@@ -46,7 +46,7 @@ public class Concat implements Music {
     public void play(SequencePlayer player, double atBeat, Map<String, List<String>> voiceToLyricsMap) {
         checkRep();
         first.play(player, atBeat, voiceToLyricsMap);
-        second.play(player, first.duration(), voiceToLyricsMap);
+        second.play(player, atBeat + first.duration(), voiceToLyricsMap);
         checkRep();
     }
 
