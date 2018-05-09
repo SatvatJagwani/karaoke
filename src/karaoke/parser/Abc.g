@@ -4,7 +4,7 @@ abc_tune ::= abc_header abc_body;
 
 abc_header ::= field_number comment* field_title other_fields* field_key;
 
-field_number ::= "X:" digit+ end_of_line;
+field_number ::= "X:" index end_of_line;
 field_title ::= "T:" text end_of_line;
 other_fields ::= field_composer | field_default_length | field_meter | field_tempo | field_voice | comment;
 field_composer ::= "C:" text end_of_line;
@@ -23,6 +23,9 @@ meter ::= "C" | "C|" | meter_fraction;
 meter_fraction ::= digit+ "/" digit+;
 
 tempo ::= meter_fraction "=" digit+;
+text ::= [^\n\r]*;
+note_length_strict ::= digit+ "/" digit+;
+index ::= digit+;
 
 
 abc_body ::= abc_line+;
@@ -35,7 +38,6 @@ note ::= pitch note_length?;
 pitch ::= accidental? basenote octave?;
 octave ::= "'"+ | ","+;
 note_length ::= (digit+)? ("/" (digit+)?)?;
-note_length_strict ::= digit+ "/" digit+;
 
 accidental ::= "^" | "^^" | "_" | "__" | "=";
 
@@ -65,5 +67,4 @@ end_of_line ::= comment | newline;
 digit ::= [0-9];
 newline ::= "\n"| "\r" "\n"?;
 space_or_tab ::= " " | "\t";
-text ::= [^\n\r]*;
 backslash_hyphen ::= "\\" "-";

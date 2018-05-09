@@ -88,7 +88,7 @@ public class PieceParserTest {
         assertEquals("expected correct composer", "Unkown", piece.getNameOfComposer());
         assertEquals("expected correct key signature", "C", piece.getKey());
         assertEquals("expected correct meter", "4/4", piece.getMeter());
-        assertEquals("expected correct default note length", "1/8", piece.getNoteDuration());
+        assertEquals("expected correct default note length", 1.0/8.0, piece.getNoteDuration(), 0);
         assertEquals("expected correct tempo", 100, piece.beatsPerMinute());
         assertEquals("expected correct voices", correctVoices, piece.getVoices());
         assertEquals("expected correct music", correctMusic, piece.getMusic());
@@ -118,7 +118,7 @@ public class PieceParserTest {
         assertEquals("expected correct composer", "Matt", piece.getNameOfComposer());
         assertEquals("expected correct key signature", "F#m", piece.getKey());
         assertEquals("expected correct meter", "7/8", piece.getMeter());
-        assertEquals("expected correct default note length", "1/16", piece.getNoteDuration());
+        assertEquals("expected correct default note length", 1.0/16.0, piece.getNoteDuration(), 0);
         assertEquals("expected correct tempo", 200, piece.beatsPerMinute());
         assertEquals("expected correct voices", correctVoices, piece.getVoices());
         assertEquals("expected correct music", correctMusic, piece.getMusic());
@@ -916,9 +916,9 @@ public class PieceParserTest {
         header += "K:C" + "\n";
         body = "V:voice1" + "\n";
         body += "A B C D" + "\n";
-        body = "V:voice2" + "\n";
+        body += "V:voice2" + "\n";
         body += "E E E E" + "\n";
-        body = "V:voice3" + "\n";
+        body += "V:voice3" + "\n";
         body += "F A F A" + "\n";
         
         // Parse the string 
@@ -949,8 +949,8 @@ public class PieceParserTest {
         thirdVoice = Music.concat(thirdVoice, Music.note(1, new Pitch('E'), Instrument.PIANO));
         thirdVoice = Music.concat(thirdVoice, Music.note(1, new Pitch('E'), Instrument.PIANO));
         
-        Music correctMusic = Music.concat(firstVoice, secondVoice);
-        correctMusic = Music.concat(correctMusic, thirdVoice);
+        Music correctMusic = Music.together(firstVoice, secondVoice);
+        correctMusic = Music.together(correctMusic, thirdVoice);
         
         assertEquals("expected correct music", correctMusic, piece.getMusic());
         

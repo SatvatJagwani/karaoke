@@ -2,6 +2,7 @@ package karaoke.parser;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -75,7 +76,8 @@ public class PieceParser {
         NEWLINE,
         SPACE_OR_TAB, 
         TEXT, 
-        BACKSLASH_HYPHEN
+        BACKSLASH_HYPHEN, 
+        INDEX
     }
     
     private static Parser<PieceGrammar> parser = makeParser();
@@ -141,17 +143,12 @@ public class PieceParser {
             final List<ParseTree<PieceGrammar>> headerFields = headerTree.children();
             for(int i = 0; i < headerFields.size(); i++) {
                 ParseTree<PieceGrammar> givenField = headerFields.get(i);
-                List<ParseTree<PieceGrammar>> givenFieldChildren = givenField.children();
                 switch(givenField.name()) {
                 case FIELD_NUMBER:
-                    String digits = "";
-                    for(int j = 0; j < givenFieldChildren.size() - 1; j++) {
-                        digits += givenFieldChildren.get(j).text();
-                    }
-                    index = Integer.parseInt(digits);
+                    index = Integer.parseInt(givenField.children().get(0).text());
                     break;
                 case FIELD_TITLE:
-                    title = givenFieldChildren.get(0).text();
+                    title = givenField.children().get(0).text();
                     break;
                 case OTHER_FIELDS:
                     final ParseTree<PieceGrammar> otherField = givenField.children().get(0);
@@ -180,7 +177,7 @@ public class PieceParser {
                     }
                     break;
                 case FIELD_KEY:
-                    key = givenFieldChildren.get(0).text();
+                    key = givenField.children().get(0).text();
                     break;
                 case COMMENT:
                     break;
@@ -222,7 +219,7 @@ public class PieceParser {
             if(voices.isEmpty()) {
                 voices.add("voice1");
             }
-            
+
             // Parse the body to get the Music object 
             Music music = parseBody(bodyTree, voices, defaultNoteDuration, key);
             
@@ -235,7 +232,7 @@ public class PieceParser {
     
     /**
      * Converts a fraction represented as a string into a double
-     * @param fraction represented as a string
+     * @param fraction represented as a string, may include white-space
      * @return the fraction simplified as a double 
      */
     private static double fractionToDouble(String fraction) {
@@ -255,6 +252,77 @@ public class PieceParser {
      */
     private static Music parseBody(final ParseTree<PieceGrammar> bodyTree, 
             Set<String>voices, double defaultNoteLength, String key) {
+        // Put the Music for each voice into a list 
+        List<Music> voicesMusic = new ArrayList<>();
+        for (String voice : voices) {
+            List<ParseTree<PieceGrammar>> voiceBody = extractVoiceBody(bodyTree, voice);
+            Music voiceMusic = getMusicForVoice(voiceBody, voice, defaultNoteLength, key);
+            voicesMusic.add(voiceMusic);
+        }
+        
+        // Together all the Music objects in the list 
+        Music bodyMusic = voicesMusic.get(0);
+        for (int i = 1; i < voicesMusic.size(); i++) {
+            bodyMusic = Music.together(bodyMusic, voicesMusic.get(i));
+        }
+        
+        return bodyMusic;
+    }
+    
+    /**
+     * Extracts the lines in the bodyTree corresponding to the given voice
+     * @param bodyTree the parse tree for the body of the abc file
+     * @param voice the voice whose lines are getting extracted
+     * @return a list of the lines corresponding to a given voice in the order in which they 
+     *         appear in the abc file 
+     */
+    private static List<ParseTree<PieceGrammar>> extractVoiceBody(ParseTree<PieceGrammar> bodyTree, String voice) {
+        List<ParseTree<PieceGrammar>> abcLines = bodyTree.children();
+        ParseTree<PieceGrammar> firstAbcLine = abcLines.get(0);
+        List<ParseTree<PieceGrammar>> voiceBody = new ArrayList<>();
+        
+        boolean shouldAddLine = false; 
+        for (ParseTree<PieceGrammar> abcLine : abcLines) {
+            if (abcLine.children().get(0).name() != PieceGrammar.COMMENT) {
+                if (firstAbcLine.children().get(0).name() != PieceGrammar.MIDDLE_OF_BODY_FIELD) {
+                    // No voice was given in the header, add everything except comments 
+                    voiceBody.add(abcLine);
+                } else {
+                    if (abcLine.children().get(0).name() == PieceGrammar.MIDDLE_OF_BODY_FIELD) {
+                        // If the line has a voice field, get the voice 
+                        ParseTree<PieceGrammar> middleOfBodyField = abcLine.children().get(0);
+                        ParseTree<PieceGrammar> fieldVoice = middleOfBodyField.children().get(0);
+                        String voiceIdentifier = fieldVoice.children().get(0).text();
+
+                        // If the voice matches the given voice, then we should add the next lines
+                        if (voiceIdentifier.equals(voice)) {
+                            shouldAddLine = true;
+                        } else {
+                            shouldAddLine = false;
+                        }
+                    } else {
+                        // Add lines that are not voice fields or comments, if preceded by the correct voice  
+                        if (shouldAddLine) {
+                            voiceBody.add(abcLine);
+                        }
+                    }
+                }
+            }
+        }
+        
+        return voiceBody;
+    }
+
+    /**
+     * Gets the Music for a single voice whose lines are given in voiceBody
+     * @param voiceBody a list of lines from an abc file to convert into a Music object
+     * @param voice the name of the voice whose lines are in voiceBody
+     * @param defaultNoteLength the default note length of the piece 
+     * @param key the key signature of the piece 
+     * @return the Music object for the given voice 
+     */
+    private static Music getMusicForVoice(List<ParseTree<PieceGrammar>> voiceBody, String voice, double defaultNoteLength,
+            String key) {
         throw new RuntimeException("Unimplemented");
     }
     
