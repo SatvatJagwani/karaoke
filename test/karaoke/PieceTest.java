@@ -140,6 +140,12 @@ public class PieceTest {
     //           no. of chords: 0
     //           no. of lyrics: 0
     //           no. of voices: 1
+    // toString():
+    //     music no. of notes: 0
+    //           no. of nonempty rests: 0
+    //           no. of chords: 0
+    //           no. of lyrics: 0
+    //           no. of voices: 1
     @Test
     public void testSilentPiece() {
         Music correctMusic = Music.rest(0);
@@ -153,6 +159,7 @@ public class PieceTest {
         assertEquals(Collections.singleton("Voice 1"), givenPiece.getVoices());
         assertEquals("Am", givenPiece.getKey());
         assertEquals(correctMusic, givenPiece.getMusic());
+        assertEquals(givenPiece.toString(), "[Unknown, 3, 0.25, 2/2, 100, Silence, {Voice 1}, C, (0.0)]");
     }
     
     // covers
@@ -165,6 +172,12 @@ public class PieceTest {
     //     title: valid
     //     voices.size(): 1
     //     key: correct
+    //     music no. of notes: >0
+    //           no. of nonempty rests: >0
+    //           no. of chords: 0
+    //           no. of lyrics: >0
+    //           no. of voices: 1
+    // toString():
     //     music no. of notes: >0
     //           no. of nonempty rests: >0
     //           no. of chords: 0
@@ -189,6 +202,17 @@ public class PieceTest {
         assertEquals(Collections.singleton("Voice 1"), givenPiece.getVoices());
         assertEquals("C", givenPiece.getKey());
         assertEquals(correctMusic, givenPiece.getMusic());
+        String note1 = "(2.0, " + new Pitch('D').toString() + ")";
+        String lyrics1 = "(Voice 1: *A*-maz-ing grace! How sweet the sound That saved a wretch like me.)";
+        String noteWithLyrics1 = "(" + note1 + " || " + lyrics1 + ")";
+        String note2 = "(4.0, " + new Pitch('G').toString() + ")";
+        String lyrics2 = "(Voice 1: A-*maz*-ing grace! How sweet the sound That saved a wretch like me.)";
+        String noteWithLyrics2 = "(" + note2 + " || " + lyrics2 + ")";
+        String note3 = "(1.0, " + new Pitch('B').toString() + ")";
+        String note4 = "(1.0, " + new Pitch('G').toString() + ")";
+        String lyrics34 = "(Voice 1: A-maz-*ing* grace! How sweet the sound That saved a wretch like me.)";
+        String noteWithLyrics3 = "((" + note3 + " && " + note4 + ") || " + lyrics34 + ")";
+        assertEquals(givenPiece.toString(), "[John Newton, 1, 0.125, 3/4, 100, Piece No.3, {Voice 1}, C, (((((0.0) && (4.0)) " + noteWithLyrics1 + ") && " + noteWithLyrics2 + ") && " + noteWithLyrics3 + ")]");
     }
     
     // covers
@@ -337,5 +361,57 @@ public class PieceTest {
         Piece.parseFromFile("Piece.java");
     }
     
-    //TODO Complete tests for toString(), equals(), hashCode()
+    //TODO Complete tests for equals(), hashCode()
+
+    // covers
+    // equals():
+    //     type of that: not Piece
+    @Test
+    public void testEqualsNonPiece() {
+        //TODO
+    }
+    
+    // covers
+    // equals():
+    //     type of that: Piece
+    //     header fields of this and that: different
+    @Test
+    public void testEqualsSameMusicDifferentHeaders() {
+        //TODO
+    }
+    
+    // covers
+    // equals():
+    //     type of that: Piece
+    //     music of this and that: different structure same sound
+    @Test
+    public void testEqualsDifferentStructureSameSound() {
+        //TODO
+    }
+    
+    // covers
+    // equals():
+    //     type of that: Piece
+    //     music of this and that: different sound
+    @Test
+    public void testEqualsDifferentSound() {
+        //TODO
+    }
+    
+    // covers
+    // equals():
+    //     music no. of notes: >0
+    //           no. of rests: >0
+    //           no. of lyrics: >0
+    //     music of this and that: same structure same sound
+    //     header fields of this and that: same
+    @Test
+    public void testEqualsMultipleRestsMultipleLyrics() {
+        //TODO
+    }
+    
+    @Test
+    public void testHashCode() {
+        //TODO
+    }
 }
