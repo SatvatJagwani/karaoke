@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.AbstractMap.SimpleImmutableEntry;
 
 import edu.mit.eecs.parserlib.ParseTree;
@@ -283,9 +282,25 @@ public class PieceParser {
      */
     private static List<ParseTree<PieceGrammar>> extractVoiceBody(ParseTree<PieceGrammar> bodyTree, String voice) {
         List<ParseTree<PieceGrammar>> abcLines = bodyTree.children();
-        ParseTree<PieceGrammar> firstAbcLine = abcLines.get(0);
-        List<ParseTree<PieceGrammar>> voiceBody = new ArrayList<>();
         
+        // Get the first line that is not a comment
+        ParseTree<PieceGrammar> firstAbcLine = abcLines.get(0);
+        boolean firstLineExists = false;
+        for (ParseTree<PieceGrammar> abcLine : abcLines) {
+            if (abcLine.children().get(0).name() != PieceGrammar.COMMENT) {
+                firstAbcLine = abcLine;
+                firstLineExists = true;
+                break;
+            }
+        } 
+        
+        // All lines are comments
+        if (!firstLineExists) {
+            throw new RuntimeException("All lines are comments");
+        }
+        
+        // Populate the voice voice body 
+        List<ParseTree<PieceGrammar>> voiceBody = new ArrayList<>();
         boolean shouldAddLine = false; 
         for (ParseTree<PieceGrammar> abcLine : abcLines) {
             if (abcLine.children().get(0).name() != PieceGrammar.COMMENT) {
