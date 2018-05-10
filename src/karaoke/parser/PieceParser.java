@@ -3,8 +3,10 @@ package karaoke.parser;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import edu.mit.eecs.parserlib.ParseTree;
@@ -12,6 +14,7 @@ import edu.mit.eecs.parserlib.Parser;
 import edu.mit.eecs.parserlib.UnableToParseException;
 import karaoke.Music;
 import karaoke.Piece;
+import karaoke.sound.Pitch;
 
 /**
  * Parser for our Karaoke project pieces of music written in standard abc notation
@@ -324,6 +327,103 @@ public class PieceParser {
     private static Music getMusicForVoice(List<ParseTree<PieceGrammar>> voiceBody, String voice, double defaultNoteLength,
             String key) {
         throw new RuntimeException("Unimplemented");
+    }
+    
+    
+    /**
+     * Create a map for a specific key mapping Strings to the correct Pitch
+     * @param key the string representation of the key signature
+     * @return a map that maps strings "C" "D" "E" "F" "G" "A" "B" to the 
+     *         the correct Pitch in the key signature, where "C" is middle C
+     */
+    private static Map<String, Pitch> getKeySignatureMap(String key){
+        // Map for C major and A minor 
+        Map<String, Pitch> keyMap = new HashMap<>();
+        keyMap.put("C", new Pitch('C'));
+        keyMap.put("D", new Pitch('D'));
+        keyMap.put("E", new Pitch('E'));
+        keyMap.put("F", new Pitch('F'));
+        keyMap.put("G", new Pitch('G'));
+        keyMap.put("A", new Pitch('A'));
+        keyMap.put("B", new Pitch('B'));
+
+        // Add sharps 
+        if (key.equals("G") || key.equals("Em")) {
+            keyMap.put("F", new Pitch('F').transpose(1));
+        } else if (key.equals("D") || key.equals("Bm")) {
+            keyMap.put("F", new Pitch('F').transpose(1));
+            keyMap.put("C", new Pitch('C').transpose(1));
+        } else if (key.equals("A") || key.equals("F#m")) {
+            keyMap.put("F", new Pitch('F').transpose(1));
+            keyMap.put("C", new Pitch('C').transpose(1));
+            keyMap.put("G", new Pitch('G').transpose(1));
+        } else if (key.equals("E") || key.equals("C#m")) {
+            keyMap.put("F", new Pitch('F').transpose(1));
+            keyMap.put("C", new Pitch('C').transpose(1));
+            keyMap.put("G", new Pitch('G').transpose(1));
+            keyMap.put("D", new Pitch('D').transpose(1));
+        } else if (key.equals("B") || key.equals("G#m")) {
+            keyMap.put("F", new Pitch('F').transpose(1));
+            keyMap.put("C", new Pitch('C').transpose(1));
+            keyMap.put("G", new Pitch('G').transpose(1));
+            keyMap.put("D", new Pitch('D').transpose(1));
+            keyMap.put("A", new Pitch('A').transpose(1));
+        } else if (key.equals("F#") || key.equals("D#m")) {
+            keyMap.put("F", new Pitch('F').transpose(1));
+            keyMap.put("C", new Pitch('C').transpose(1));
+            keyMap.put("G", new Pitch('G').transpose(1));
+            keyMap.put("D", new Pitch('D').transpose(1));
+            keyMap.put("A", new Pitch('A').transpose(1));
+            keyMap.put("E", new Pitch('E').transpose(1));
+        } else if (key.equals("C#") || key.equals("A#m")) {
+            keyMap.put("F", new Pitch('F').transpose(1));
+            keyMap.put("C", new Pitch('C').transpose(1));
+            keyMap.put("G", new Pitch('G').transpose(1));
+            keyMap.put("D", new Pitch('D').transpose(1));
+            keyMap.put("A", new Pitch('A').transpose(1));
+            keyMap.put("E", new Pitch('E').transpose(1));
+            keyMap.put("B", new Pitch('B').transpose(1));
+        } 
+        
+        // Add flats 
+        if (key.equals("F") || key.equals("Dm")) {
+            keyMap.put("B", new Pitch('B').transpose(-1));
+        } else if (key.equals("Bb") || key.equals("Gm")) {
+            keyMap.put("B", new Pitch('B').transpose(-1));
+            keyMap.put("E", new Pitch('E').transpose(-1));
+        } else if (key.equals("Eb") || key.equals("Cm")) {
+            keyMap.put("B", new Pitch('B').transpose(-1));
+            keyMap.put("E", new Pitch('E').transpose(-1));
+            keyMap.put("A", new Pitch('A').transpose(-1));
+        } else if (key.equals("Ab") || key.equals("Fm")) {
+            keyMap.put("B", new Pitch('B').transpose(-1));
+            keyMap.put("E", new Pitch('E').transpose(-1));
+            keyMap.put("A", new Pitch('A').transpose(-1));
+            keyMap.put("D", new Pitch('D').transpose(-1));
+        } else if (key.equals("Db") || key.equals("Bbm")) {
+            keyMap.put("B", new Pitch('B').transpose(-1));
+            keyMap.put("E", new Pitch('E').transpose(-1));
+            keyMap.put("A", new Pitch('A').transpose(-1));
+            keyMap.put("D", new Pitch('D').transpose(-1));
+            keyMap.put("G", new Pitch('G').transpose(-1));
+        } else if (key.equals("Gb") || key.equals("Ebm")) {
+            keyMap.put("B", new Pitch('B').transpose(-1));
+            keyMap.put("E", new Pitch('E').transpose(-1));
+            keyMap.put("A", new Pitch('A').transpose(-1));
+            keyMap.put("D", new Pitch('D').transpose(-1));
+            keyMap.put("G", new Pitch('G').transpose(-1));
+            keyMap.put("C", new Pitch('C').transpose(-1));
+        } else if (key.equals("Cb") || key.equals("Abm")) {
+            keyMap.put("B", new Pitch('B').transpose(-1));
+            keyMap.put("E", new Pitch('E').transpose(-1));
+            keyMap.put("A", new Pitch('A').transpose(-1));
+            keyMap.put("D", new Pitch('D').transpose(-1));
+            keyMap.put("G", new Pitch('G').transpose(-1));
+            keyMap.put("C", new Pitch('C').transpose(-1));
+            keyMap.put("F", new Pitch('F').transpose(-1));
+        }
+        
+        return keyMap;
     }
     
 }
