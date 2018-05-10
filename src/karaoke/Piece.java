@@ -6,6 +6,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiUnavailableException;
@@ -243,10 +245,11 @@ public class Piece {
      * Get a string representation of the piece that shows its header fields and its music.
      * @return [composer, index, defaultNoteDuration, meter, beatsPerMinute, title, voices, key, music]
      *         where all these fields (except voices) are string representations of what we get from the observers.
-     *         voices is printed as {voice1, voice2, ... voicen} where voice1, voice2, ... are in alphabetical order.
+     *         voices is printed as [voice1, voice2, ... voicen] where voice1, voice2, ... are in alphabetical order.
      */
     @Override
     public String toString() {
+        SortedSet<String> sortedVoices = new TreeSet<>(getVoices());  
         checkRep();
         return "[" + this.getNameOfComposer() + ", "
                    + this.getIndex() + ", "
@@ -254,7 +257,7 @@ public class Piece {
                    + this.getMeter() + ", "
                    + this.getBeatsPerMinute() + ", "
                    + this.getTitle() + ", "
-                   + this.getVoices().toString() + ", "
+                   + sortedVoices.toString() + ", "
                    + this.getKey() + ", "
                    + this.getMusic().toString()
                    + "]";

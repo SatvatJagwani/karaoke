@@ -159,7 +159,7 @@ public class PieceTest {
         assertEquals(Collections.singleton("Voice 1"), givenPiece.getVoices());
         assertEquals("Am", givenPiece.getKey());
         assertEquals(correctMusic, givenPiece.getMusic());
-        assertEquals(givenPiece.toString(), "[Unknown, 3, 0.25, 2/2, 100, Silence, {Voice 1}, C, (0.0)]");
+        assertEquals("[Unknown, 3, 0.25, 2/2, 100, Silence, [Voice 1], Am, (0.0)]", givenPiece.toString());
     }
     
     // covers
@@ -212,7 +212,7 @@ public class PieceTest {
         String note4 = "(1.0, " + new Pitch('G').toString() + ")";
         String lyrics34 = "(Voice 1: A-maz-*ing* grace! How sweet the sound That saved a wretch like me.)";
         String noteWithLyrics3 = "((" + note3 + " && " + note4 + ") || " + lyrics34 + ")";
-        assertEquals(givenPiece.toString(), "[John Newton, 1, 0.125, 3/4, 100, Piece No.3, {Voice 1}, C, (((((0.0) && (4.0)) " + noteWithLyrics1 + ") && " + noteWithLyrics2 + ") && " + noteWithLyrics3 + ")]");
+        assertEquals("[John Newton, 1, 0.125, 3/4, 100, Piece No.3, [Voice 1], C, (((((0.0) && (4.0)) && " + noteWithLyrics1 + ") && " + noteWithLyrics2 + ") && " + noteWithLyrics3 + ")]", givenPiece.toString());
     }
     
     // covers
