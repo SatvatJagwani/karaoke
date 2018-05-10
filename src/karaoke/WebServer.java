@@ -6,6 +6,7 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
 import java.util.concurrent.Executors;
 
 import com.sun.net.httpserver.HttpExchange;
@@ -65,17 +66,18 @@ public class WebServer {
     
     /**
      * Starts running a server that handles multiple voices concurrently. 
-     * For each voice in the voiceToLyrics map, the address streaming 
-     * the lyrics for that voice is http://localhost:serverPort/textStream/voice 
+     * For the voice at index i in the sorted voiceToLyrics map, the address streaming
+     * the lyrics for that voice is http://localhost:serverPort/textStream/voice_i 
      * @param voiceToLyricsMap a map that maps a voice to a list of lyrics, whenever 
      *        a lyric is appended to the list of lyrics, the web server prints 
      *        out the new line at the address for that voice 
      */
-    public void start(Map<String, List<String>> voiceToLyricsMap) {
+    public void start(SortedMap<String, List<String>> voiceToLyricsMap) {
         // handle concurrent requests with multiple threads
         server.setExecutor(Executors.newCachedThreadPool());     
+        int index = 0;
         for(String voice : voiceToLyricsMap.keySet()) {
-            server.createContext("/textStream/" + voice, (exchange)->
+            server.createContext("/textStream/voice_" + index, (exchange)->
             {
                 try {
                     textStream(exchange, voice, voiceToLyricsMap);
@@ -84,6 +86,7 @@ public class WebServer {
                 }
                 
             });
+            index++;
         }
         server.start();
     }

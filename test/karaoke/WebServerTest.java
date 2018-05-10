@@ -9,9 +9,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.junit.Test;
 
@@ -27,8 +27,8 @@ public class WebServerTest {
     }
     
     // Helper method that gets a reader from a request
-    public BufferedReader getURLReader(WebServer server, String voice) throws IOException {
-        final URL valid = new URL("http://localhost:" + server.port() + "/textStream/" + voice);
+    public BufferedReader getURLReader(WebServer server, int voiceIndex) throws IOException {
+        final URL valid = new URL("http://localhost:" + server.port() + "/textStream/voice_" + voiceIndex);
         final InputStream input = valid.openStream();
         final BufferedReader reader = new BufferedReader(new InputStreamReader(input, UTF_8));
         return reader;
@@ -55,14 +55,14 @@ public class WebServerTest {
         WebServer server = new WebServer(serverPort);
         
         String voice = "voice1";
-        Map<String, List<String>> voiceToLyricsMap = new HashMap<>();
+        SortedMap<String, List<String>> voiceToLyricsMap = new TreeMap<>();
         voiceToLyricsMap.put(voice, new ArrayList<String>());
         
         // Start the web-server 
         server.start(voiceToLyricsMap);
         
         // Get a reader for a URL 
-        BufferedReader voiceReader = getURLReader(server, voice);
+        BufferedReader voiceReader = getURLReader(server, 0);
         voiceReader.readLine(); // Get rid of the first 2k spaces.
         
         // Try to put a new lyric in the map, make sure to use a synchronized block
@@ -90,14 +90,14 @@ public class WebServerTest {
     public void testWebServerSingleVoiceOneLyric() throws IOException {
         // Create a map with one voice 
         String singleVoice = "voice1";
-        Map<String, List<String>> voiceToLyricsMap = new HashMap<>();
+        SortedMap<String, List<String>> voiceToLyricsMap = new TreeMap<>();
         voiceToLyricsMap.put(singleVoice, new ArrayList<>());
         
         // Start the server and get a reader for responses 
         final int serverPort = 5001;
         WebServer server = new WebServer(serverPort);
         server.start(voiceToLyricsMap);
-        BufferedReader singleVoiceReader = getURLReader(server, singleVoice);
+        BufferedReader singleVoiceReader = getURLReader(server, 0);
         singleVoiceReader.readLine(); // Get rid of the first 2k spaces.
         
         // Add one line of lyrics to the map
@@ -120,15 +120,15 @@ public class WebServerTest {
     public void testWebServerSingleVoiceMultipleLyrics() throws IOException {
         // Create a map with one voice 
         String singleVoice = "voice1";
-        Map<String, List<String>> voiceToLyricsMap = new HashMap<>();
+        SortedMap<String, List<String>> voiceToLyricsMap = new TreeMap<>();
         voiceToLyricsMap.put(singleVoice, new ArrayList<>());
         
         // Start the server and get a reader for responses 
         final int serverPort = 5002;
         WebServer server = new WebServer(serverPort);
         server.start(voiceToLyricsMap);
-        BufferedReader singleVoiceReader1 = getURLReader(server, singleVoice);
-        BufferedReader singleVoiceReader2 = getURLReader(server, singleVoice);
+        BufferedReader singleVoiceReader1 = getURLReader(server, 0);
+        BufferedReader singleVoiceReader2 = getURLReader(server, 0);
         singleVoiceReader1.readLine(); // Get rid of the first 2k spaces.
         singleVoiceReader2.readLine(); // Get rid of the first 2k spaces.
         
@@ -181,7 +181,7 @@ public class WebServerTest {
         // Create a map with two voice 
         String firstVoice = "voice1";
         String secondVoice = "voice2";
-        Map<String, List<String>> voiceToLyricsMap = new HashMap<>();
+        SortedMap<String, List<String>> voiceToLyricsMap = new TreeMap<>();
         voiceToLyricsMap.put(firstVoice, new ArrayList<>());
         voiceToLyricsMap.put(secondVoice, new ArrayList<>());
         
@@ -189,10 +189,10 @@ public class WebServerTest {
         final int serverPort = 5003;
         WebServer server = new WebServer(serverPort);
         server.start(voiceToLyricsMap);
-        BufferedReader firstVoiceReader1 = getURLReader(server, firstVoice);
-        BufferedReader firstVoiceReader2 = getURLReader(server, firstVoice);
-        BufferedReader secondVoiceReader1 = getURLReader(server, secondVoice);
-        BufferedReader secondVoiceReader2 = getURLReader(server, secondVoice);
+        BufferedReader firstVoiceReader1 = getURLReader(server, 0);
+        BufferedReader firstVoiceReader2 = getURLReader(server, 0);
+        BufferedReader secondVoiceReader1 = getURLReader(server, 1);
+        BufferedReader secondVoiceReader2 = getURLReader(server, 1);
         firstVoiceReader1.readLine(); // Get rid of the first 2k spaces.
         firstVoiceReader2.readLine(); // Get rid of the first 2k spaces.
         secondVoiceReader1.readLine(); // Get rid of the first 2k spaces.

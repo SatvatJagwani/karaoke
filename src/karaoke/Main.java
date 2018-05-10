@@ -2,10 +2,10 @@ package karaoke;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiUnavailableException;
@@ -38,36 +38,39 @@ public class Main {
         
         // Get the filename and parse the file into a Piece 
         String path = args[0];
-        Piece pieceOfMusic = Piece.parseFromFile(path);
+        Piece piece = Piece.parseFromFile(path);
 
         // Print out the title and composer
-        System.out.println("Title:" + pieceOfMusic.getTitle());
-        System.out.println("Composer: " + pieceOfMusic.getNameOfComposer());
+        System.out.println("Title:" + piece.getTitle());
+        System.out.println("Composer: " + piece.getNameOfComposer());
         
-        // Initialize the web server and the voiceToLyricsMap
-        final int serverPort = 5000;
-        WebServer server = new WebServer(serverPort);
-        
-        Map<String, List<String>> voiceToLyricsMap = new HashMap<>();
-        for (String voice : pieceOfMusic.getVoices()) {
+        // Create voiceToLyricsMap and SequencePlayer
+        SortedMap<String, List<String>> voiceToLyricsMap = new TreeMap<>();
+        for (String voice : piece.getVoices()) {
             voiceToLyricsMap.put(voice, new ArrayList<String>());
         }
+        SequencePlayer player = piece.createPlayer();
         
-        // Start the web server 
+        // Start the web-server
+        final int serverPort = 5002;
+        WebServer server = new WebServer(serverPort);
         server.start(voiceToLyricsMap);
         
-        // Print instructions for which web-site to navigate to 
-        for (String voice : pieceOfMusic.getVoices()) {
-            System.out.println("For voice " + voice + ", go to http://localhost:" + serverPort + "/textStream/" + voice);
+        // Print out URL's for each voice 
+        synchronized(voiceToLyricsMap) {
+            int index = 0;
+            for (String voice : voiceToLyricsMap.keySet()) {
+                System.out.println("For voice " + voice + 
+                        ", go to http://localhost:" + serverPort + "/textStream/voice_" + index);
+                index++;
+            }
         }
         
-        // Prompt the client to press enter to start playing the song 
-        promptEnterKey();
+        Main.promptEnterKey();
         
         // Initialize the sequence player 
         final double warmup = 0.125;
-        SequencePlayer player = pieceOfMusic.createPlayer();
-        Music music = pieceOfMusic.getMusic();
+        Music music = piece.getMusic();
         music.play(player, warmup, voiceToLyricsMap);
         
         // Add a listener at the end of the piece to tell main thread when it's done

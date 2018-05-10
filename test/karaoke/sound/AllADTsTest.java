@@ -4,9 +4,9 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiUnavailableException;
@@ -75,7 +75,7 @@ public class AllADTsTest {
                 Music.note(1, new Pitch('C').transpose(Pitch.OCTAVE), Instrument.PIANO), 
                 Music.lyrics("C-D-E-F-G-A-B-*c*", "voice1")));
 
-        Map<String, List<String>> voiceToLyricsMap = new HashMap<>(); 
+        SortedMap<String, List<String>> voiceToLyricsMap = new TreeMap<>(); 
         voiceToLyricsMap.put("voice1", new ArrayList<String>());
         
         // create a new player
@@ -105,7 +105,7 @@ public class AllADTsTest {
             }
         }
                         
-        Map<String, List<String>> correctVoiceToLyricsMap = new HashMap<>(); 
+        SortedMap<String, List<String>> correctVoiceToLyricsMap = new TreeMap<>(); 
         correctVoiceToLyricsMap.put("voice1", new ArrayList<String>());  
         correctVoiceToLyricsMap.get("voice1").add("*C*-D-E-F-G-A-B-c");
         correctVoiceToLyricsMap.get("voice1").add("C-*D*-E-F-G-A-B-c");
@@ -128,7 +128,7 @@ public class AllADTsTest {
     @Test
     public void testPiece() throws UnableToParseException, IOException, MidiUnavailableException, InvalidMidiDataException {
         Piece piece = Piece.parseFromFile("sample-abc/little_night_music.abc");
-        Map<String, List<String>> voiceToLyricsMap = new HashMap<>();
+        SortedMap<String, List<String>> voiceToLyricsMap = new TreeMap<>();
         for (String voice : piece.getVoices()) {
             voiceToLyricsMap.put(voice, new ArrayList<String>());
         }
@@ -157,7 +157,7 @@ public class AllADTsTest {
             }
         }
         
-        Map<String, List<String>> correctVoiceToLyricsMap = new HashMap<>(); 
+        SortedMap<String, List<String>> correctVoiceToLyricsMap = new TreeMap<>(); 
         correctVoiceToLyricsMap.put("voice1", new ArrayList<String>());  
         for (int i = 0; i < 17; i++) {
             correctVoiceToLyricsMap.get("voice1").add("*no lyrics*");
@@ -230,7 +230,7 @@ public class AllADTsTest {
         Music music = Music.together(firstVoice, secondVoice);
         
         // Create a voiceToLyricsMap 
-        Map<String, List<String>> voiceToLyricsMap = new HashMap<>();
+        SortedMap<String, List<String>> voiceToLyricsMap = new TreeMap<>();
         voiceToLyricsMap.put("voice1", new ArrayList<String>());
         voiceToLyricsMap.put("voice2", new ArrayList<String>());
         
@@ -251,8 +251,11 @@ public class AllADTsTest {
          */
         System.out.println("Open each URL on more than one tab");
         synchronized(voiceToLyricsMap) {
+            int index = 0;
             for (String voice : voiceToLyricsMap.keySet()) {
-                System.out.println("For voice " + voice + ", go to http://localhost:" + serverPort + "/textStream/" + voice);
+                System.out.println("For voice " + voice + 
+                        ", go to http://localhost:" + serverPort + "/textStream/voice_" + index);
+                index++;
             }
         }
         
@@ -293,14 +296,14 @@ public class AllADTsTest {
     public void testWebServerWithParser() throws IOException, UnableToParseException, MidiUnavailableException, InvalidMidiDataException {
         // Parse the file, create a voiceToLyricsMap and a sequence player 
         Piece piece = Piece.parseFromFile("sample-abc/piece4.abc");
-        Map<String, List<String>> voiceToLyricsMap = new HashMap<>();
+        SortedMap<String, List<String>> voiceToLyricsMap = new TreeMap<>();
         for (String voice : piece.getVoices()) {
             voiceToLyricsMap.put(voice, new ArrayList<String>());
         }
         SequencePlayer player = piece.createPlayer();
         
         // Start the web-server
-        final int serverPort = 5000;
+        final int serverPort = 5001;
         WebServer server = new WebServer(serverPort);
         server.start(voiceToLyricsMap);
         
@@ -308,8 +311,13 @@ public class AllADTsTest {
          * Manually: navigate to the printed out URL's, open each URL on more than one tab
          */
         System.out.println("Open each URL on more than one tab");
-        for (String voice : piece.getVoices()) {
-            System.out.println("For voice " + voice + ", go to http://localhost:" + serverPort + "/textStream/" + voice);
+        synchronized(voiceToLyricsMap) {
+            int index = 0;
+            for (String voice : voiceToLyricsMap.keySet()) {
+                System.out.println("For voice " + voice + 
+                        ", go to http://localhost:" + serverPort + "/textStream/voice_" + index);
+                index++;
+            }
         }
         
         Main.promptEnterKey();
