@@ -8,6 +8,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.AbstractMap.SimpleImmutableEntry;
 
 import edu.mit.eecs.parserlib.ParseTree;
 import edu.mit.eecs.parserlib.Parser;
@@ -326,7 +328,183 @@ public class PieceParser {
      */
     private static Music getMusicForVoice(List<ParseTree<PieceGrammar>> voiceBody, String voice, double defaultNoteLength,
             String key) {
-        throw new RuntimeException("Unimplemented");
+        // abc_line ::= element+ end_of_line (lyric end_of_line)?
+        
+        // fill the list in
+        List<SimpleImmutableEntry<String,Music>> fullVoiceBody = new ArrayList<>();
+        
+        // iterate through voiceBody and mutate the fullVoiceBody
+        List<String> accidentals = new ArrayList<>();
+        for (ParseTree<PieceGrammar> abcLine: voiceBody) {
+            List<SimpleImmutableEntry<String, Music>> linePart = parseBodyLine(abcLine, voice, key, accidentals);
+            fullVoiceBody.addAll(linePart);
+        }
+        
+        Music voiceMusic = compress(fullVoiceBody);
+        
+        return voiceMusic;
+    }
+    
+    /**
+     * Parses a single abc line of the abc grammar body for a given voice
+     * @param abcLine the line of the abc file to parse
+     * @param voice the voice of the line
+     * @param key the keysignature of the piece
+     * @param accidentals the list the accidentals found in this measure that is mutated by this method
+     * @return a list of pairs where the first element in pair indicates the structure of the song
+     *         (either the type of bar/repeat or the music) and the second element is the Music
+     *         corresponding to the first element where that is a rest of duration zero if the first
+     *         element is a bar/repeat
+     */
+    private static List<SimpleImmutableEntry<String, Music>> parseBodyLine(ParseTree<PieceGrammar> abcLine, 
+            String voice, String key, List<String> accidentals) {
+        
+        List<SimpleImmutableEntry<String, Music>> parsedBodyLine = new ArrayList<>();
+        
+        for (ParseTree<PieceGrammar> element: abcLine.children()) {
+            if (element.name()==PieceGrammar.ELEMENT) {
+                ParseTree<PieceGrammar> subelement = element.children().get(0);
+                switch(subelement.name()) {
+                case NOTE_ELEMENT:
+                    ParseTree<PieceGrammar> noteElement = subelement.children().get(0);
+                    Music noteElementMusic = parseNoteElement(noteElement, key, accidentals, 1.0);
+                    SimpleImmutableEntry<String, Music> noteElementPair
+                                = new SimpleImmutableEntry<>("music", noteElementMusic);
+                    parsedBodyLine.add(noteElementPair);
+                    break;
+                case REST_ELEMENT:
+                    double duration;
+                    if (subelement.children().size()==0) {
+                        duration = 1.0;
+                    }
+                    else {
+                        ParseTree<PieceGrammar> noteLength = subelement.children().get(0);
+                        duration = parseNoteLength(noteLength);
+                    }
+                    Music rest = Music.rest(duration);
+                    SimpleImmutableEntry<String, Music> restPair
+                                = new SimpleImmutableEntry<>("rest", rest);
+                    parsedBodyLine.add(restPair);
+                    break;
+                case TUPLET_ELEMENT:
+                    ParseTree<PieceGrammar> tupletSpec = subelement.children().get(0);
+                    String tupletType = tupletSpec.children().get(0).text();
+                    double multiplier;
+                    final double dupletMultiplier = 3.0/2.0;
+                    final double tripletMultiplier = 2.0/3.0;
+                    final double quadrupletMultiplier = 3.0/4.0;
+                    switch(tupletType) {
+                    case "2":
+                        multiplier = dupletMultiplier;
+                        break;
+                    case "3":
+                        multiplier = tripletMultiplier;
+                        break;
+                    case "4":
+                        multiplier = quadrupletMultiplier;
+                        break;
+                    default:
+                        throw new AssertionError("Should never get here");
+                    }
+                    for (int i=1; i<subelement.children().size(); ++i) {
+                        ParseTree<PieceGrammar> tupletNoteElement = subelement.children().get(i);
+                        Music tupletMusic = parseNoteElement(tupletNoteElement, key, accidentals, multiplier);
+                        SimpleImmutableEntry<String, Music> tupletPair
+                                    = new SimpleImmutableEntry<>("music", tupletMusic);
+                        parsedBodyLine.add(tupletPair);
+                    }
+                    break;
+                case BARLINE:
+                    SimpleImmutableEntry<String, Music> barline 
+                                = new SimpleImmutableEntry<>(subelement.text(), Music.rest(0));
+                    parsedBodyLine.add(barline);
+                    accidentals = new ArrayList<String>();
+                    break;
+                case NTH_REPEAT:
+                    SimpleImmutableEntry<String, Music> repeat 
+                                = new SimpleImmutableEntry<>(subelement.text(), Music.rest(0));
+                    parsedBodyLine.add(repeat);
+                    break;
+                case SPACE_OR_TAB:
+                    break;
+                default:
+                    throw new AssertionError("Should never get here");
+                }
+            }
+            // TODO: what if its the end of the line
+            // TODO: what if its a lyric
+            
+        }
+        
+        return parsedBodyLine;
+    }
+    
+    /**
+     * Converts a grammar representation of a note length into a double
+     * @param noteLength the abc grammar representation of a note length
+     * @return a double referring to the same note length
+     */
+    private static double parseNoteLength(ParseTree<PieceGrammar> noteLength) {
+        String noteLengthString = noteLength.text();
+        String fullFraction;
+        if (noteLengthString.length() == 1) {
+            fullFraction = "1/2";
+        }
+        else if (noteLengthString.charAt(0)=='/') {
+            fullFraction = "1" + noteLengthString;
+        }
+        else if (noteLengthString.charAt(noteLengthString.length()-1) == '/') {
+            fullFraction = noteLengthString + "2";
+        }
+        else {
+            fullFraction = noteLengthString;
+        }
+        return fractionToDouble(fullFraction);
+    }
+    
+    /**
+     * TODO
+     * @param noteElement
+     * @param key
+     * @param accidentals
+     * @return
+     */
+    private static Music parseNoteElement(ParseTree<PieceGrammar> noteElement, 
+            String key, List<String> accidentals, double multiplier) {
+        switch(noteElement.name()) {
+        case NOTE:
+            //TODO
+            break;
+        case CHORD:
+            //TODO
+            break;
+        default:
+            throw new AssertionError("Should never get here");
+        }
+        
+        return null; // TODO
+    }
+    
+    /**
+     * TODO
+     * @param noteElement
+     * @param key
+     * @param accidentals
+     * @return
+     */
+    private static Music parseNote(ParseTree<PieceGrammar> noteElement, String key, List<String> accidentals, double multiplier) {
+        
+        
+        return null; // TODO
+    }
+    
+    /**
+     * Converts a list of pairs into a final Music object
+     * @param voiceMusic a list of pairs of a particular voice for a the entire piece
+     * @return the Music object represented by voiceMusic
+     */
+    private static Music compress(List<SimpleImmutableEntry<String,Music>> voiceMusic) {
+        throw new RuntimeException("Not implemented yet");
     }
     
     
