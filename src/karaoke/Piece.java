@@ -245,7 +245,8 @@ public class Piece {
      * Get a string representation of the piece that shows its header fields and its music.
      * @return [composer, index, defaultNoteDuration, meter, beatsPerMinute, title, voices, key, music]
      *         where all these fields (except voices) are string representations of what we get from the observers.
-     *         voices is printed as [voice1, voice2, ... voicen] where voice1, voice2, ... are in alphabetical order.
+     *         voices is printed as [voice1, voice2, ... voicen] where voice1, voice2, ... are string representations
+     *         of the voices present and are in alphabetical order.
      */
     @Override
     public String toString() {

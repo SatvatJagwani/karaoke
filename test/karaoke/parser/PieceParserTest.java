@@ -948,11 +948,11 @@ public class PieceParserTest {
         Music thirdVoice = Music.rest(0);
         thirdVoice = Music.together(
                 thirdVoice, 
-                Music.concat(Music.note(1, new Pitch('E'), Instrument.PIANO), 
+                Music.concat(Music.note(1, new Pitch('F'), Instrument.PIANO), 
                         Music.lyrics("*no lyrics*", "voice3")));
-        thirdVoice = Music.concat(thirdVoice, Music.note(1, new Pitch('E'), Instrument.PIANO));
-        thirdVoice = Music.concat(thirdVoice, Music.note(1, new Pitch('E'), Instrument.PIANO));
-        thirdVoice = Music.concat(thirdVoice, Music.note(1, new Pitch('E'), Instrument.PIANO));
+        thirdVoice = Music.concat(thirdVoice, Music.note(1, new Pitch('A'), Instrument.PIANO));
+        thirdVoice = Music.concat(thirdVoice, Music.note(1, new Pitch('F'), Instrument.PIANO));
+        thirdVoice = Music.concat(thirdVoice, Music.note(1, new Pitch('A'), Instrument.PIANO));
         
         Music correctMusic = Music.together(firstVoice, secondVoice);
         correctMusic = Music.together(correctMusic, thirdVoice);
