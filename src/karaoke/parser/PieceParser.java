@@ -259,7 +259,7 @@ public class PieceParser {
         // Put the Music for each voice into a list 
         List<Music> voicesMusic = new ArrayList<>();
         for (String voice : voices) {
-            List<ParseTree<PieceGrammar>> voiceBody = extractVoiceBody(bodyTree, voice);
+            List<ParseTree<PieceGrammar>> voiceBody = extractVoiceBody(bodyTree, voice, voices);
             Music voiceMusic = getMusicForVoice(voiceBody, voice, defaultNoteLength, key);
             voicesMusic.add(voiceMusic);
         }
@@ -280,34 +280,22 @@ public class PieceParser {
      * @return a list of the lines corresponding to a given voice in the order in which they 
      *         appear in the abc file 
      */
-    private static List<ParseTree<PieceGrammar>> extractVoiceBody(ParseTree<PieceGrammar> bodyTree, String voice) {
+    private static List<ParseTree<PieceGrammar>> extractVoiceBody(ParseTree<PieceGrammar> bodyTree, String voice, 
+            Set<String> voices) {
         List<ParseTree<PieceGrammar>> abcLines = bodyTree.children();
-        
-        // Get the first line that is not a comment
-        ParseTree<PieceGrammar> firstAbcLine = abcLines.get(0);
-        boolean firstLineExists = false;
-        for (ParseTree<PieceGrammar> abcLine : abcLines) {
-            if (abcLine.children().get(0).name() != PieceGrammar.COMMENT) {
-                firstAbcLine = abcLine;
-                firstLineExists = true;
-                break;
-            }
-        } 
-        
-        // All lines are comments
-        if (!firstLineExists) {
-            throw new RuntimeException("All lines are comments");
-        }
-        
-        // Populate the voice voice body 
+
+        // Populate the voice body 
         List<ParseTree<PieceGrammar>> voiceBody = new ArrayList<>();
         boolean shouldAddLine = false; 
         for (ParseTree<PieceGrammar> abcLine : abcLines) {
             if (abcLine.children().get(0).name() != PieceGrammar.COMMENT) {
-                if (firstAbcLine.children().get(0).name() != PieceGrammar.MIDDLE_OF_BODY_FIELD) {
-                    // No voice was given in the header, add everything except comments 
-                    voiceBody.add(abcLine);
+                if (voices.size() == 1) {
+                    // Only one voice, so add everything except comments and middle of body fields 
+                    if (abcLine.children().get(0).name() != PieceGrammar.MIDDLE_OF_BODY_FIELD) {
+                        voiceBody.add(abcLine);
+                    }
                 } else {
+                    // More than once voice
                     if (abcLine.children().get(0).name() == PieceGrammar.MIDDLE_OF_BODY_FIELD) {
                         // If the line has a voice field, get the voice 
                         ParseTree<PieceGrammar> middleOfBodyField = abcLine.children().get(0);
@@ -343,12 +331,9 @@ public class PieceParser {
      */
     private static Music getMusicForVoice(List<ParseTree<PieceGrammar>> voiceBody, String voice, double defaultNoteLength,
             String key) {
-        // abc_line ::= element+ end_of_line (lyric end_of_line)?
-        
-        // fill the list in
         List<SimpleImmutableEntry<String,Music>> fullVoiceBody = new ArrayList<>();
         
-        // iterate through voiceBody and mutate the fullVoiceBody
+        // Fill in fullVoiceBody line by line, keep accidentals outside the scope of the for loop
         List<String> accidentals = new ArrayList<>();
         for (ParseTree<PieceGrammar> abcLine: voiceBody) {
             List<SimpleImmutableEntry<String, Music>> linePart = parseBodyLine(abcLine, voice, key, accidentals);
@@ -364,7 +349,7 @@ public class PieceParser {
      * Parses a single abc line of the abc grammar body for a given voice
      * @param abcLine the line of the abc file to parse
      * @param voice the voice of the line
-     * @param key the keysignature of the piece
+     * @param key the key signature of the piece
      * @param accidentals the list the accidentals found in this measure that is mutated by this method
      * @return a list of pairs where the first element in pair indicates the structure of the song
      *         (either the type of bar/repeat or the music) and the second element is the Music
@@ -376,12 +361,13 @@ public class PieceParser {
         
         List<SimpleImmutableEntry<String, Music>> parsedBodyLine = new ArrayList<>();
         
+        boolean lineContainsLyrics = false;
         for (ParseTree<PieceGrammar> element: abcLine.children()) {
             if (element.name()==PieceGrammar.ELEMENT) {
                 ParseTree<PieceGrammar> subelement = element.children().get(0);
                 switch(subelement.name()) {
                 case NOTE_ELEMENT:
-                    ParseTree<PieceGrammar> noteElement = subelement.children().get(0);
+                    ParseTree<PieceGrammar> noteElement = subelement;
                     Music noteElementMusic = parseNoteElement(noteElement, key, accidentals, 1.0);
                     SimpleImmutableEntry<String, Music> noteElementPair
                                 = new SimpleImmutableEntry<>("music", noteElementMusic);
@@ -445,15 +431,24 @@ public class PieceParser {
                 default:
                     throw new AssertionError("Should never get here");
                 }
+            } else if (element.name()==PieceGrammar.LYRIC) {
+                lineContainsLyrics = true;
             }
-            // TODO: what if its the end of the line
-            // TODO: what if its a lyric
-            
         }
+        
+        List<SimpleImmutableEntry<String, Integer>> parsedLyric = new ArrayList<>();
+        if (lineContainsLyrics) {
+            ParseTree<PieceGrammar> lyric = abcLine.children().get(abcLine.children().size() - 2);
+            parsedLyric = parseLyric(lyric); 
+        } 
+        
+        // TODO add the parsedLyric to the parseBodyLine
         
         return parsedBodyLine;
     }
     
+
+
     /**
      * Converts a grammar representation of a note length into a double
      * @param noteLength the abc grammar representation of a note length
@@ -478,50 +473,68 @@ public class PieceParser {
     }
     
     /**
-     * TODO
-     * @param noteElement
-     * @param key
-     * @param accidentals
-     * @return
+     * Converts the grammar representation of a note element into a Music object
+     * @param noteElement the abc grammar representation of a note element
+     * @param key the key signature of the piece 
+     * @param accidentals the accidentals in the measure where the note element is, if the given 
+     *        noteElement contains an accidental, this method will mutate accidentals 
+     * @return the Music object corresponding to noteElement 
      */
     private static Music parseNoteElement(ParseTree<PieceGrammar> noteElement, 
             String key, List<String> accidentals, double multiplier) {
-        switch(noteElement.name()) {
+        ParseTree<PieceGrammar> noteOrChord = noteElement.children().get(0);
+        switch(noteOrChord.name()) {
         case NOTE:
-            //TODO
-            break;
+            ParseTree<PieceGrammar> note = noteOrChord;
+            return parseNote(note, key, accidentals, multiplier);
         case CHORD:
-            //TODO
-            break;
+            ParseTree<PieceGrammar> chord = noteOrChord;
+            Music chordMusic = parseNote(chord.children().get(0), key, accidentals, multiplier);
+            for (int i=1; i<chord.children().size(); ++i) {
+                chordMusic = Music.together(chordMusic, parseNote(chord.children().get(i), key, accidentals, multiplier));
+            }
+            return chordMusic;
         default:
             throw new AssertionError("Should never get here");
         }
-        
-        return null; // TODO
     }
     
     /**
-     * TODO
-     * @param noteElement
-     * @param key
-     * @param accidentals
-     * @return
+     * Converts the grammar representation of a note into a Music object
+     * @param note the abc grammar representation of a note element
+     * @param key the key signature of the piece 
+     * @param accidentals the accidentals in the measure where the note is, if the given 
+     *        note contains an accidental, this method will mutate accidentals 
+     * @return the Music object corresponding to note 
      */
-    private static Music parseNote(ParseTree<PieceGrammar> noteElement, String key, List<String> accidentals, double multiplier) {
-        
-        
-        return null; // TODO
+    private static Music parseNote(ParseTree<PieceGrammar> note, String key, List<String> accidentals, double multiplier) {
+        // TODO implement this method 
+        throw new RuntimeException("Not implemented yet");
+    }
+
+    /**
+     * Converts the grammar representation of a lyric into a list of pairs
+     * @param lyric the grammar representation of a lyric
+     * @return a list of pairs such that the first element in each pair contains either the whole
+     *         lyric line with a syllable surrounded by asterisks, a single asterisk, or a single bar. 
+     *         And the second element in each pair contains the number of notes the first element should be
+     *         sung for (for a bar this will be 0). 
+     */
+    private static List<SimpleImmutableEntry<String, Integer>> parseLyric(ParseTree<PieceGrammar> lyric) {
+        // TODO implement this method 
+        throw new RuntimeException("Not implemented yet");
     }
     
     /**
      * Converts a list of pairs into a final Music object
      * @param voiceMusic a list of pairs of a particular voice for a the entire piece
-     * @return the Music object represented by voiceMusic
+     * @return the Music object represented by voiceMusic, if voiceMusic does not contain
+     *         any "music" or "rest" pairs then this method returns a rest of length 0
      */
     private static Music compress(List<SimpleImmutableEntry<String,Music>> voiceMusic) {
+        // TODO implement this method 
         throw new RuntimeException("Not implemented yet");
     }
-    
     
     /**
      * Create a map for a specific key mapping Strings to the correct Pitch
@@ -579,7 +592,7 @@ public class PieceParser {
         } 
         
         // Add flats 
-        if (key.equals("F") || key.equals("Dm")) {
+        else if (key.equals("F") || key.equals("Dm")) {
             keyMap.put("B", new Pitch('B').transpose(-1));
         } else if (key.equals("Bb") || key.equals("Gm")) {
             keyMap.put("B", new Pitch('B').transpose(-1));
