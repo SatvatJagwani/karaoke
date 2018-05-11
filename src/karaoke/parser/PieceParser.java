@@ -15,6 +15,7 @@ import edu.mit.eecs.parserlib.Parser;
 import edu.mit.eecs.parserlib.UnableToParseException;
 import karaoke.Music;
 import karaoke.Piece;
+import karaoke.sound.Instrument;
 import karaoke.sound.Pitch;
 
 /**
@@ -334,7 +335,7 @@ public class PieceParser {
         List<SimpleImmutableEntry<String,Music>> fullVoiceBody = new ArrayList<>();
         
         // Fill in fullVoiceBody line by line, keep accidentals outside the scope of the for loop
-        List<String> accidentals = new ArrayList<>();
+        Map<String, Pitch> accidentals = new HashMap<>();
         for (ParseTree<PieceGrammar> abcLine: voiceBody) {
             List<SimpleImmutableEntry<String, Music>> linePart = parseBodyLine(abcLine, voice, key, accidentals);
             fullVoiceBody.addAll(linePart);
@@ -357,7 +358,7 @@ public class PieceParser {
      *         element is a bar/repeat
      */
     private static List<SimpleImmutableEntry<String, Music>> parseBodyLine(ParseTree<PieceGrammar> abcLine, 
-            String voice, String key, List<String> accidentals) {
+            String voice, String key, Map<String, Pitch> accidentals) {
         
         List<SimpleImmutableEntry<String, Music>> parsedBodyLine = new ArrayList<>();
         
@@ -419,7 +420,7 @@ public class PieceParser {
                     SimpleImmutableEntry<String, Music> barline 
                                 = new SimpleImmutableEntry<>(subelement.text(), Music.rest(0));
                     parsedBodyLine.add(barline);
-                    accidentals = new ArrayList<String>();
+                    accidentals = new HashMap<String, Pitch>();
                     break;
                 case NTH_REPEAT:
                     SimpleImmutableEntry<String, Music> repeat 
@@ -481,7 +482,7 @@ public class PieceParser {
      * @return the Music object corresponding to noteElement 
      */
     private static Music parseNoteElement(ParseTree<PieceGrammar> noteElement, 
-            String key, List<String> accidentals, double multiplier) {
+            String key, Map<String, Pitch> accidentals, double multiplier) {
         ParseTree<PieceGrammar> noteOrChord = noteElement.children().get(0);
         switch(noteOrChord.name()) {
         case NOTE:
@@ -507,9 +508,84 @@ public class PieceParser {
      *        note contains an accidental, this method will mutate accidentals 
      * @return the Music object corresponding to note 
      */
-    private static Music parseNote(ParseTree<PieceGrammar> note, String key, List<String> accidentals, double multiplier) {
-        // TODO implement this method 
-        throw new RuntimeException("Not implemented yet");
+    private static Music parseNote(ParseTree<PieceGrammar> note, String key, 
+                                   Map<String, Pitch> accidentals, double multiplier) {
+        double duration;
+        Music finalNote;
+        if (note.children().size() == 1) {
+            duration = 1.0 * multiplier;
+        }
+        else {
+            ParseTree<PieceGrammar> noteLength = note.children().get(1);
+            duration = parseNoteLength(noteLength) * multiplier;
+        }
+        ParseTree<PieceGrammar> pitch = note.children().get(0);
+        if (pitch.children().get(0).name() == PieceGrammar.ACCIDENTAL) {
+            String accidental = pitch.children().get(0).text();
+            String baseNote = pitch.children().get(1).text();
+            String baseNoteUpper = baseNote.toUpperCase();
+            Map<String, Pitch> keyMap = getKeySignatureMap(key);
+            String octave = "";
+            if (pitch.children().size() == 3) {
+                octave = pitch.children().get(2).text();
+            }
+            Pitch accidentalPitch;
+            switch(accidental) {
+            case "^":
+                accidentalPitch = keyMap.get(baseNoteUpper).transpose(1);
+                break;
+            case "^^":
+                accidentalPitch = keyMap.get(baseNoteUpper).transpose(2);
+                break;
+            case "=":
+                Map<String, Pitch> cKeyMap = getKeySignatureMap("C");
+                accidentalPitch = cKeyMap.get(baseNoteUpper);
+                break;
+            case "_":
+                accidentalPitch = keyMap.get(baseNoteUpper).transpose(-1);
+                break;
+            case "__":
+                accidentalPitch = keyMap.get(baseNoteUpper).transpose(-2);
+                break;
+            default:
+                throw new AssertionError("Should never get here");
+            }
+            for (int i=0; i<octave.length(); ++i) {
+                char suboctave = octave.charAt(i);
+                if (suboctave == '\'') {
+                    accidentalPitch = accidentalPitch.transpose(Pitch.OCTAVE);
+                }
+                else if (suboctave == ',') {
+                    accidentalPitch = accidentalPitch.transpose(-Pitch.OCTAVE);
+                }
+            }
+            if (!baseNote.equals(baseNoteUpper)) {
+                accidentalPitch = accidentalPitch.transpose(Pitch.OCTAVE);
+            }
+            finalNote = Music.note(duration, accidentalPitch, Instrument.PIANO);
+            accidentals.put(baseNote+octave, accidentalPitch);
+        }
+        else {
+            String baseNote = pitch.children().get(0).text();
+            String baseNoteUpper = baseNote.toUpperCase();
+            Map<String, Pitch> keyMap = getKeySignatureMap(key);
+            String octave = "";
+            Pitch nonAccidentalPitch;
+            if (pitch.children().size() == 2) {
+                octave = pitch.children().get(1).text();
+            }
+            nonAccidentalPitch = keyMap.get(baseNoteUpper);
+            if (!baseNote.equals(baseNoteUpper)) {
+                nonAccidentalPitch = nonAccidentalPitch.transpose(Pitch.OCTAVE);
+            }
+            
+            if (accidentals.keySet().contains(baseNote+octave)) {
+                nonAccidentalPitch = accidentals.get(baseNote+octave);
+            }
+            finalNote = Music.note(duration, nonAccidentalPitch, Instrument.PIANO);
+            accidentals.put(baseNote+octave, nonAccidentalPitch);
+        }
+        return finalNote;
     }
 
     /**
