@@ -30,7 +30,20 @@ public class PieceParser {
      * @throws UnableToParseException if example expression can't be parsed
      */
     public static void main(final String[] args) throws UnableToParseException {
-        throw new RuntimeException("Unimplemented");
+        // Tests for multiple words under one note
+        String header = "";
+        String body = "";
+        header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:3/4" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "K:C" + "\n";
+        body = "A B C | A B C" + "\n";
+        body += "w:test -test of day" + "\n";
+        
+        // Parse the string 
+        PieceParser.parse(header + body);
     }
     
     // the nonterminals of the grammar
@@ -89,7 +102,9 @@ public class PieceParser {
         MULTIPLE_SYLLABLES,
         MULTIPLE_WORDS, 
         UNDERSCORES, 
-        HYPHENS
+        HYPHENS, 
+        TILDE, 
+        BACKSLASH_HYPHEN
     }
     
     private static Parser<PieceGrammar> parser = makeParser();
@@ -535,7 +550,8 @@ public class PieceParser {
             String baseNoteUpper = baseNote.toUpperCase();
             Map<String, Pitch> keyMap = getKeySignatureMap(key);
             String octave = "";
-            if (pitch.children().size() == 3) {
+            final int maxPitchSize = 3;
+            if (pitch.children().size() == maxPitchSize) {
                 octave = pitch.children().get(2).text();
             }
             Pitch accidentalPitch;
@@ -554,7 +570,7 @@ public class PieceParser {
                 accidentalPitch = keyMap.get(baseNoteUpper).transpose(-1);
                 break;
             case "__":
-                accidentalPitch = keyMap.get(baseNoteUpper).transpose(-2);
+                accidentalPitch = keyMap.get(baseNoteUpper).transpose(-1*2);
                 break;
             default:
                 throw new AssertionError("Should never get here");
@@ -609,11 +625,11 @@ public class PieceParser {
         List<SimpleImmutableEntry<String, Integer>> lyricList = new ArrayList<>();
         
         for (ParseTree<PieceGrammar> lyricElement : lyric.children()) {
-            if (lyricElement.text() == "*") {
+            if (lyricElement.text().equals("*")) {
                 SimpleImmutableEntry<String, Integer> skip = new SimpleImmutableEntry<>("*no lyrics*", 1);
                 lyricList.add(skip);
             }
-            else if (lyricElement.text() == "|") {
+            else if (lyricElement.text().equals("|")) {
                 SimpleImmutableEntry<String, Integer> bar = new SimpleImmutableEntry<>("|", 0);
                 lyricList.add(bar);
             } 
@@ -675,12 +691,46 @@ public class PieceParser {
             }
         }
         
+        List<SimpleImmutableEntry<String, Integer>> secondLyricList = new ArrayList<>();
+
+        for (int i=0; i<lyricList.size(); ++i) {
+            SimpleImmutableEntry<String, Integer> pair = lyricList.get(i);
+            if (pair.getKey().equals("|") || pair.getKey().equals("*no lyrics*")) {
+                secondLyricList.add(pair);
+            } 
+            else if (!pair.getKey().equals("-")) {
+                String fullLyricLine = "";
+                
+                for (int j=0; j<lyricList.size(); ++j) {
+                    SimpleImmutableEntry<String, Integer> secondPair = lyricList.get(j);
+                    if (i==j) {
+                        fullLyricLine += "*" + pair.getKey() + "*";
+                        
+                    }
+                    else {
+                        if (secondPair.getKey().equals("-")) {
+                            fullLyricLine += "-";
+                        }
+                        else if (!(secondPair.getKey().equals("|") ||
+                                secondPair.getKey().equals("*no lyrics*"))) {
+                            fullLyricLine += secondPair.getKey();
+                        }
+                    }
+                    
+                    if ((j != lyricList.size() - 1) && 
+                         !(secondPair.getKey().equals("|") ||
+                           secondPair.getKey().equals("*no lyrics*") ||
+                           secondPair.getKey().equals("-"))) {
+                        if (!(lyricList.get(j+1).getKey().equals("-"))){
+                            fullLyricLine += " ";
+                        }
+                    }
+                }
+                secondLyricList.add(new SimpleImmutableEntry<String, Integer> (fullLyricLine, pair.getValue()));
+            }
+        }
         
-        
-        
-        
-        return lyricList;
-        
+        return secondLyricList;
     }
     
     /**
@@ -690,9 +740,10 @@ public class PieceParser {
      */
     private static String parseChunk(ParseTree<PieceGrammar> chunk) {
         String chunkString = ""; 
-        switch(chunk.name()) {
+        ParseTree<PieceGrammar> mutlipleSyllablesOrWords = chunk.children().get(0);
+        switch(mutlipleSyllablesOrWords.name()) {
         case MULTIPLE_SYLLABLES:
-            for (ParseTree<PieceGrammar> lyricTextOrBackslashHyphen : chunk.children()) {
+            for (ParseTree<PieceGrammar> lyricTextOrBackslashHyphen : mutlipleSyllablesOrWords.children()) {
                 if (lyricTextOrBackslashHyphen.name() == PieceGrammar.LYRIC_TEXT) {
                     chunkString += lyricTextOrBackslashHyphen.text();
                 } else {
@@ -701,9 +752,9 @@ public class PieceParser {
             }
             break;
         case MULTIPLE_WORDS:
-            for (ParseTree<PieceGrammar> lyricTextOrTilda : chunk.children()) {
-                if (lyricTextOrTilda.name() == PieceGrammar.LYRIC_TEXT) {
-                    chunkString += lyricTextOrTilda.text();
+            for (ParseTree<PieceGrammar> lyricTextOrTilde : mutlipleSyllablesOrWords.children()) {
+                if (lyricTextOrTilde.name() == PieceGrammar.LYRIC_TEXT) {
+                    chunkString += lyricTextOrTilde.text();
                 } else {
                     chunkString += " ";
                 }

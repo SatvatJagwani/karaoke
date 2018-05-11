@@ -65,8 +65,10 @@ hyphens ::= "-"+;
 underscores ::= "_"*;
 space ::= " "+;
 chunk ::= multiple_syllables | multiple_words;
-multiple_words ::= lyric_text ("~" lyric_text)*;
-multiple_syllables ::= lyric_text ("\\" "-" lyric_text)*;
+multiple_words ::= lyric_text (tilde lyric_text)*;
+multiple_syllables ::= lyric_text (backslash_hyphen lyric_text)*;
+tilde ::= "~";
+backslash_hyphen ::= "\\" "-";
 lyric_text ::= [a-zA-Z\".?!,';]*;
 
 comment ::= space_or_tab* "%" comment_text newline;
