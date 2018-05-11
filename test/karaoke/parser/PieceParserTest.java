@@ -741,8 +741,9 @@ public class PieceParserTest {
         // Create the correct music 
         Music firstMeasure = Music.rest(0);
         firstMeasure = Music.together(
-                       Music.concat(firstMeasure, Music.note(1, new Pitch('A'), Instrument.PIANO)),
-                       Music.lyrics("*no lyrics*", "voice1"));
+                       firstMeasure, 
+                       Music.concat(Music.note(1, new Pitch('A'), Instrument.PIANO), 
+                               Music.lyrics("*no lyrics*", "voice1")));
         firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('B'), Instrument.PIANO));
         firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('C'), Instrument.PIANO));
         firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('D'), Instrument.PIANO));
@@ -896,8 +897,9 @@ public class PieceParserTest {
         // Create the correct music 
         Music firstMeasure = Music.rest(0);
         firstMeasure = Music.together(
-                       Music.concat(firstMeasure, Music.note(1, new Pitch('A'), Instrument.PIANO)),
-                       Music.lyrics("*no lyrics*", "voice1"));
+                       firstMeasure, 
+                       Music.concat(Music.note(1, new Pitch('A'), Instrument.PIANO), 
+                               Music.lyrics("*no lyrics*", "voice1")));
         firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('B'), Instrument.PIANO));
         firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('C'), Instrument.PIANO));
         firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('D'), Instrument.PIANO));
@@ -927,24 +929,27 @@ public class PieceParserTest {
         // Create the correct music 
         Music firstVoice = Music.rest(0);
         firstVoice = Music.together(
-                       Music.concat(firstVoice, Music.note(1, new Pitch('A'), Instrument.PIANO)),
-                       Music.lyrics("*no lyrics*", "voice1"));
+                    firstVoice, 
+                    Music.concat(Music.note(1, new Pitch('A'), Instrument.PIANO), 
+                            Music.lyrics("*no lyrics*", "voice1")));
         firstVoice = Music.concat(firstVoice, Music.note(1, new Pitch('B'), Instrument.PIANO));
         firstVoice = Music.concat(firstVoice, Music.note(1, new Pitch('C'), Instrument.PIANO));
         firstVoice = Music.concat(firstVoice, Music.note(1, new Pitch('D'), Instrument.PIANO));
         
         Music secondVoice = Music.rest(0);
         secondVoice = Music.together(
-                       Music.concat(secondVoice, Music.note(1, new Pitch('E'), Instrument.PIANO)),
-                       Music.lyrics("*no lyrics*", "voice2"));
+                    secondVoice, 
+                    Music.concat(Music.note(1, new Pitch('E'), Instrument.PIANO), 
+                            Music.lyrics("*no lyrics*", "voice2")));
         secondVoice = Music.concat(secondVoice, Music.note(1, new Pitch('E'), Instrument.PIANO));
         secondVoice = Music.concat(secondVoice, Music.note(1, new Pitch('E'), Instrument.PIANO));
         secondVoice = Music.concat(secondVoice, Music.note(1, new Pitch('E'), Instrument.PIANO));
         
         Music thirdVoice = Music.rest(0);
         thirdVoice = Music.together(
-                       Music.concat(thirdVoice, Music.note(1, new Pitch('E'), Instrument.PIANO)),
-                       Music.lyrics("*no lyrics*", "voice3"));
+                thirdVoice, 
+                Music.concat(Music.note(1, new Pitch('E'), Instrument.PIANO), 
+                        Music.lyrics("*no lyrics*", "voice3")));
         thirdVoice = Music.concat(thirdVoice, Music.note(1, new Pitch('E'), Instrument.PIANO));
         thirdVoice = Music.concat(thirdVoice, Music.note(1, new Pitch('E'), Instrument.PIANO));
         thirdVoice = Music.concat(thirdVoice, Music.note(1, new Pitch('E'), Instrument.PIANO));
@@ -1101,7 +1106,7 @@ public class PieceParserTest {
                                     Music.lyrics("*two* words", "voice1")));
         correctMusic = Music.concat(correctMusic, 
                                     Music.together(Music.note(1, new Pitch('B'), Instrument.PIANO),
-                                    Music.lyrics("two words", "voice1")));
+                                    Music.lyrics("*no lyrics*", "voice1")));
         correctMusic = Music.concat(correctMusic, 
                                     Music.together(Music.note(1, new Pitch('C'), Instrument.PIANO),
                                     Music.lyrics("two *words*", "voice1")));
@@ -1182,10 +1187,10 @@ public class PieceParserTest {
                                     Music.lyrics("*test* test of day", "voice1")));
         correctMusic = Music.concat(correctMusic, 
                                     Music.together(Music.note(1, new Pitch('B'), Instrument.PIANO),
-                                    Music.lyrics("test test of day", "voice1")));
+                                    Music.lyrics("*no lyrics*", "voice1")));
         correctMusic = Music.concat(correctMusic, 
                                     Music.together(Music.note(1, new Pitch('C'), Instrument.PIANO),
-                                    Music.lyrics("test test of day", "voice1")));
+                                    Music.lyrics("*no lyrics*", "voice1")));
         correctMusic = Music.concat(correctMusic, 
                                     Music.together(Music.note(1, new Pitch('A'), Instrument.PIANO),
                                     Music.lyrics("test *test* of day", "voice1")));
@@ -1225,8 +1230,9 @@ public class PieceParserTest {
         // Create the correct music 
         Music firstMeasure = Music.rest(0);
         firstMeasure = Music.together(
-                       Music.concat(firstMeasure, Music.note(1, new Pitch('A'), Instrument.PIANO)),
-                       Music.lyrics("*no lyrics*", "voice1"));
+                        firstMeasure, 
+                        Music.concat(Music.note(1, new Pitch('A'), Instrument.PIANO), 
+                                Music.lyrics("*no lyrics*", "voice1")));
         firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('B'), Instrument.PIANO));
         firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('C'), Instrument.PIANO));
         firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('D'), Instrument.PIANO));
