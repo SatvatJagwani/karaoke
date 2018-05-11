@@ -36,7 +36,7 @@ element ::= note_element | rest_element | tuplet_element | barline | nth_repeat 
 
 note_element ::= note | chord;
 
-note ::= pitch note_length?;
+note ::= pitch note_length;
 pitch ::= accidental? basenote octave?;
 octave ::= "'"+ | ","+;
 note_length ::= (digit+)? ("/" (digit+)?)?;
@@ -45,7 +45,7 @@ accidental ::= "^" | "^^" | "_" | "__" | "=";
 
 basenote ::= "C" | "D" | "E" | "F" | "G" | "A" | "B" | "c" | "d" | "e" | "f" | "g" | "a" | "b";
 
-rest_element ::= "z" note_length?;
+rest_element ::= "z" note_length;
 
 tuplet_element ::= tuplet_spec note_element+;
 tuplet_spec ::= "(" digit; 
@@ -58,7 +58,15 @@ nth_repeat ::= "[1" | "[2";
 middle_of_body_field ::= field_voice;
 
 lyric ::= "w:" lyrical_element*;
-lyrical_element ::= " "+ | "-" | "_" | "*" | "~" | backslash_hyphen | "|" | lyric_text;
+lyrical_element ::= "*" | "|" | word | space;
+word ::= chunk (separator chunk)* underscores;
+separator ::= space? hyphens underscores;
+hyphens ::= "-"+;
+underscores ::= "_"*;
+space ::= " "+;
+chunk ::= multiple_syllables | multiple_words;
+multiple_words ::= lyric_text ("~" lyric_text)*;
+multiple_syllables ::= lyric_text ("\\" "-" lyric_text)*;
 lyric_text ::= [a-zA-Z\".?!,';]*;
 
 comment ::= space_or_tab* "%" comment_text newline;
@@ -69,4 +77,3 @@ end_of_line ::= comment | newline;
 digit ::= [0-9];
 newline ::= "\n"| "\r" "\n"?;
 space_or_tab ::= " " | "\t";
-backslash_hyphen ::= "\\" "-";

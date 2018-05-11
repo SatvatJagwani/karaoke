@@ -85,7 +85,7 @@ public class PieceParserTest {
         
         assertEquals("expected correct index", 1, piece.getIndex());
         assertEquals("expected correct title", "simple song", piece.getTitle());
-        assertEquals("expected correct composer", "Unkown", piece.getNameOfComposer());
+        assertEquals("expected correct composer", "Unknown", piece.getNameOfComposer());
         assertEquals("expected correct key signature", "C", piece.getKey());
         assertEquals("expected correct meter", "4/4", piece.getMeter());
         assertEquals("expected correct default note length", 1.0/8.0, piece.getNoteDuration(), 0);

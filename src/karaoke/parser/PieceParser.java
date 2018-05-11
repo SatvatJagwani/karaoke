@@ -81,8 +81,15 @@ public class PieceParser {
         NEWLINE,
         SPACE_OR_TAB, 
         TEXT, 
-        BACKSLASH_HYPHEN, 
-        INDEX
+        INDEX,
+        WORD,
+        SPACE,
+        SEPARATOR,
+        CHUNK,
+        MULTIPLE_SYLLABLES,
+        MULTIPLE_WORDS, 
+        UNDERSCORES, 
+        HYPHENS
     }
     
     private static Parser<PieceGrammar> parser = makeParser();
@@ -376,11 +383,11 @@ public class PieceParser {
                     break;
                 case REST_ELEMENT:
                     double duration;
-                    if (subelement.children().size()==0) {
+                    ParseTree<PieceGrammar> noteLength = subelement.children().get(0);
+                    if (noteLength.text().equals("")) {
                         duration = 1.0;
                     }
                     else {
-                        ParseTree<PieceGrammar> noteLength = subelement.children().get(0);
                         duration = parseNoteLength(noteLength);
                     }
                     Music rest = Music.rest(duration);
@@ -512,13 +519,15 @@ public class PieceParser {
                                    Map<String, Pitch> accidentals, double multiplier) {
         double duration;
         Music finalNote;
-        if (note.children().size() == 1) {
+        
+        ParseTree<PieceGrammar> noteLength = note.children().get(1);
+        if (noteLength.text().equals("")) {
             duration = 1.0 * multiplier;
         }
         else {
-            ParseTree<PieceGrammar> noteLength = note.children().get(1);
             duration = parseNoteLength(noteLength) * multiplier;
         }
+        
         ParseTree<PieceGrammar> pitch = note.children().get(0);
         if (pitch.children().get(0).name() == PieceGrammar.ACCIDENTAL) {
             String accidental = pitch.children().get(0).text();
@@ -597,53 +606,115 @@ public class PieceParser {
      *         sung for (for a bar this will be 0). 
      */
     private static List<SimpleImmutableEntry<String, Integer>> parseLyric(ParseTree<PieceGrammar> lyric) {
-        throw new AssertionError("Not implemented yet");
+        List<SimpleImmutableEntry<String, Integer>> lyricList = new ArrayList<>();
         
-        // TODO: possibly redo the grammar for lyrics to make it easier to parse
+        for (ParseTree<PieceGrammar> lyricElement : lyric.children()) {
+            if (lyricElement.text() == "*") {
+                SimpleImmutableEntry<String, Integer> skip = new SimpleImmutableEntry<>("*no lyrics*", 1);
+                lyricList.add(skip);
+            }
+            else if (lyricElement.text() == "|") {
+                SimpleImmutableEntry<String, Integer> bar = new SimpleImmutableEntry<>("|", 0);
+                lyricList.add(bar);
+            } 
+            else if (lyricElement.children().get(0).name() == PieceGrammar.WORD) {
+                ParseTree<PieceGrammar> word = lyricElement.children().get(0);
+                
+                for (ParseTree<PieceGrammar> subword : word.children()) {
+                    switch(subword.name()) {
+                    case CHUNK:
+                        ParseTree<PieceGrammar> chunk = subword;
+                        String chunkLiteral = parseChunk(chunk);
+                        SimpleImmutableEntry<String, Integer> chunkPair = 
+                                new SimpleImmutableEntry<>(chunkLiteral, 1);
+                        lyricList.add(chunkPair);
+                        break;
+                    case SEPARATOR:
+                        ParseTree<PieceGrammar> separator = subword;
+                        if (separator.children().get(0).name() == PieceGrammar.SPACE) {
+                            SimpleImmutableEntry<String, Integer> skip = new SimpleImmutableEntry<>("*no lyrics*", 1);
+                            lyricList.add(skip);
+                        } 
+                        
+                        ParseTree<PieceGrammar> hyphens;
+                        ParseTree<PieceGrammar> underscores;
+                        if (separator.children().size() == 2) {
+                            hyphens = separator.children().get(0);
+                            underscores = separator.children().get(1);
+                        } else {
+                            hyphens = separator.children().get(1);
+                            underscores = separator.children().get(2);
+                        }
+                         
+                        SimpleImmutableEntry<String, Integer> skip = new SimpleImmutableEntry<>("-", 0);
+                        lyricList.add(skip);
+                        
+                        for (int i=1; i<hyphens.text().length(); ++i) {
+                            SimpleImmutableEntry<String, Integer> hyphenSkip = new SimpleImmutableEntry<>("*no lyrics*", 1);
+                            lyricList.add(hyphenSkip);
+                        }
+                        
+                        int numUnderscoresAfterHyphen = underscores.text().length();
+                        SimpleImmutableEntry<String, Integer> secondToLast = lyricList.get(lyricList.size() - 2);
+                        SimpleImmutableEntry<String, Integer> newSecondToLast = 
+                                new SimpleImmutableEntry<>(secondToLast.getKey(), 
+                                        secondToLast.getValue() + numUnderscoresAfterHyphen);
+                        lyricList.set(lyricList.size() - 2, newSecondToLast);
+                        break;
+                    case UNDERSCORES:
+                        int numUnderscores = subword.text().length();
+                        SimpleImmutableEntry<String, Integer> lastEntry = lyricList.get(lyricList.size() - 1);
+                        SimpleImmutableEntry<String, Integer> newLastEntry = 
+                                new SimpleImmutableEntry<>(lastEntry.getKey(), lastEntry.getValue() + numUnderscores);
+                        lyricList.set(lyricList.size() - 1, newLastEntry);
+                        break;
+                    default:
+                        throw new AssertionError("Should never get here");
+                    }
+                }
+            }
+        }
         
-        //        String lyricLine = "";
-//        for (ParseTree<PieceGrammar> lyricalElement: lyric.children()) {
-//            if (lyricalElement.name() == PieceGrammar.BACKSLASH_HYPHEN) {
-//                lyricLine += "^";
-//            }
-//            else if (lyricalElement.text().equals("*")) {
-//                lyricLine += " * ";
-//            }
-//            else if (lyricalElement.text().equals("|")) {
-//                lyricLine += " | ";
-//            }
-//            else {
-//                lyricLine += lyricalElement.text();
-//            }
-//        }
-//        
-//        List<SimpleImmutableEntry<String, Integer>> lyricsBySyllable = new ArrayList<>();
-//
-//        String[] lyricLineSpaceSplit = lyricLine.split("\\s");
-//        for (String lyricLineWord: lyricLineSpaceSplit) {
-//            if (lyricLineWord.equals("*")) {
-//                SimpleImmutableEntry<String, Integer> skip = new SimpleImmutableEntry<>("*no lyrics*", 1);
-//                lyricsBySyllable.add(skip);
-//            }
-//            else if (lyricLineWord.equals("|")) {
-//                SimpleImmutableEntry<String, Integer> bar = new SimpleImmutableEntry<>("|", 0);
-//                lyricsBySyllable.add(bar);
-//            }
-//            String[] lyricLineSpaceHyphenSplit = lyricLineWord.split("-");
-//            for (String subword: lyricLineSpaceHyphenSplit) {
-//                if (subword.equals("")) {
-//                    SimpleImmutableEntry<String, Integer> skip = new SimpleImmutableEntry<>("*no lyrics*", 1);
-//                    lyricsBySyllable.add(skip);
-//                }
-//                // TODO?: other else ifs for keysymbols ^, ~, _, __
-//                else {
-//                    SimpleImmutableEntry<String, Integer> noMod = new SimpleImmutableEntry<>("subword", 1);
-//                    lyricsBySyllable.add(noMod);
-//                }
-//            }
-//        }
+        
+        
+        
+        
+        return lyricList;
+        
     }
     
+    /**
+     * Converts a chunk representation in the abc grammar into a string 
+     * @param chunk the chunk in the abc grammar
+     * @return the string representation of the chunk
+     */
+    private static String parseChunk(ParseTree<PieceGrammar> chunk) {
+        String chunkString = ""; 
+        switch(chunk.name()) {
+        case MULTIPLE_SYLLABLES:
+            for (ParseTree<PieceGrammar> lyricTextOrBackslashHyphen : chunk.children()) {
+                if (lyricTextOrBackslashHyphen.name() == PieceGrammar.LYRIC_TEXT) {
+                    chunkString += lyricTextOrBackslashHyphen.text();
+                } else {
+                    chunkString += "-";
+                }
+            }
+            break;
+        case MULTIPLE_WORDS:
+            for (ParseTree<PieceGrammar> lyricTextOrTilda : chunk.children()) {
+                if (lyricTextOrTilda.name() == PieceGrammar.LYRIC_TEXT) {
+                    chunkString += lyricTextOrTilda.text();
+                } else {
+                    chunkString += " ";
+                }
+            }
+            break;
+        default:
+            throw new AssertionError("Should never get here");
+        }
+        return chunkString;
+    }
+
     /**
      * Converts a list of pairs into a final Music object
      * @param voiceMusic a list of pairs of a particular voice for a the entire piece
@@ -651,13 +722,14 @@ public class PieceParser {
      *         any "music" or "rest" pairs then this method returns a rest of length 0
      */
     private static Music compress(List<SimpleImmutableEntry<String,Music>> voiceMusic) {
+        throw new RuntimeException("Not implemented");
         // TODO implement this method 
-        Music requiredMusic = Music.rest(0);
-        for(SimpleImmutableEntry<String,Music> typeAndMusic : voiceMusic) {
-            Music addition = typeAndMusic.getValue();
-            requiredMusic = Music.concat(requiredMusic, addition);
-        }
-        return requiredMusic;
+//        Music requiredMusic = Music.rest(0);
+//        for(SimpleImmutableEntry<String,Music> typeAndMusic : voiceMusic) {
+//            Music addition = typeAndMusic.getValue();
+//            requiredMusic = Music.concat(requiredMusic, addition);
+//        }
+//        return requiredMusic;
     }
     
     /**
