@@ -26,7 +26,7 @@ public class WebServer {
     //                        a set of lyrics for a voice to different web-sites once 
     //                        start(map) is called on the ADT with a properly configured map
     // Representation invariant:
-    //     1 <= port <= 6553
+    //     1 <= port <= 65535
     // Safety from rep exposure:
     //     all fields are private and final
     //     all parameters passed into the constructor are immutable 

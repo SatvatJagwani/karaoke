@@ -533,7 +533,12 @@ public class PieceParser {
      */
     private static Music compress(List<SimpleImmutableEntry<String,Music>> voiceMusic) {
         // TODO implement this method 
-        throw new RuntimeException("Not implemented yet");
+        Music requiredMusic = Music.rest(0);
+        for(SimpleImmutableEntry<String,Music> typeAndMusic : voiceMusic) {
+            Music addition = typeAndMusic.getValue();
+            requiredMusic = Music.concat(requiredMusic, addition);
+        }
+        return requiredMusic;
     }
     
     /**
