@@ -401,7 +401,7 @@ public class PieceTest {
     //     filename: file not in right format
     @Test(expected=UnableToParseException.class)
     public void testFileNotValidMusic() throws IOException, UnableToParseException {
-        Piece.parseFromFile("Piece.java");
+        Piece.parseFromFile("src/karaoke/Piece.java");
     }
 
     // covers
