@@ -597,8 +597,51 @@ public class PieceParser {
      *         sung for (for a bar this will be 0). 
      */
     private static List<SimpleImmutableEntry<String, Integer>> parseLyric(ParseTree<PieceGrammar> lyric) {
-        // TODO implement this method 
-        throw new RuntimeException("Not implemented yet");
+        throw new AssertionError("Not implemented yet");
+        
+        // TODO: possibly redo the grammar for lyrics to make it easier to parse
+        
+        //        String lyricLine = "";
+//        for (ParseTree<PieceGrammar> lyricalElement: lyric.children()) {
+//            if (lyricalElement.name() == PieceGrammar.BACKSLASH_HYPHEN) {
+//                lyricLine += "^";
+//            }
+//            else if (lyricalElement.text().equals("*")) {
+//                lyricLine += " * ";
+//            }
+//            else if (lyricalElement.text().equals("|")) {
+//                lyricLine += " | ";
+//            }
+//            else {
+//                lyricLine += lyricalElement.text();
+//            }
+//        }
+//        
+//        List<SimpleImmutableEntry<String, Integer>> lyricsBySyllable = new ArrayList<>();
+//
+//        String[] lyricLineSpaceSplit = lyricLine.split("\\s");
+//        for (String lyricLineWord: lyricLineSpaceSplit) {
+//            if (lyricLineWord.equals("*")) {
+//                SimpleImmutableEntry<String, Integer> skip = new SimpleImmutableEntry<>("*no lyrics*", 1);
+//                lyricsBySyllable.add(skip);
+//            }
+//            else if (lyricLineWord.equals("|")) {
+//                SimpleImmutableEntry<String, Integer> bar = new SimpleImmutableEntry<>("|", 0);
+//                lyricsBySyllable.add(bar);
+//            }
+//            String[] lyricLineSpaceHyphenSplit = lyricLineWord.split("-");
+//            for (String subword: lyricLineSpaceHyphenSplit) {
+//                if (subword.equals("")) {
+//                    SimpleImmutableEntry<String, Integer> skip = new SimpleImmutableEntry<>("*no lyrics*", 1);
+//                    lyricsBySyllable.add(skip);
+//                }
+//                // TODO?: other else ifs for keysymbols ^, ~, _, __
+//                else {
+//                    SimpleImmutableEntry<String, Integer> noMod = new SimpleImmutableEntry<>("subword", 1);
+//                    lyricsBySyllable.add(noMod);
+//                }
+//            }
+//        }
     }
     
     /**
