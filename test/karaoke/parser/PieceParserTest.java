@@ -1078,8 +1078,7 @@ public class PieceParserTest {
                                     Music.together(Music.note(1, new Pitch('B'), Instrument.PIANO),
                                     Music.lyrics("syll-*a*-ble", "voice1")));
         correctMusic = Music.concat(correctMusic, 
-                                    Music.together(Music.note(1, new Pitch('C'), Instrument.PIANO),
-                                    Music.lyrics("syll-*a*-ble", "voice1")));
+                                    Music.note(1, new Pitch('C'), Instrument.PIANO));
         correctMusic = Music.concat(correctMusic, 
                                     Music.together(Music.note(1, new Pitch('D'), Instrument.PIANO),
                                     Music.lyrics("syll-a-*ble*", "voice1")));
@@ -1181,25 +1180,26 @@ public class PieceParserTest {
         piece = PieceParser.parse(header + body);
         
         // Create the correct music 
-        correctMusic = Music.rest(0);
-        correctMusic = Music.concat(correctMusic, 
+        Music firstMeasure = Music.rest(0);
+        firstMeasure = Music.concat(firstMeasure, 
                                     Music.together(Music.note(1, new Pitch('A'), Instrument.PIANO),
                                     Music.lyrics("*test* test of day", "voice1")));
-        correctMusic = Music.concat(correctMusic, 
+        firstMeasure = Music.concat(firstMeasure, 
                                     Music.together(Music.note(1, new Pitch('B'), Instrument.PIANO),
                                     Music.lyrics("*no lyrics*", "voice1")));
-        correctMusic = Music.concat(correctMusic, 
-                                    Music.together(Music.note(1, new Pitch('C'), Instrument.PIANO),
-                                    Music.lyrics("*no lyrics*", "voice1")));
-        correctMusic = Music.concat(correctMusic, 
+        firstMeasure = Music.concat(firstMeasure, 
+                                    Music.note(1, new Pitch('C'), Instrument.PIANO));
+        Music secondMeasure = Music.rest(0);
+        secondMeasure = Music.concat(secondMeasure, 
                                     Music.together(Music.note(1, new Pitch('A'), Instrument.PIANO),
                                     Music.lyrics("test *test* of day", "voice1")));
-        correctMusic = Music.concat(correctMusic, 
+        secondMeasure = Music.concat(secondMeasure, 
                                     Music.together(Music.note(1, new Pitch('B'), Instrument.PIANO),
                                     Music.lyrics("test test *of* day", "voice1")));
-        correctMusic = Music.concat(correctMusic, 
+        secondMeasure = Music.concat(secondMeasure, 
                                     Music.together(Music.note(1, new Pitch('C'), Instrument.PIANO),
                                     Music.lyrics("test test of *day*", "voice1")));
+        correctMusic = Music.concat(firstMeasure, secondMeasure);
         
         assertEquals("expected correct music", correctMusic, piece.getMusic());
         
