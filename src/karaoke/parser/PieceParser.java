@@ -466,10 +466,26 @@ public class PieceParser {
         } 
         
         // TODO add the parsedLyric to the parseBodyLine
-        System.out.println(parsedBodyLine);
-        System.out.println(parsedLyric);
+        List<SimpleImmutableEntry<String, Music>> combinedMusicAndLyrics = addLyricToBodyLine(parsedBodyLine, parsedLyric, voice);
         
-        
+        return combinedMusicAndLyrics;
+    }
+    
+
+
+    /**
+     * Combines the parsedLyricLine with the parsedBodyLine
+     * @param parsedBodyLine 
+     * @param parsedLyric the lyrics to be added to the parsedBodyLine, the result
+     *        from the parseLyric method
+     * @param voice the voice of the lyrics to be sung
+     * @return a list of pairs of the same form as parsedBodyLine that has lyrics 
+     *         combined with the correct music objects using the Music.together method
+     */
+    private static List<SimpleImmutableEntry<String, Music>> addLyricToBodyLine(
+            List<SimpleImmutableEntry<String, Music>> parsedBodyLine,
+            List<SimpleImmutableEntry<String, Integer>> parsedLyric, String voice) {
+
         List<SimpleImmutableEntry<String, Boolean>> parsedLyricBoolean = new ArrayList<>();
         for (SimpleImmutableEntry<String, Integer> lyricPair : parsedLyric) {
             if (lyricPair.getValue() == 0) {
@@ -534,10 +550,12 @@ public class PieceParser {
             }
             else {
                 // Rest, bar, or repeat
-                if (parsedLyricBoolean.get(index).getKey().equals("|") && 
-                    (!label.equals("rest"))) {
-                    waitingForMusicBar = true;
-                    needToAddNoLyrics = true;
+                if (index < parsedLyricBoolean.size()) {
+                    if (parsedLyricBoolean.get(index).getKey().equals("|") && 
+                            (!label.equals("rest"))) {
+                            waitingForMusicBar = true;
+                            needToAddNoLyrics = true;
+                        }
                 }
                 combinedMusicAndLyrics.add(musicPair);
             }
@@ -548,15 +566,8 @@ public class PieceParser {
             
         }
         
-        
-        System.out.println(parsedBodyLine);
-        System.out.println(parsedLyric);
-        System.out.println(combinedMusicAndLyrics);
-        
         return combinedMusicAndLyrics;
     }
-    
-
 
     /**
      * Converts a grammar representation of a note length into a double
