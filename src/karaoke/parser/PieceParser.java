@@ -40,7 +40,7 @@ public class PieceParser {
         header += "Q:1/4=100" + "\n";
         header += "K:C" + "\n";
         body = "A B C | A B C" + "\n";
-        body += "w:test -test of day" + "\n";
+        body += "w:test-_test of day" + "\n";
         
         // Parse the string 
         PieceParser.parse(header + body);
@@ -466,8 +466,94 @@ public class PieceParser {
         } 
         
         // TODO add the parsedLyric to the parseBodyLine
+        System.out.println(parsedBodyLine);
+        System.out.println(parsedLyric);
         
-        return parsedBodyLine;
+        
+        List<SimpleImmutableEntry<String, Boolean>> parsedLyricBoolean = new ArrayList<>();
+        for (SimpleImmutableEntry<String, Integer> lyricPair : parsedLyric) {
+            if (lyricPair.getValue() == 0) {
+                SimpleImmutableEntry<String, Boolean> barPair = new SimpleImmutableEntry<>("|", false);
+                parsedLyricBoolean.add(barPair);
+            }
+            else {
+                for (int i=0; i < lyricPair.getValue(); i++) {
+                    SimpleImmutableEntry<String, Boolean> lyricPairBoolean = 
+                                new SimpleImmutableEntry<>(lyricPair.getKey(), i == 0);
+                    parsedLyricBoolean.add(lyricPairBoolean);
+                }
+            }
+        }
+        
+        int index = 0;
+        boolean waitingForMusicBar = false;
+        boolean needToAddNoLyrics = true;
+        
+        List<SimpleImmutableEntry<String, Music>> combinedMusicAndLyrics = new ArrayList<>();
+        for (SimpleImmutableEntry<String, Music> musicPair : parsedBodyLine) {
+            String label = musicPair.getKey();
+            
+            if (label.equals("music")) {
+                
+                Music music = musicPair.getValue();
+                SimpleImmutableEntry<String, Music> noLyrics = new SimpleImmutableEntry<>(label, 
+                        Music.together(music, Music.lyrics("*no lyrics*", voice)));
+                
+                
+                if (index == parsedLyricBoolean.size()) {
+                    combinedMusicAndLyrics.add(noLyrics);
+                    index++;
+                    continue;
+                } else if (index > parsedLyricBoolean.size()) {
+                    combinedMusicAndLyrics.add(musicPair);
+                    index++;
+                    continue;
+                }
+                
+                if (!waitingForMusicBar) {
+                    SimpleImmutableEntry<String, Boolean> lyricPairBoolean = parsedLyricBoolean.get(index);
+                    String lyricLine = lyricPairBoolean.getKey();
+                    if (lyricPairBoolean.getValue()) {
+                        SimpleImmutableEntry<String, Music> musicWithLyrics = new SimpleImmutableEntry<>(
+                                label, Music.together(music, Music.lyrics(lyricLine, voice)));
+                        combinedMusicAndLyrics.add(musicWithLyrics);
+                    } 
+                    else {
+                        combinedMusicAndLyrics.add(musicPair);
+                    }
+                }
+                else {
+                    if (needToAddNoLyrics) {
+                        combinedMusicAndLyrics.add(noLyrics);
+                        needToAddNoLyrics = false;
+                    } 
+                    else {
+                        combinedMusicAndLyrics.add(musicPair);
+                    }
+                }
+            }
+            else {
+                // Rest, bar, or repeat
+                if (parsedLyricBoolean.get(index).getKey().equals("|") && 
+                    (!label.equals("rest"))) {
+                    waitingForMusicBar = true;
+                    needToAddNoLyrics = true;
+                }
+                combinedMusicAndLyrics.add(musicPair);
+            }
+            
+            if (!waitingForMusicBar) {
+                index++;
+            }
+            
+        }
+        
+        
+        System.out.println(parsedBodyLine);
+        System.out.println(parsedLyric);
+        System.out.println(combinedMusicAndLyrics);
+        
+        return combinedMusicAndLyrics;
     }
     
 
