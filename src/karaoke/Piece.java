@@ -129,7 +129,7 @@ public class Piece {
         // voices.size() >= 1
         assert voices.size() >= 1;
         // key must be [A-G](# | b)?m?
-        assert key.matches("[A-G](# | b)?m?");
+        assert key.matches("[A-G](#|b)?m?");
         // music must not be null
         assert music != null;
     }
