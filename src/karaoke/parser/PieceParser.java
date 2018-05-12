@@ -263,6 +263,7 @@ public class PieceParser {
      * @return the fraction simplified as a double 
      */
     private static double fractionToDouble(String fraction) {
+        // Split the string on "/" then divide numerator by denominator 
         String[] fractionArr = fraction.split("/"); 
         double numerator = Double.parseDouble(fractionArr[0]);
         double denominator = Double.parseDouble(fractionArr[1]);
@@ -288,6 +289,7 @@ public class PieceParser {
         }
         
         // Together all the Music objects in the list 
+        // TODO sort by duration before together? 
         Music bodyMusic = voicesMusic.get(0);
         for (int i = 1; i < voicesMusic.size(); i++) {
             bodyMusic = Music.together(bodyMusic, voicesMusic.get(i));
@@ -363,8 +365,8 @@ public class PieceParser {
             fullVoiceBody.addAll(linePart);
         }
         
+        // Compress the voiceMusic (takes care of measures, major sections, and repeats)
         Music voiceMusic = compress(fullVoiceBody);
-        
         return voiceMusic;
     }
     
@@ -381,15 +383,16 @@ public class PieceParser {
      */
     private static List<SimpleImmutableEntry<String, Music>> parseBodyLine(ParseTree<PieceGrammar> abcLine, 
             String voice, String key, Map<String, Pitch> accidentals) {
-        
+        // First, parse the elements in the body, store them in parsedBodyLine
         List<SimpleImmutableEntry<String, Music>> parsedBodyLine = new ArrayList<>();
-        
         boolean lineContainsLyrics = false;
+        
         for (ParseTree<PieceGrammar> element: abcLine.children()) {
             if (element.name()==PieceGrammar.ELEMENT) {
                 ParseTree<PieceGrammar> subelement = element.children().get(0);
                 switch(subelement.name()) {
                 case NOTE_ELEMENT:
+                    // Note stored as ("music", Note), Note could be a single note or a chord 
                     ParseTree<PieceGrammar> noteElement = subelement;
                     Music noteElementMusic = parseNoteElement(noteElement, key, accidentals, 1.0);
                     SimpleImmutableEntry<String, Music> noteElementPair
@@ -397,6 +400,7 @@ public class PieceParser {
                     parsedBodyLine.add(noteElementPair);
                     break;
                 case REST_ELEMENT:
+                    // Rest stored as ("rest", Rest)
                     double duration;
                     ParseTree<PieceGrammar> noteLength = subelement.children().get(0);
                     if (noteLength.text().equals("")) {
@@ -411,6 +415,8 @@ public class PieceParser {
                     parsedBodyLine.add(restPair);
                     break;
                 case TUPLET_ELEMENT:
+                    // Tuplet is the same as 2, 3, or 4 consecutive NOTE_ELEMENT
+                    // So treat it the same way, just change the multiplier in the duration 
                     ParseTree<PieceGrammar> tupletSpec = subelement.children().get(0);
                     String tupletType = tupletSpec.children().get(0).text();
                     double multiplier;
@@ -430,6 +436,8 @@ public class PieceParser {
                     default:
                         throw new AssertionError("Should never get here");
                     }
+                    
+                    // Add each note in the tuplet as ("music", Note), Note could be a single note or a chord 
                     for (int i=1; i<subelement.children().size(); ++i) {
                         ParseTree<PieceGrammar> tupletNoteElement = subelement.children().get(i);
                         Music tupletMusic = parseNoteElement(tupletNoteElement, key, accidentals, multiplier);
@@ -439,33 +447,38 @@ public class PieceParser {
                     }
                     break;
                 case BARLINE:
+                    // Add a barline as (b, Rest(0)), where b is in {"|", "||", "[|", "|]", ":|", "|:"} 
                     SimpleImmutableEntry<String, Music> barline 
                                 = new SimpleImmutableEntry<>(subelement.text(), Music.rest(0));
                     parsedBodyLine.add(barline);
                     accidentals = new HashMap<String, Pitch>();
                     break;
                 case NTH_REPEAT:
+                    // Add nth_repeat as (r, Rest(0)), where r is in {"[1", "[2"}
                     SimpleImmutableEntry<String, Music> repeat 
                                 = new SimpleImmutableEntry<>(subelement.text(), Music.rest(0));
                     parsedBodyLine.add(repeat);
                     break;
                 case SPACE_OR_TAB:
+                    // Don't do anything if we see space or tab 
                     break;
                 default:
                     throw new AssertionError("Should never get here");
                 }
             } else if (element.name()==PieceGrammar.LYRIC) {
+                // There is a lyric in the grammar 
                 lineContainsLyrics = true;
             }
         }
         
+        // If there was a lyric in the grammar, parse it in a helper method 
         List<SimpleImmutableEntry<String, Integer>> parsedLyric = new ArrayList<>();
         if (lineContainsLyrics) {
             ParseTree<PieceGrammar> lyric = abcLine.children().get(abcLine.children().size() - 2);
             parsedLyric = parseLyric(lyric); 
         } 
         
-        // TODO add the parsedLyric to the parseBodyLine
+        // Add the parsedLyric to the parsedBodyLine
         List<SimpleImmutableEntry<String, Music>> combinedMusicAndLyrics = addLyricToBodyLine(parsedBodyLine, parsedLyric, voice);
         
         return combinedMusicAndLyrics;
@@ -475,7 +488,10 @@ public class PieceParser {
 
     /**
      * Combines the parsedLyricLine with the parsedBodyLine
-     * @param parsedBodyLine 
+     * @param parsedBodyLine a list of pairs where the first element in pair indicates the structure of the song
+     *         (either the type of bar/repeat or the music) and the second element is the Music
+     *         corresponding to the first element where that is a rest of duration zero if the first
+     *         element is a bar/repeat. Here none of the Music elements have lyrics attached to them. 
      * @param parsedLyric the lyrics to be added to the parsedBodyLine, the result
      *        from the parseLyric method
      * @param voice the voice of the lyrics to be sung
@@ -486,14 +502,20 @@ public class PieceParser {
             List<SimpleImmutableEntry<String, Music>> parsedBodyLine,
             List<SimpleImmutableEntry<String, Integer>> parsedLyric, String voice) {
 
+        // First, convert the parsedLyric into another list where each element in the new list
+        // is of the form (lyricLine, Boolean) and if the Boolean is true, then we will add 
+        // the pair to one of the Music elements in parsedBodyLine. Allows duplicated lyricLines whenever
+        // their length is greater than 1, but only the first on has a true Boolean. 
         List<SimpleImmutableEntry<String, Boolean>> parsedLyricBoolean = new ArrayList<>();
         for (SimpleImmutableEntry<String, Integer> lyricPair : parsedLyric) {
             if (lyricPair.getValue() == 0) {
+                // Bars are always false
                 SimpleImmutableEntry<String, Boolean> barPair = new SimpleImmutableEntry<>("|", false);
                 parsedLyricBoolean.add(barPair);
             }
             else {
                 for (int i=0; i < lyricPair.getValue(); i++) {
+                    // Lyrics are only true for the first occurrence of the lyric
                     SimpleImmutableEntry<String, Boolean> lyricPairBoolean = 
                                 new SimpleImmutableEntry<>(lyricPair.getKey(), i == 0);
                     parsedLyricBoolean.add(lyricPairBoolean);
@@ -501,69 +523,80 @@ public class PieceParser {
             }
         }
         
+        // Combine parsedLyricBoolean with parsedBodyLine 
         int index = 0;
         boolean waitingForMusicBar = false;
         boolean needToAddNoLyrics = true;
-        
         List<SimpleImmutableEntry<String, Music>> combinedMusicAndLyrics = new ArrayList<>();
+        
         for (SimpleImmutableEntry<String, Music> musicPair : parsedBodyLine) {
             String label = musicPair.getKey();
             
             if (label.equals("music")) {
-                
+                // We are looking at a music object in the parsedBodyLine 
                 Music music = musicPair.getValue();
                 SimpleImmutableEntry<String, Music> noLyrics = new SimpleImmutableEntry<>(label, 
                         Music.together(music, Music.lyrics("*no lyrics*", voice)));
                 
-                
                 if (index == parsedLyricBoolean.size()) {
+                    // We have looked through all the lyrics, so we add one noLyrics at the end
                     combinedMusicAndLyrics.add(noLyrics);
+                    // Skip the rest of the loop because there are no more lyrics to look at 
                     index++;
                     continue;
                 } else if (index > parsedLyricBoolean.size()) {
+                    // We have looked through all the lyrics and we don't add any more noLyrics 
                     combinedMusicAndLyrics.add(musicPair);
+                    // Skip the rest of the loop because there are no more lyrics to look at 
                     index++;
                     continue;
                 }
                 
                 if (!waitingForMusicBar) {
+                    // If the lyrics are not stuck on a music bar in lyrics
                     SimpleImmutableEntry<String, Boolean> lyricPairBoolean = parsedLyricBoolean.get(index);
                     String lyricLine = lyricPairBoolean.getKey();
                     if (lyricPairBoolean.getValue()) {
+                        // Combine the music and lyric line if the boolean for the lyric is true 
                         SimpleImmutableEntry<String, Music> musicWithLyrics = new SimpleImmutableEntry<>(
                                 label, Music.together(music, Music.lyrics(lyricLine, voice)));
                         combinedMusicAndLyrics.add(musicWithLyrics);
                     } 
                     else {
+                        // Otherwise, just use the original music
                         combinedMusicAndLyrics.add(musicPair);
                     }
                 }
                 else {
                     if (needToAddNoLyrics) {
+                        // Stuck on the music bar in lyrics and need to add noLyrics once
                         combinedMusicAndLyrics.add(noLyrics);
                         needToAddNoLyrics = false;
                     } 
                     else {
+                        // Stuck on the music bar in lyrics and don't need to add noLyrics
                         combinedMusicAndLyrics.add(musicPair);
                     }
                 }
             }
             else {
-                // Rest, bar, or repeat
+                // We are looking at a rest, bar, or repeat
+                combinedMusicAndLyrics.add(musicPair);
+
                 if (index < parsedLyricBoolean.size()) {
                     if (parsedLyricBoolean.get(index).getKey().equals("|") && 
-                            (!label.equals("rest"))) {
-                            waitingForMusicBar = true;
-                            needToAddNoLyrics = true;
+                        (!label.equals("rest"))) {
+                        // Stuck on a music bar in lyrics and found a music bar in the body
+                        waitingForMusicBar = true;
+                        needToAddNoLyrics = true;
                         }
                 }
-                combinedMusicAndLyrics.add(musicPair);
             }
             
             if (!waitingForMusicBar) {
+                // Increment the index whenever we are not stuck on a music bar in lyrics
                 index++;
             }
-            
         }
         
         return combinedMusicAndLyrics;
@@ -578,15 +611,19 @@ public class PieceParser {
         String noteLengthString = noteLength.text();
         String fullFraction;
         if (noteLengthString.length() == 1) {
+            // The noteLength is just /
             fullFraction = "1/2";
         }
         else if (noteLengthString.charAt(0)=='/') {
+            // The noteLength starts with / 
             fullFraction = "1" + noteLengthString;
         }
         else if (noteLengthString.charAt(noteLengthString.length()-1) == '/') {
+            // The noteLength ends with /
             fullFraction = noteLengthString + "2";
         }
         else {
+            // The noteLength is a full fraction 
             fullFraction = noteLengthString;
         }
         return fractionToDouble(fullFraction);
@@ -605,9 +642,11 @@ public class PieceParser {
         ParseTree<PieceGrammar> noteOrChord = noteElement.children().get(0);
         switch(noteOrChord.name()) {
         case NOTE:
+            // Just return the parsed note
             ParseTree<PieceGrammar> note = noteOrChord;
             return parseNote(note, key, accidentals, multiplier);
         case CHORD:
+            // Together all of the notes in the chord, parsing each note on its own
             ParseTree<PieceGrammar> chord = noteOrChord;
             Music chordMusic = parseNote(chord.children().get(0), key, accidentals, multiplier);
             for (int i=1; i<chord.children().size(); ++i) {
@@ -629,28 +668,36 @@ public class PieceParser {
      */
     private static Music parseNote(ParseTree<PieceGrammar> note, String key, 
                                    Map<String, Pitch> accidentals, double multiplier) {
+        // Parse the duration 
         double duration;
-        Music finalNote;
-        
         ParseTree<PieceGrammar> noteLength = note.children().get(1);
         if (noteLength.text().equals("")) {
+            // No noteLength was given, so default length is 1 (include multiplier)
             duration = 1.0 * multiplier;
         }
         else {
+            // Parse the given noteLength (include multiplier) 
             duration = parseNoteLength(noteLength) * multiplier;
         }
         
+        // Parse the pitch
+        Music finalNote;
         ParseTree<PieceGrammar> pitch = note.children().get(0);
         if (pitch.children().get(0).name() == PieceGrammar.ACCIDENTAL) {
+            // The note is an accidental 
             String accidental = pitch.children().get(0).text();
             String baseNote = pitch.children().get(1).text();
             String baseNoteUpper = baseNote.toUpperCase();
             Map<String, Pitch> keyMap = getKeySignatureMap(key);
+            
+            // Get the octaves if they were given 
             String octave = "";
             final int maxPitchSize = 3;
             if (pitch.children().size() == maxPitchSize) {
                 octave = pitch.children().get(2).text();
             }
+            
+            // Get the pitch of the accidental, ignoring the octaves 
             Pitch accidentalPitch;
             switch(accidental) {
             case "^":
@@ -672,6 +719,8 @@ public class PieceParser {
             default:
                 throw new AssertionError("Should never get here");
             }
+            
+            // Modify based on octaves
             for (int i=0; i<octave.length(); ++i) {
                 char suboctave = octave.charAt(i);
                 if (suboctave == '\'') {
@@ -681,32 +730,57 @@ public class PieceParser {
                     accidentalPitch = accidentalPitch.transpose(-Pitch.OCTAVE);
                 }
             }
+            
+            // If the note was lower-case, raise it another octave 
             if (!baseNote.equals(baseNoteUpper)) {
                 accidentalPitch = accidentalPitch.transpose(Pitch.OCTAVE);
             }
+            
+            // Create the final note and add the accidental to the accidentals map 
             finalNote = Music.note(duration, accidentalPitch, Instrument.PIANO);
             accidentals.put(baseNote+octave, accidentalPitch);
         }
         else {
+            // The note is not marked as an accidental 
             String baseNote = pitch.children().get(0).text();
             String baseNoteUpper = baseNote.toUpperCase();
             Map<String, Pitch> keyMap = getKeySignatureMap(key);
+            
+            // Get the octaves if they were given 
             String octave = "";
-            Pitch nonAccidentalPitch;
             if (pitch.children().size() == 2) {
                 octave = pitch.children().get(1).text();
             }
-            nonAccidentalPitch = keyMap.get(baseNoteUpper);
-            if (!baseNote.equals(baseNoteUpper)) {
-                nonAccidentalPitch = nonAccidentalPitch.transpose(Pitch.OCTAVE);
+            
+            // Get the pitch of the note 
+            Pitch normalNotePitch;
+            normalNotePitch = keyMap.get(baseNoteUpper);
+            
+            // Modify based on octaves
+            for (int i=0; i<octave.length(); ++i) {
+                char suboctave = octave.charAt(i);
+                if (suboctave == '\'') {
+                    normalNotePitch = normalNotePitch.transpose(Pitch.OCTAVE);
+                }
+                else if (suboctave == ',') {
+                    normalNotePitch = normalNotePitch.transpose(-Pitch.OCTAVE);
+                }
             }
             
-            if (accidentals.keySet().contains(baseNote+octave)) {
-                nonAccidentalPitch = accidentals.get(baseNote+octave);
+            // If the note was lower-case, raise it another octave 
+            if (!baseNote.equals(baseNoteUpper)) {
+                normalNotePitch = normalNotePitch.transpose(Pitch.OCTAVE);
             }
-            finalNote = Music.note(duration, nonAccidentalPitch, Instrument.PIANO);
-            accidentals.put(baseNote+octave, nonAccidentalPitch);
+            
+            // If the note is in the accidentals map, get the correct pitch from that map 
+            if (accidentals.keySet().contains(baseNote+octave)) {
+                normalNotePitch = accidentals.get(baseNote+octave);
+            }
+            
+            // Create the final note 
+            finalNote = Music.note(duration, normalNotePitch, Instrument.PIANO);
         }
+        
         return finalNote;
     }
 
@@ -719,23 +793,29 @@ public class PieceParser {
      *         sung for (for a bar this will be 0). 
      */
     private static List<SimpleImmutableEntry<String, Integer>> parseLyric(ParseTree<PieceGrammar> lyric) {
+        // First pass, create a list where each element is a pair of the form (syllable, numberOfNotes)
+        // Here, syllable can also be a bar or a hyphen 
         List<SimpleImmutableEntry<String, Integer>> lyricList = new ArrayList<>();
         
         for (ParseTree<PieceGrammar> lyricElement : lyric.children()) {
             if (lyricElement.text().equals("*")) {
+                // A single asterisk is stored as (*no lyrics*, 1) 
                 SimpleImmutableEntry<String, Integer> skip = new SimpleImmutableEntry<>("*no lyrics*", 1);
                 lyricList.add(skip);
             }
             else if (lyricElement.text().equals("|")) {
+                // A bar is stored as (|, 0)
                 SimpleImmutableEntry<String, Integer> bar = new SimpleImmutableEntry<>("|", 0);
                 lyricList.add(bar);
             } 
             else if (lyricElement.children().get(0).name() == PieceGrammar.WORD) {
+                // Dealing with a word
                 ParseTree<PieceGrammar> word = lyricElement.children().get(0);
                 
                 for (ParseTree<PieceGrammar> subword : word.children()) {
                     switch(subword.name()) {
                     case CHUNK:
+                        // Each chunk gets parsed into a syllable, then added as (chunk, 1)
                         ParseTree<PieceGrammar> chunk = subword;
                         String chunkLiteral = parseChunk(chunk);
                         SimpleImmutableEntry<String, Integer> chunkPair = 
@@ -745,6 +825,7 @@ public class PieceParser {
                     case SEPARATOR:
                         ParseTree<PieceGrammar> separator = subword;
                         if (separator.children().get(0).name() == PieceGrammar.SPACE) {
+                            // Any number of spaces is the same as a single asterisk 
                             SimpleImmutableEntry<String, Integer> skip = new SimpleImmutableEntry<>("*no lyrics*", 1);
                             lyricList.add(skip);
                         } 
@@ -752,21 +833,27 @@ public class PieceParser {
                         ParseTree<PieceGrammar> hyphens;
                         ParseTree<PieceGrammar> underscores;
                         if (separator.children().size() == 2) {
+                            // Does not contain spaces
                             hyphens = separator.children().get(0);
                             underscores = separator.children().get(1);
                         } else {
+                            // Contains spaces 
                             hyphens = separator.children().get(1);
                             underscores = separator.children().get(2);
                         }
                          
+                        // Always add exactly one hyphen for a separator, stored as (-, 0)
                         SimpleImmutableEntry<String, Integer> skip = new SimpleImmutableEntry<>("-", 0);
                         lyricList.add(skip);
                         
                         for (int i=1; i<hyphens.text().length(); ++i) {
+                            // Every extra hyphen beyond the first one acts like an asterisk 
                             SimpleImmutableEntry<String, Integer> hyphenSkip = new SimpleImmutableEntry<>("*no lyrics*", 1);
                             lyricList.add(hyphenSkip);
                         }
                         
+                        // Modify the second to last pair so that its length increases by the number of underscores
+                        // because the underscore after a hyphen applies to the syllable before the hyphen 
                         int numUnderscoresAfterHyphen = underscores.text().length();
                         SimpleImmutableEntry<String, Integer> secondToLast = lyricList.get(lyricList.size() - 2);
                         SimpleImmutableEntry<String, Integer> newSecondToLast = 
@@ -775,6 +862,7 @@ public class PieceParser {
                         lyricList.set(lyricList.size() - 2, newSecondToLast);
                         break;
                     case UNDERSCORES:
+                        // Modify the last pair in the list so that its length increases by the number of underscores
                         int numUnderscores = subword.text().length();
                         SimpleImmutableEntry<String, Integer> lastEntry = lyricList.get(lyricList.size() - 1);
                         SimpleImmutableEntry<String, Integer> newLastEntry = 
@@ -788,28 +876,35 @@ public class PieceParser {
             }
         }
         
+        // Second pass, convert the pairs of form (syllable, numberOfNotes) into pairs of the form 
+        // (lyricLine, numberOfNotes) where lyricLine is the whole line with syllable surrounded by asterisks 
         List<SimpleImmutableEntry<String, Integer>> secondLyricList = new ArrayList<>();
 
         for (int i=0; i<lyricList.size(); ++i) {
             SimpleImmutableEntry<String, Integer> pair = lyricList.get(i);
             if (pair.getKey().equals("|") || pair.getKey().equals("*no lyrics*")) {
+                // Always add bars and no lyrics 
                 secondLyricList.add(pair);
             } 
             else if (!pair.getKey().equals("-")) {
+                // Never add hyphens, hyphens are used to reconstruct the lyricLine 
                 String fullLyricLine = "";
                 
+                // Iterate through the list again to create the fullLyricLine 
                 for (int j=0; j<lyricList.size(); ++j) {
                     SimpleImmutableEntry<String, Integer> secondPair = lyricList.get(j);
                     if (i==j) {
+                        // Add asterisks around the current syllable  
                         fullLyricLine += "*" + pair.getKey() + "*";
-                        
                     }
                     else {
                         if (secondPair.getKey().equals("-")) {
+                            // In the second iteration, add all the hyphens in 
                             fullLyricLine += "-";
                         }
                         else if (!(secondPair.getKey().equals("|") ||
                                 secondPair.getKey().equals("*no lyrics*"))) {
+                            // Also add all the other syllables (these do not include bars and no lyrics) 
                             fullLyricLine += secondPair.getKey();
                         }
                     }
@@ -818,7 +913,9 @@ public class PieceParser {
                          !(secondPair.getKey().equals("|") ||
                            secondPair.getKey().equals("*no lyrics*") ||
                            secondPair.getKey().equals("-"))) {
+                        // In the second iteration, if we are not at the end of the list and we are an actual syllable
                         if (!(lyricList.get(j+1).getKey().equals("-"))){
+                            // Then add a space after the syllable if there is no hyphen after it 
                             fullLyricLine += " ";
                         }
                     }
@@ -836,11 +933,14 @@ public class PieceParser {
      * @return the string representation of the chunk
      */
     private static String parseChunk(ParseTree<PieceGrammar> chunk) {
+        // Initialize a chunk string and fill it in appropriately 
         String chunkString = ""; 
         ParseTree<PieceGrammar> mutlipleSyllablesOrWords = chunk.children().get(0);
+        
         switch(mutlipleSyllablesOrWords.name()) {
         case MULTIPLE_SYLLABLES:
             for (ParseTree<PieceGrammar> lyricTextOrBackslashHyphen : mutlipleSyllablesOrWords.children()) {
+                // Combine multiple syllables with a hyphen between them (corresponds to \\-)
                 if (lyricTextOrBackslashHyphen.name() == PieceGrammar.LYRIC_TEXT) {
                     chunkString += lyricTextOrBackslashHyphen.text();
                 } else {
@@ -850,6 +950,7 @@ public class PieceParser {
             break;
         case MULTIPLE_WORDS:
             for (ParseTree<PieceGrammar> lyricTextOrTilde : mutlipleSyllablesOrWords.children()) {
+                // Combine multiple words with spaces between them (corresponds to ~)
                 if (lyricTextOrTilde.name() == PieceGrammar.LYRIC_TEXT) {
                     chunkString += lyricTextOrTilde.text();
                 } else {
@@ -870,8 +971,8 @@ public class PieceParser {
      *         any "music" or "rest" pairs then this method returns a rest of length 0
      */
     private static Music compress(List<SimpleImmutableEntry<String,Music>> voiceMusic) {
-//        throw new RuntimeException("Not implemented");
-        // TODO implement this method 
+        // TODO implement this method
+        // TODO Satvat can you add comments to this? 
         Music requiredMusic = Music.rest(0);
         Music givenSection = Music.rest(0);
         Music givenMeasure = Music.rest(0);
@@ -941,10 +1042,16 @@ public class PieceParser {
             requiredMusic = addMeasure(requiredMusic, repeatSection);
             repeatSection = Music.rest(0);
         }
-        System.out.println(voiceMusic);
+
         return requiredMusic;
     }
     
+    /**
+     * TODO 
+     * @param requiredMusic
+     * @param givenMeasure
+     * @return
+     */
     private static Music addMeasure(Music requiredMusic, Music givenMeasure) {
         if(requiredMusic.equals(Music.rest(0))) {
             return givenMeasure;
