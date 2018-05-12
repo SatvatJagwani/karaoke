@@ -42,6 +42,15 @@ public class PieceParser {
         body = "A B C | A B C" + "\n";
         body += "w:test-_test of day" + "\n";
         
+        // Test different sections 
+        header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:2/4" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "K:C" + "\n";
+        body = "[| A B | C D || E F | G A |]" + "\n";
+        
         // Parse the string 
         PieceParser.parse(header + body);
     }
@@ -481,6 +490,11 @@ public class PieceParser {
         // Add the parsedLyric to the parsedBodyLine
         List<SimpleImmutableEntry<String, Music>> combinedMusicAndLyrics = addLyricToBodyLine(parsedBodyLine, parsedLyric, voice);
         
+        // System.out.println(parsedBodyLine);
+        // System.out.println(parsedLyric);
+        // System.out.println(combinedMusicAndLyrics);
+        
+        
         return combinedMusicAndLyrics;
     }
     
@@ -537,7 +551,7 @@ public class PieceParser {
                 Music music = musicPair.getValue();
                 SimpleImmutableEntry<String, Music> noLyrics = new SimpleImmutableEntry<>(label, 
                         Music.together(music, Music.lyrics("*no lyrics*", voice)));
-                
+
                 if (index == parsedLyricBoolean.size()) {
                     // We have looked through all the lyrics, so we add one noLyrics at the end
                     combinedMusicAndLyrics.add(noLyrics);
@@ -566,6 +580,8 @@ public class PieceParser {
                         // Otherwise, just use the original music
                         combinedMusicAndLyrics.add(musicPair);
                     }
+                    // Increment the index whenever we are not stuck on a music bar in lyrics
+                    index++;
                 }
                 else {
                     if (needToAddNoLyrics) {
@@ -589,13 +605,10 @@ public class PieceParser {
                         // Stuck on a music bar in lyrics and found a music bar in the body
                         waitingForMusicBar = true;
                         needToAddNoLyrics = true;
+                        // Increment the index whenever we are not stuck on a music bar in lyrics
+                        index++;
                         }
                 }
-            }
-            
-            if (!waitingForMusicBar) {
-                // Increment the index whenever we are not stuck on a music bar in lyrics
-                index++;
             }
         }
         
@@ -610,7 +623,11 @@ public class PieceParser {
     private static double parseNoteLength(ParseTree<PieceGrammar> noteLength) {
         String noteLengthString = noteLength.text();
         String fullFraction;
-        if (noteLengthString.length() == 1) {
+        if (!noteLengthString.contains("/")) {
+            // The noteLength is just a number
+            fullFraction = noteLengthString + "/1";
+        }
+        else if (noteLengthString.length() == 1) {
             // The noteLength is just /
             fullFraction = "1/2";
         }
@@ -684,11 +701,11 @@ public class PieceParser {
         Music finalNote;
         ParseTree<PieceGrammar> pitch = note.children().get(0);
         if (pitch.children().get(0).name() == PieceGrammar.ACCIDENTAL) {
-            // The note is an accidental 
+            // The note is an accidental, so ignore the given key signature 
             String accidental = pitch.children().get(0).text();
             String baseNote = pitch.children().get(1).text();
             String baseNoteUpper = baseNote.toUpperCase();
-            Map<String, Pitch> keyMap = getKeySignatureMap(key);
+            Map<String, Pitch> keyMapC = getKeySignatureMap("C");
             
             // Get the octaves if they were given 
             String octave = "";
@@ -701,20 +718,19 @@ public class PieceParser {
             Pitch accidentalPitch;
             switch(accidental) {
             case "^":
-                accidentalPitch = keyMap.get(baseNoteUpper).transpose(1);
+                accidentalPitch = keyMapC.get(baseNoteUpper).transpose(1);
                 break;
             case "^^":
-                accidentalPitch = keyMap.get(baseNoteUpper).transpose(2);
+                accidentalPitch = keyMapC.get(baseNoteUpper).transpose(2);
                 break;
             case "=":
-                Map<String, Pitch> cKeyMap = getKeySignatureMap("C");
-                accidentalPitch = cKeyMap.get(baseNoteUpper);
+                accidentalPitch = keyMapC.get(baseNoteUpper);
                 break;
             case "_":
-                accidentalPitch = keyMap.get(baseNoteUpper).transpose(-1);
+                accidentalPitch = keyMapC.get(baseNoteUpper).transpose(-1);
                 break;
             case "__":
-                accidentalPitch = keyMap.get(baseNoteUpper).transpose(-1*2);
+                accidentalPitch = keyMapC.get(baseNoteUpper).transpose(-1*2);
                 break;
             default:
                 throw new AssertionError("Should never get here");
@@ -741,7 +757,7 @@ public class PieceParser {
             accidentals.put(baseNote+octave, accidentalPitch);
         }
         else {
-            // The note is not marked as an accidental 
+            // The note is not marked as an accidental, so use given key-signature 
             String baseNote = pitch.children().get(0).text();
             String baseNoteUpper = baseNote.toUpperCase();
             Map<String, Pitch> keyMap = getKeySignatureMap(key);

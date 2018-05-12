@@ -101,7 +101,7 @@ public class PieceParserTest {
         header += "L:1/16" + "\n";
         header += "Q:1/8=100" + "\n"; // beats per minute is 200
         header += "V:upper" + "\n";
-        header += "K:F#m" + "\n";
+        header += "K:Bbm" + "\n";
         body = "V:upper" + "\n";
         body += "C" + "\n";
         
@@ -116,7 +116,7 @@ public class PieceParserTest {
         assertEquals("expected correct index", 2, piece.getIndex());
         assertEquals("expected correct title", "harder song", piece.getTitle());
         assertEquals("expected correct composer", "Matt", piece.getNameOfComposer());
-        assertEquals("expected correct key signature", "F#m", piece.getKey());
+        assertEquals("expected correct key signature", "Bbm", piece.getKey());
         assertEquals("expected correct meter", "7/8", piece.getMeter());
         assertEquals("expected correct default note length", 1.0/16.0, piece.getNoteDuration(), 0);
         assertEquals("expected correct tempo", 200, piece.beatsPerMinute());
@@ -187,16 +187,20 @@ public class PieceParserTest {
         piece = PieceParser.parse(header + body);
         
         // Create the correct music 
-        correctMusic = Music.rest(0);
-        correctMusic = Music.concat(correctMusic, 
+        Music firstMeasure = Music.rest(0);
+        firstMeasure = Music.concat(firstMeasure, 
                 Music.together(Music.note(1, new Pitch('A').transpose(1), Instrument.PIANO),
                                Music.lyrics("*no lyrics*", "voice1")));
-        correctMusic = Music.concat(correctMusic, 
+        firstMeasure = Music.concat(firstMeasure, 
                 Music.note(1, new Pitch('E').transpose(Pitch.OCTAVE).transpose(1), Instrument.PIANO));
-        correctMusic = Music.concat(correctMusic, 
-                Music.note(1, new Pitch('F'), Instrument.PIANO));
-        correctMusic = Music.concat(correctMusic, 
-                Music.note(1, new Pitch('F'), Instrument.PIANO));
+
+        Music secondMeasure = Music.rest(0);
+        secondMeasure = Music.concat(secondMeasure, 
+                Music.note(1, new Pitch('F').transpose(1), Instrument.PIANO));
+        secondMeasure = Music.concat(secondMeasure, 
+                Music.note(1, new Pitch('F').transpose(1), Instrument.PIANO));
+        
+        correctMusic = Music.concat(firstMeasure, secondMeasure);
         assertEquals("expected correct music", correctMusic, piece.getMusic());
         
         // E flat minor
@@ -357,15 +361,15 @@ public class PieceParserTest {
                 Music.note(1, new Pitch('A'), Instrument.PIANO));
         
         Music fifthMeasure = Music.rest(0);
-        fifthMeasure = Music.concat(fourthMeasure, 
+        fifthMeasure = Music.concat(fifthMeasure, 
                 Music.note(1, new Pitch('G').transpose(-2), Instrument.PIANO));
-        fifthMeasure = Music.concat(fourthMeasure, 
+        fifthMeasure = Music.concat(fifthMeasure, 
                 Music.note(1, new Pitch('A'), Instrument.PIANO));
         
         Music sixthMeasure = Music.rest(0);
-        sixthMeasure = Music.concat(fourthMeasure, 
+        sixthMeasure = Music.concat(sixthMeasure, 
                 Music.note(1, new Pitch('G').transpose(-2), Instrument.PIANO));
-        sixthMeasure = Music.concat(fourthMeasure, 
+        sixthMeasure = Music.concat(sixthMeasure, 
                 Music.note(1, new Pitch('A'), Instrument.PIANO));
         
         Music correctMusic = Music.concat(
@@ -407,7 +411,7 @@ public class PieceParserTest {
         thirdMeasure = Music.concat(thirdMeasure, 
                 Music.note(1, new Pitch('F').transpose(Pitch.OCTAVE), Instrument.PIANO));
         thirdMeasure = Music.concat(thirdMeasure, 
-                Music.note(1, new Pitch('F'), Instrument.PIANO));
+                Music.note(1, new Pitch('F').transpose(1), Instrument.PIANO));
         
         fourthMeasure = Music.rest(0);
         fourthMeasure = Music.concat(fourthMeasure, 
@@ -482,7 +486,7 @@ public class PieceParserTest {
         
         sixthMeasure = Music.rest(0);
         sixthMeasure = Music.concat(sixthMeasure, 
-                Music.note(1, new Pitch('B').transpose(-11), Instrument.PIANO));
+                Music.note(1, new Pitch('B').transpose(-1), Instrument.PIANO));
         sixthMeasure = Music.concat(sixthMeasure, 
                 Music.note(1, new Pitch('A'), Instrument.PIANO));
         
@@ -509,7 +513,7 @@ public class PieceParserTest {
         header += "L:1/4" + "\n";
         header += "Q:1/4=100" + "\n";
         header += "K:C" + "\n";
-        String body = "[| A z | C z1/2 z/ || E z2/4 z3/6 | G z/2 z1/ |]" + "\n";
+        String body = "[| A z | C z1/2 z/ || E z2/4 z3/6 | G z/2 z1/ | z2 |]" + "\n";
         
         // Parse the string 
         Piece piece = PieceParser.parse(header + body);
@@ -526,23 +530,33 @@ public class PieceParserTest {
         secondMeasure = Music.concat(secondMeasure, 
                 Music.note(1, new Pitch('C'), Instrument.PIANO));
         secondMeasure = Music.concat(secondMeasure, 
-                Music.rest(1));
+                Music.rest(0.5));
+        secondMeasure = Music.concat(secondMeasure, 
+                Music.rest(0.5));
         
         Music thirdMeasure = Music.rest(0);
         thirdMeasure = Music.concat(thirdMeasure, 
                 Music.note(1, new Pitch('E'), Instrument.PIANO));
         thirdMeasure = Music.concat(thirdMeasure, 
-                Music.rest(1));
+                Music.rest(0.5));
+        thirdMeasure = Music.concat(thirdMeasure, 
+                Music.rest(0.5));
         
         Music fourthMeasure = Music.rest(0);
         fourthMeasure = Music.concat(fourthMeasure, 
                 Music.note(1, new Pitch('G'), Instrument.PIANO));
         fourthMeasure = Music.concat(fourthMeasure, 
-                Music.rest(1));
+                Music.rest(0.5));
+        fourthMeasure = Music.concat(fourthMeasure, 
+                Music.rest(0.5));
+        
+        Music fifthMeasure = Music.rest(0);
+        fifthMeasure = Music.concat(fifthMeasure, 
+                Music.rest(2));
         
         Music correctMusic = Music.concat(
                 Music.concat(firstMeasure, secondMeasure), 
-                Music.concat(thirdMeasure, fourthMeasure));
+                Music.concat(Music.concat(thirdMeasure, fourthMeasure), fifthMeasure));
         
         assertEquals("expected correct music", correctMusic, piece.getMusic());
     }
@@ -581,7 +595,7 @@ public class PieceParserTest {
                 Music.together(Music.note(1, new Pitch('A').transpose(1), Instrument.PIANO),
                                Music.note(1, new Pitch('B'), Instrument.PIANO)));
         secondMeasure = Music.concat(secondMeasure, 
-                Music.together(Music.note(1, new Pitch('A'), Instrument.PIANO),
+                Music.together(Music.note(1, new Pitch('A').transpose(1), Instrument.PIANO),
                                Music.note(1, new Pitch('B').transpose(-1), Instrument.PIANO)));
         
         Music thirdMeasure = Music.rest(0);
@@ -589,7 +603,7 @@ public class PieceParserTest {
                 Music.together(Music.note(1, new Pitch('A').transpose(-2), Instrument.PIANO),
                                Music.note(1, new Pitch('B'), Instrument.PIANO)));
         thirdMeasure = Music.concat(thirdMeasure, 
-                Music.together(Music.note(1, new Pitch('A'), Instrument.PIANO),
+                Music.together(Music.note(1, new Pitch('A').transpose(-2), Instrument.PIANO),
                                Music.note(1, new Pitch('B').transpose(2), Instrument.PIANO)));
         
         Music fourthMeasure = Music.rest(0);
@@ -597,9 +611,10 @@ public class PieceParserTest {
                 Music.together(Music.note(1, new Pitch('A'), Instrument.PIANO),
                                Music.note(0.5, new Pitch('B'), Instrument.PIANO)));
         fourthMeasure = Music.concat(fourthMeasure, 
-                Music.concat(Music.together(Music.note(0.5, new Pitch('A'), Instrument.PIANO),
-                                              Music.note(1, new Pitch('B'), Instrument.PIANO)),
-                               Music.note(0.5, new Pitch('A'), Instrument.PIANO)));
+                Music.together(Music.note(0.5, new Pitch('A'), Instrument.PIANO),
+                                              Music.note(1, new Pitch('B'), Instrument.PIANO)));
+        fourthMeasure = Music.concat(fourthMeasure, 
+                Music.note(0.5, new Pitch('A'), Instrument.PIANO));
         
         Music correctMusic = Music.concat(
                 Music.concat(firstMeasure, secondMeasure), 
@@ -671,8 +686,8 @@ public class PieceParserTest {
         secondMeasure = Music.rest(0);
         secondMeasure = Music.concat(secondMeasure, 
                 Music.together(Music.together(Music.note(1.0/3, new Pitch('A'), Instrument.PIANO), 
-                                                                        Music.note(1/3, new Pitch('B'), Instrument.PIANO)), 
-                                                         Music.note(1.0/3, new Pitch('C'), Instrument.PIANO)));
+                                              Music.note(1.0/3, new Pitch('B'), Instrument.PIANO)), 
+                                              Music.note(1.0/3, new Pitch('C'), Instrument.PIANO)));
         secondMeasure = Music.concat(secondMeasure, Music.note(1.0/3, new Pitch('C'), Instrument.PIANO));
         secondMeasure = Music.concat(secondMeasure, Music.note(1.0/3, new Pitch('D'), Instrument.PIANO));
         secondMeasure = Music.concat(secondMeasure, Music.note(1, new Pitch('A'), Instrument.PIANO));
@@ -957,7 +972,6 @@ public class PieceParserTest {
         correctMusic = Music.together(correctMusic, thirdVoice);
         
         assertEquals("expected correct music", correctMusic, piece.getMusic());
-        
     }
     
     // Covers the following:
