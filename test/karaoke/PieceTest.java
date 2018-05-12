@@ -128,10 +128,11 @@ public class PieceTest {
         assertEquals(givenPiece, parsedPiece);
         assertEquals(givenPiece.hashCode(), parsedPiece.hashCode());
         String note1 = "(2.0, " + Pitch.MIDDLE_C.transpose(-Pitch.OCTAVE).toString() + ")";
+        String note1WithNoLyrics = "(" + note1 + " || (voice1: *no lyrics*))";
         String note2 = "(2.0, " + Pitch.MIDDLE_C.toString() + ")";
         String note3 = "(2.0, " + Pitch.MIDDLE_C.transpose(2*Pitch.OCTAVE).toString() + ")";
         String note4 = "(2.0, " + Pitch.MIDDLE_C.transpose(3*Pitch.OCTAVE).toString() + ")";
-        assertEquals(givenPiece.toString(), "[Unknown, 1, 0.125, 4/4, 100, sample 1, [voice1], C, (((((0.0) && " + note1 + ") && " + note2 + ") && " + note3 + ") && " + note4 + ")]");
+        assertEquals(givenPiece.toString(), "[Unknown, 1, 0.125, 4/4, 100, sample 1, [voice1], C, (((((0.0) && " + note1WithNoLyrics + ") && " + note2 + ") && " + note3 + ") && " + note4 + ")]");
     }
     // covers
     // Piece():
@@ -323,7 +324,8 @@ public class PieceTest {
         assertEquals(givenPiece.hashCode(), parsedPiece.hashCode());
         String note1 = "(1.0, " + new Pitch('E').toString() + ")";
         String note2 = "(1.0, " + new Pitch('C').toString() + ")";
-        assertEquals(givenPiece.toString(), "[Unknown, 8, 0.125, 4/4, 100, Chord, [voice1], C, ((0.0) && (" + note1 + " || " + note2 + "))]");
+        String chordWithNoLyrics = "((" + note1 + " || " + note2 + ") || (voice1: *no lyrics*))";
+        assertEquals(givenPiece.toString(), "[Unknown, 8, 0.125, 4/4, 100, Chord, [voice1], C, ((0.0) && " + chordWithNoLyrics + ")]");
     }
     
     // covers
@@ -390,11 +392,13 @@ public class PieceTest {
         assertEquals(givenPiece, parsedPiece);
         assertEquals(givenPiece.hashCode(), parsedPiece.hashCode());
         String note1 = "(1.0, " + new Pitch('C').toString() + ")";
+        String note1WithNoLyrics = "(" + note1 + " || (1: *no lyrics*))";
         String note2 = "(1.0, " + new Pitch('E').transpose(-1).toString() + ")";
+        String note2WithNoLyrics = "(" + note2 + " || (2: *no lyrics*))";
         String note3 = "(1.0, " + new Pitch('G').toString() + ")";
-        assertEquals(givenPiece.toString(), "[Unknown, 1, 0.125, 4/4, 100, voices, [1, 2, 3], Cm, ((((0.0) && " + note1 + ") || " + note2 + ") || " + note3 + ")]");
+        String note3WithNoLyrics = "(" + note3 + " || (3: *no lyrics*))";
+        assertEquals(givenPiece.toString(), "[Unknown, 1, 0.125, 4/4, 100, voices, [1, 2, 3], Cm, ((((0.0) && " + note1WithNoLyrics + ") || ((0.0) && " + note2WithNoLyrics + ")) || ((0.0) && " + note3WithNoLyrics + "))]");
     }
-    //TODO modify toString() tests
     
     // covers
     // parseFromFile():
