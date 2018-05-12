@@ -112,8 +112,8 @@ public class PieceTest {
         Music correctMusic = Music.rest(0);
         correctMusic = Music.concat(correctMusic, defaultBeginning(Music.note(2, Pitch.MIDDLE_C.transpose(-Pitch.OCTAVE), instrument)));
         correctMusic = Music.concat(correctMusic, Music.note(2, Pitch.MIDDLE_C, instrument));
-        correctMusic = Music.concat(correctMusic, Music.note(2, Pitch.MIDDLE_C.transpose(2*Pitch.OCTAVE), instrument));
-        correctMusic = Music.concat(correctMusic, Music.note(2, Pitch.MIDDLE_C.transpose(3*Pitch.OCTAVE), instrument));
+        correctMusic = Music.concat(correctMusic, Music.note(1, Pitch.MIDDLE_C.transpose(2*Pitch.OCTAVE), instrument));
+        correctMusic = Music.concat(correctMusic, Music.note(1, Pitch.MIDDLE_C.transpose(3*Pitch.OCTAVE), instrument));
         Piece givenPiece = new Piece("Unknown", 1, 0.125, "4/4", 100, "sample 1", Collections.singleton("voice1"), "C", correctMusic);
         assertEquals("Unknown", givenPiece.getNameOfComposer());
         assertEquals(1, givenPiece.getIndex());
@@ -130,8 +130,8 @@ public class PieceTest {
         String note1 = "(2.0, " + Pitch.MIDDLE_C.transpose(-Pitch.OCTAVE).toString() + ")";
         String note1WithNoLyrics = "(" + note1 + " || (voice1: *no lyrics*))";
         String note2 = "(2.0, " + Pitch.MIDDLE_C.toString() + ")";
-        String note3 = "(2.0, " + Pitch.MIDDLE_C.transpose(2*Pitch.OCTAVE).toString() + ")";
-        String note4 = "(2.0, " + Pitch.MIDDLE_C.transpose(3*Pitch.OCTAVE).toString() + ")";
+        String note3 = "(1.0, " + Pitch.MIDDLE_C.transpose(2*Pitch.OCTAVE).toString() + ")";
+        String note4 = "(1.0, " + Pitch.MIDDLE_C.transpose(3*Pitch.OCTAVE).toString() + ")";
         assertEquals(givenPiece.toString(), "[Unknown, 1, 0.125, 4/4, 100, sample 1, [voice1], C, (((((0.0) && " + note1WithNoLyrics + ") && " + note2 + ") && " + note3 + ") && " + note4 + ")]");
     }
     // covers

@@ -773,14 +773,88 @@ public class PieceParser {
      *         any "music" or "rest" pairs then this method returns a rest of length 0
      */
     private static Music compress(List<SimpleImmutableEntry<String,Music>> voiceMusic) {
-        throw new RuntimeException("Not implemented");
+//        throw new RuntimeException("Not implemented");
         // TODO implement this method 
-//        Music requiredMusic = Music.rest(0);
-//        for(SimpleImmutableEntry<String,Music> typeAndMusic : voiceMusic) {
-//            Music addition = typeAndMusic.getValue();
-//            requiredMusic = Music.concat(requiredMusic, addition);
-//        }
-//        return requiredMusic;
+        Music requiredMusic = Music.rest(0);
+        Music givenSection = Music.rest(0);
+        Music givenMeasure = Music.rest(0);
+        Music repeatSection = Music.rest(0);
+        boolean repeatedSectionStart = false;
+        for(SimpleImmutableEntry<String,Music> typeAndMusic : voiceMusic) {
+            switch(typeAndMusic.getKey()) {
+            case "music":
+            case "rest":
+                Music addition = typeAndMusic.getValue();
+                givenMeasure = Music.concat(givenMeasure, addition);
+                break;
+            case "[|":
+                break;
+            case "|":
+                givenSection = addMeasure(givenSection, givenMeasure);
+                givenMeasure = Music.rest(0);
+                break;
+            case "||":
+            case "|]":
+                givenSection = addMeasure(givenSection, givenMeasure);
+                givenMeasure = Music.rest(0);
+                if(repeatedSectionStart) {
+                    repeatSection = addMeasure(repeatSection, givenSection);
+                    givenSection = Music.rest(0);
+                }
+                else {
+                    requiredMusic = addMeasure(requiredMusic, givenSection);
+                    givenSection = Music.rest(0);
+                }
+                break;
+            case "|:":
+                repeatedSectionStart = true;
+                givenSection = addMeasure(givenSection, givenMeasure);
+                givenMeasure = Music.rest(0);
+                requiredMusic = addMeasure(requiredMusic, givenSection);
+                givenSection = Music.rest(0);
+                break;
+            case ":|":
+                givenSection = addMeasure(givenSection, givenMeasure);
+                givenMeasure = Music.rest(0);
+                if(repeatedSectionStart) {
+                    repeatSection = addMeasure(repeatSection, givenSection);
+                    givenSection = Music.rest(0);
+                    requiredMusic = addMeasure(requiredMusic, Music.concat(repeatSection, repeatSection));
+                    repeatSection = Music.rest(0);
+                }
+                else {
+                    requiredMusic = addMeasure(requiredMusic, Music.concat(givenSection, givenSection));
+                    givenSection = Music.rest(0);
+                }
+                repeatedSectionStart = false;
+                break;
+            default:
+                throw new AssertionError("Should never get here");
+            }
+        }
+        if(!givenMeasure.equals(Music.rest(0))) {
+            givenSection = addMeasure(givenSection, givenMeasure);
+            givenMeasure = Music.rest(0);
+        }
+        if(!givenSection.equals(Music.rest(0))) {
+            repeatSection = addMeasure(repeatSection, givenSection);
+            givenSection = Music.rest(0);
+        }
+        if(!repeatSection.equals(Music.rest(0))) {
+            requiredMusic = addMeasure(requiredMusic, repeatSection);
+            repeatSection = Music.rest(0);
+        }
+        System.out.println(voiceMusic);
+        return requiredMusic;
+    }
+    
+    private static Music addMeasure(Music requiredMusic, Music givenMeasure) {
+        if(requiredMusic.equals(Music.rest(0))) {
+            return givenMeasure;
+        }
+        else {
+            return Music.concat(requiredMusic, givenMeasure);
+        }
     }
     
     /**
