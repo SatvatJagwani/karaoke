@@ -30,7 +30,6 @@ public class PieceParser {
      * @throws UnableToParseException if example expression can't be parsed
      */
     public static void main(final String[] args) throws UnableToParseException {
-        // Tests for multiple words under one note
         String header = "";
         String body = "";
         header = "X:1" + "\n";
@@ -40,16 +39,7 @@ public class PieceParser {
         header += "Q:1/4=100" + "\n";
         header += "K:C" + "\n";
         body = "A B C | A B C" + "\n";
-        body += "w:test-_test of day" + "\n";
-        
-        // Test different sections 
-        header = "X:1" + "\n";
-        header += "T:simple song" + "\n";
-        header += "M:2/4" + "\n";
-        header += "L:1/4" + "\n";
-        header += "Q:1/4=100" + "\n";
-        header += "K:C" + "\n";
-        body = "[| A B | C D || E F | G A |]" + "\n";
+        body += "w:test | test of day" + "\n";
         
         // Parse the string 
         PieceParser.parse(header + body);
@@ -289,19 +279,36 @@ public class PieceParser {
      */
     private static Music parseBody(final ParseTree<PieceGrammar> bodyTree, 
             Set<String>voices, double defaultNoteLength, String key) {
-        // Put the Music for each voice into a list 
-        List<Music> voicesMusic = new ArrayList<>();
+        // Put the Music for each voice into a list a pairs of form (voice, Music)
+        List<SimpleImmutableEntry<String, Music>> voicesMusic = new ArrayList<>();
         for (String voice : voices) {
             List<ParseTree<PieceGrammar>> voiceBody = extractVoiceBody(bodyTree, voice, voices);
             Music voiceMusic = getMusicForVoice(voiceBody, voice, defaultNoteLength, key);
-            voicesMusic.add(voiceMusic);
+            voicesMusic.add(new SimpleImmutableEntry<>(voice, voiceMusic));
         }
         
+        // Sort the list by duration (largest first), then by voice names (alphabetically) 
+        voicesMusic.sort((pair1, pair2) -> {
+            String voice1 = pair1.getKey();
+            String voice2 = pair2.getKey();
+            double duration1 = pair1.getValue().duration();
+            double duration2 = pair2.getValue().duration();
+            if (duration1 > duration2) {
+                // Larger durations go to the front of the list 
+                return -1;
+            } 
+            else if (duration1 < duration2) {
+                return 1;
+            }
+            else {
+                return voice1.compareTo(voice2);
+            }
+        });
+        
         // Together all the Music objects in the list 
-        // TODO sort by duration before together? 
-        Music bodyMusic = voicesMusic.get(0);
+        Music bodyMusic = voicesMusic.get(0).getValue();
         for (int i = 1; i < voicesMusic.size(); i++) {
-            bodyMusic = Music.together(bodyMusic, voicesMusic.get(i));
+            bodyMusic = Music.together(bodyMusic, voicesMusic.get(i).getValue());
         }
         
         return bodyMusic;
@@ -490,11 +497,6 @@ public class PieceParser {
         // Add the parsedLyric to the parsedBodyLine
         List<SimpleImmutableEntry<String, Music>> combinedMusicAndLyrics = addLyricToBodyLine(parsedBodyLine, parsedLyric, voice);
         
-        // System.out.println(parsedBodyLine);
-        // System.out.println(parsedLyric);
-        // System.out.println(combinedMusicAndLyrics);
-        
-        
         return combinedMusicAndLyrics;
     }
     
@@ -545,6 +547,15 @@ public class PieceParser {
         
         for (SimpleImmutableEntry<String, Music> musicPair : parsedBodyLine) {
             String label = musicPair.getKey();
+            
+            if (index < parsedLyricBoolean.size()) { 
+                // Check to see if the lyrics are on a music bar 
+                if (parsedLyricBoolean.get(index).getKey().equals("|") &&
+                    !waitingForMusicBar) {
+                    waitingForMusicBar = true;
+                    needToAddNoLyrics = true;
+                }
+            }
             
             if (label.equals("music")) {
                 // We are looking at a music object in the parsedBodyLine 
@@ -599,15 +610,12 @@ public class PieceParser {
                 // We are looking at a rest, bar, or repeat
                 combinedMusicAndLyrics.add(musicPair);
 
-                if (index < parsedLyricBoolean.size()) {
-                    if (parsedLyricBoolean.get(index).getKey().equals("|") && 
-                        (!label.equals("rest"))) {
-                        // Stuck on a music bar in lyrics and found a music bar in the body
-                        waitingForMusicBar = true;
-                        needToAddNoLyrics = true;
-                        // Increment the index whenever we are not stuck on a music bar in lyrics
-                        index++;
-                        }
+                if (waitingForMusicBar && !label.equals("rest")) {
+                    // Stuck on a music bar in lyrics and found a music bar in the body
+                    waitingForMusicBar = false;
+                    needToAddNoLyrics = false;
+                    // Increment the index so we are not stuck on a music bar in lyrics anymore
+                    index++;
                 }
             }
         }

@@ -47,6 +47,7 @@ public class PieceParserTest {
     //      ending is normal, has alternate endings 
     // multiple voices:
     //      number of voices is 1, > 1
+    //      voices have same duration, different duration
     // lyrics:
     //      number of syllables is fewer, same, more than number of notes
     //      contains syllable held for more than one note, skipped notes, multiple words
@@ -892,6 +893,7 @@ public class PieceParserTest {
     //
     // multiple voices:
     //      number of voices is 1, > 1
+    //      voices have same duration, different duration
     @Test
     public void testPieceParserMultipleVoices() throws UnableToParseException { 
         // Tests 1 voice
@@ -920,7 +922,7 @@ public class PieceParserTest {
         
         assertEquals("expected correct music", firstMeasure, piece.getMusic());
         
-        // Tests >1 voices
+        // Tests >1 voices, all have same duration 
         header = "X:1" + "\n";
         header += "T:simple song" + "\n";
         header += "M:4/4" + "\n";
@@ -970,6 +972,34 @@ public class PieceParserTest {
         
         Music correctMusic = Music.together(firstVoice, secondVoice);
         correctMusic = Music.together(correctMusic, thirdVoice);
+        
+
+        assertEquals("expected correct music", correctMusic, piece.getMusic());
+        
+        // Tests >1 voices, third voice has different duration 
+        header = "X:1" + "\n";
+        header += "T:simple song" + "\n";
+        header += "M:4/4" + "\n";
+        header += "L:1/4" + "\n";
+        header += "Q:1/4=100" + "\n";
+        header += "V:voice1" + "\n";
+        header += "V:voice2" + "\n";
+        header += "V:voice3" + "\n";
+        header += "K:C" + "\n";
+        body = "V:voice1" + "\n";
+        body += "A B C D" + "\n";
+        body += "V:voice2" + "\n";
+        body += "E E E E" + "\n";
+        body += "V:voice3" + "\n";
+        body += "F A F A | z4" + "\n";
+        
+        // Parse the string 
+        piece = PieceParser.parse(header + body);
+        
+        // Create the correct music, order should be: third, first, second
+        thirdVoice = Music.concat(thirdVoice, 
+                Music.concat(Music.rest(0), Music.rest(4)));
+        correctMusic = Music.together(Music.together(thirdVoice, firstVoice), secondVoice);
         
         assertEquals("expected correct music", correctMusic, piece.getMusic());
     }
@@ -1215,8 +1245,9 @@ public class PieceParserTest {
                                     Music.lyrics("test test of *day*", "voice1")));
         correctMusic = Music.concat(firstMeasure, secondMeasure);
         
+        System.out.println(correctMusic);
+        System.out.println(piece.getMusic());
         assertEquals("expected correct music", correctMusic, piece.getMusic());
-        
     }
     
     // Covers the following:
