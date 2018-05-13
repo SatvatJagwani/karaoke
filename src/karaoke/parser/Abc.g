@@ -69,7 +69,7 @@ multiple_words ::= lyric_text (tilde lyric_text)*;
 multiple_syllables ::= lyric_text (backslash_hyphen lyric_text)*;
 tilde ::= "~";
 backslash_hyphen ::= "\\" "-";
-lyric_text ::= [a-zA-Z\".?!,';]*;
+lyric_text ::= [^\n\r*|\-_~ \\]*;             //[a-zA-Z\".?!,';]*;
 
 comment ::= space_or_tab* "%" comment_text newline;
 comment_text ::= [^\n\r]*;

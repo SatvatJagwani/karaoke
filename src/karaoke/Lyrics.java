@@ -16,9 +16,7 @@ public class Lyrics implements Music {
     //     AF(voice, lyricLine) = A line of lyrics lyricLine with the syllable in between asterisks in lyricLine
     //                            sung by voice voice
     // Representation invariant:
-    //     voice has no newline.
-    //     lyricLine has no character other than alphabets, quotations, period, question mark, exclamation mark, 
-    //          hyphens, asterisks, commas, apostrophe, semicolon, space.
+    //     voice has no newline, underscore, tilde, nor bar
     //     lyricLine is non-empty.
     //     lyricLine has exactly two asterisks enclosing at least one character.
     //     Asterisks with enclosed string are surrounded by either spaces or hyphens or a combination of these two.
@@ -37,8 +35,9 @@ public class Lyrics implements Music {
         assert !lyricLine.isEmpty();
         int firstAsteriskPosition = -1;
         int secondAsteriskPosition = -1;
-        String allowedLyricAlphabets = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\".?!-*,'; ";
+        String disallowedCharacters = "\n\r_~|";
         for(int i=0; i<lyricLine.length(); i++) {
+            assert (!disallowedCharacters.contains("" + lyricLine.charAt(i)));
             if(lyricLine.charAt(i)=='*') {
                 if(firstAsteriskPosition == -1)
                     firstAsteriskPosition = i;
@@ -47,7 +46,6 @@ public class Lyrics implements Music {
                 else
                     assert false; // not more than two asterisks
             }
-            assert allowedLyricAlphabets.contains(lyricLine.substring(i, i+1)); // lyricLine can only have certain characters
         }
         assert firstAsteriskPosition != -1 && secondAsteriskPosition != -1; // at least two asterisks
         assert secondAsteriskPosition-firstAsteriskPosition >= 2; // Both asterisks should enclose at least one character
