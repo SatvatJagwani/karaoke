@@ -993,26 +993,31 @@ public class PieceParser {
      *         any "music" or "rest" pairs then this method returns a rest of length 0
      */
     private static Music compress(List<SimpleImmutableEntry<String,Music>> voiceMusic) {
-        // TODO implement this method
-        // TODO Satvat can you add comments to this? 
-        Music requiredMusic = Music.rest(0);
-        Music givenSection = Music.rest(0);
-        Music givenMeasure = Music.rest(0);
-        Music repeatSection = Music.rest(0);
+        // Five different hierarchies of music
+        Music requiredMusic = Music.rest(0); // The final music to return
+        Music repeatSection = Music.rest(0); // The repeated section, starting from |: (or possibly || in case of [1 and [2)
+        Music commonRepeat = Music.rest(0); // The common section (before [1) in the two repeats for structure |: [1 :| [2
+        Music givenSection = Music.rest(0); // A section defined by ||, [| or |] as delimiters, containing concatenated measures
+        Music givenMeasure = Music.rest(0); // A measure defined by | as delimiter
         boolean repeatedSectionStart = false;
+        boolean firstEndingStart = false;
         for(SimpleImmutableEntry<String,Music> typeAndMusic : voiceMusic) {
             switch(typeAndMusic.getKey()) {
+            // For music and rest, simply concatenate to given measure
             case "music":
             case "rest":
                 Music addition = typeAndMusic.getValue();
                 givenMeasure = Music.concat(givenMeasure, addition);
                 break;
-            case "[|":
-                break;
+            // For |, add the measure to the section and reset given measure
             case "|":
                 givenSection = addMeasure(givenSection, givenMeasure);
                 givenMeasure = Music.rest(0);
                 break;
+            // For ||, complete the part of |.
+            // Also, add givenSection to either requiredMusic or repeatSection, based on whether something is to be repeated.
+            // Reset givenSection.
+            case "[|":
             case "||":
             case "|]":
                 givenSection = addMeasure(givenSection, givenMeasure);
@@ -1026,6 +1031,7 @@ public class PieceParser {
                     givenSection = Music.rest(0);
                 }
                 break;
+            // Do same work as section delimiter, but also raise the flag that repeat section has started.
             case "|:":
                 repeatedSectionStart = true;
                 givenSection = addMeasure(givenSection, givenMeasure);
@@ -1033,10 +1039,21 @@ public class PieceParser {
                 requiredMusic = addMeasure(requiredMusic, givenSection);
                 givenSection = Music.rest(0);
                 break;
+            // Add measure to section.
+            // If [1 was encountered, wind up repeatSection, add it to requiredMusic and start with commonRepeat as repeatSection.
+            // If |: was encountered, wind up repeatSection, double it, and add to requiredMusic.
+            // Otherwise, wind up current section, double it, and add to requiredMusic.
             case ":|":
                 givenSection = addMeasure(givenSection, givenMeasure);
                 givenMeasure = Music.rest(0);
-                if(repeatedSectionStart) {
+                if(firstEndingStart) {
+                    repeatSection = addMeasure(repeatSection, givenSection);
+                    givenSection = Music.rest(0);
+                    requiredMusic = addMeasure(requiredMusic, repeatSection);
+                    repeatSection = commonRepeat;
+                    commonRepeat = Music.rest(0);
+                }
+                else if(repeatedSectionStart) {
                     repeatSection = addMeasure(repeatSection, givenSection);
                     givenSection = Music.rest(0);
                     requiredMusic = addMeasure(requiredMusic, Music.concat(repeatSection, repeatSection));
@@ -1046,12 +1063,36 @@ public class PieceParser {
                     requiredMusic = addMeasure(requiredMusic, Music.concat(givenSection, givenSection));
                     givenSection = Music.rest(0);
                 }
+                firstEndingStart = false;
                 repeatedSectionStart = false;
+                break;
+            // Raise the flag that first ending has started.
+            // If |: encountered earlier, wind up repeatSection, set commonRepeat to this current value, and move forward.
+            // Otherwise, set repeatSection to current section, set commonRepeat to this current value, and move forward.
+            case "[1":
+                firstEndingStart = true;
+                givenSection = addMeasure(givenSection, givenMeasure);
+                givenMeasure = Music.rest(0);
+                if(repeatedSectionStart) {
+                    repeatSection = addMeasure(repeatSection, givenSection);
+                    commonRepeat = repeatSection;
+                    givenSection = Music.rest(0);
+                }
+                else {
+                    repeatedSectionStart = true;
+                    repeatSection = addMeasure(repeatSection, givenSection);
+                    commonRepeat = repeatSection;
+                    givenSection = Music.rest(0);
+                }
+                break;
+            case "[2":
+                firstEndingStart = false;
                 break;
             default:
                 throw new AssertionError("Should never get here");
             }
         }
+        // Wind up the remaining measures, sections and unfinished repeat sections.
         if(!givenMeasure.equals(Music.rest(0))) {
             givenSection = addMeasure(givenSection, givenMeasure);
             givenMeasure = Music.rest(0);
@@ -1069,14 +1110,17 @@ public class PieceParser {
     }
     
     /**
-     * TODO 
-     * @param requiredMusic
-     * @param givenMeasure
-     * @return
+     * Get music made of givenMeasure added to the higher order structure requiredMusic.
+     * @param requiredMusic the music with higher order structure
+     * @param givenMeasure the music with lower order structure
+     * @return concatenation of the two musics if both are non-empty, and the other music if one is empty (rest(0))
      */
     private static Music addMeasure(Music requiredMusic, Music givenMeasure) {
         if(requiredMusic.equals(Music.rest(0))) {
             return givenMeasure;
+        }
+        else if(givenMeasure.equals(Music.rest(0))) {
+            return requiredMusic;
         }
         else {
             return Music.concat(requiredMusic, givenMeasure);

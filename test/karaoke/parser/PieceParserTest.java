@@ -865,26 +865,27 @@ public class PieceParserTest {
         firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('E'), Instrument.PIANO));
         firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('F'), Instrument.PIANO));
         
-        Music firstPass = Music.rest(0);
-        firstPass = Music.concat(firstPass, Music.note(1, new Pitch('G'), Instrument.PIANO));
-        firstPass = Music.concat(firstPass, Music.note(1, new Pitch('A'), Instrument.PIANO));
-        firstPass = Music.concat(firstPass, Music.note(1, new Pitch('B'), Instrument.PIANO));
-        firstPass = Music.concat(firstPass, Music.note(1, new Pitch('C'), Instrument.PIANO)); 
-        firstPass = Music.concat(firstPass, Music.note(1, new Pitch('G'), Instrument.PIANO));
-        firstPass = Music.concat(firstPass, Music.note(1, new Pitch('A'), Instrument.PIANO));
-        firstPass = Music.concat(firstPass, Music.note(1, new Pitch('B'), Instrument.PIANO));
-        firstPass = Music.concat(firstPass, Music.note(1, new Pitch('B'), Instrument.PIANO));
+        Music firstPassFirstMeasure = Music.rest(0);
+        firstPassFirstMeasure = Music.concat(firstPassFirstMeasure, Music.note(1, new Pitch('G'), Instrument.PIANO));
+        firstPassFirstMeasure = Music.concat(firstPassFirstMeasure, Music.note(1, new Pitch('A'), Instrument.PIANO));
+        firstPassFirstMeasure = Music.concat(firstPassFirstMeasure, Music.note(1, new Pitch('B'), Instrument.PIANO));
+        firstPassFirstMeasure = Music.concat(firstPassFirstMeasure, Music.note(1, new Pitch('C'), Instrument.PIANO));
+        Music firstPassSecondMeasure = Music.rest(0); 
+        firstPassSecondMeasure = Music.concat(firstPassSecondMeasure, Music.note(1, new Pitch('G'), Instrument.PIANO));
+        firstPassSecondMeasure = Music.concat(firstPassSecondMeasure, Music.note(1, new Pitch('A'), Instrument.PIANO));
+        firstPassSecondMeasure = Music.concat(firstPassSecondMeasure, Music.note(1, new Pitch('B'), Instrument.PIANO));
+        firstPassSecondMeasure = Music.concat(firstPassSecondMeasure, Music.note(1, new Pitch('B'), Instrument.PIANO));
+        Music firstPass = Music.concat(firstMeasure, Music.concat(firstPassFirstMeasure, firstPassSecondMeasure));
         
-        Music secondPass = Music.rest(0);
-        secondPass = Music.concat(secondPass, Music.note(1, new Pitch('F'), Instrument.PIANO));
-        secondPass = Music.concat(secondPass, Music.note(1, new Pitch('E'), Instrument.PIANO));
-        secondPass = Music.concat(secondPass, Music.note(1, new Pitch('D'), Instrument.PIANO));
-        secondPass = Music.concat(secondPass, Music.note(1, new Pitch('C'), Instrument.PIANO));
+        Music secondPassFirstMeasure = Music.rest(0);
+        secondPassFirstMeasure = Music.concat(secondPassFirstMeasure, Music.note(1, new Pitch('F'), Instrument.PIANO));
+        secondPassFirstMeasure = Music.concat(secondPassFirstMeasure, Music.note(1, new Pitch('E'), Instrument.PIANO));
+        secondPassFirstMeasure = Music.concat(secondPassFirstMeasure, Music.note(1, new Pitch('D'), Instrument.PIANO));
+        secondPassFirstMeasure = Music.concat(secondPassFirstMeasure, Music.note(1, new Pitch('C'), Instrument.PIANO));
+        Music secondPass = Music.concat(firstMeasure, secondPassFirstMeasure);
         
-        Music firstTimeThrough = Music.concat(firstMeasure, firstPass);
-        Music secondTimeThrough = Music.concat(firstMeasure, secondPass);
-        correctMusic = Music.concat(firstTimeThrough, secondTimeThrough);
-        
+        correctMusic = Music.concat(firstPass, secondPass);
+
         assertEquals("expected correct music", correctMusic, piece.getMusic());
         
     }
