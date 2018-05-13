@@ -14,7 +14,6 @@ import javax.sound.midi.MidiUnavailableException;
 import org.junit.Test;
 
 import edu.mit.eecs.parserlib.UnableToParseException;
-import karaoke.Main;
 import karaoke.Music;
 import karaoke.Piece;
 import karaoke.WebServer;
@@ -173,7 +172,7 @@ public class AllADTsTest {
     //      streamed to web server
     //      number of voices is >1 
     @Test
-    public void testWebServerWithMusic() throws IOException, MidiUnavailableException, InvalidMidiDataException {
+    public void testWebServerWithMusic() throws IOException, MidiUnavailableException, InvalidMidiDataException, InterruptedException {
         // Create Music with two voices 
         Music firstVoice = Music.rest(.5);
         firstVoice = Music.concat(firstVoice, Music.together(
@@ -249,7 +248,7 @@ public class AllADTsTest {
         /*
          * Manually: navigate to the printed out URL's, open each URL on more than one tab
          */
-        System.out.println("Open each URL on more than one tab");
+        System.out.println("Open each URL on more than one tab within the next 10 seconds");
         synchronized(voiceToLyricsMap) {
             int index = 0;
             for (String voice : voiceToLyricsMap.keySet()) {
@@ -259,7 +258,7 @@ public class AllADTsTest {
             }
         }
         
-        Main.promptEnterKey();
+        Thread.sleep(10000);
         
         // Add a listener at the end of the piece to tell main thread when it's done
         Object lock = new Object();
@@ -293,7 +292,7 @@ public class AllADTsTest {
     //      streamed to web server
     //      number of voices is >1 
     @Test
-    public void testWebServerWithParser() throws IOException, UnableToParseException, MidiUnavailableException, InvalidMidiDataException {
+    public void testWebServerWithParser() throws IOException, UnableToParseException, MidiUnavailableException, InvalidMidiDataException, InterruptedException {
         // Parse the file, create a voiceToLyricsMap and a sequence player 
         Piece piece = Piece.parseFromFile("sample-abc/piece4.abc");
         SortedMap<String, List<String>> voiceToLyricsMap = new TreeMap<>();
@@ -310,7 +309,7 @@ public class AllADTsTest {
         /*
          * Manually: navigate to the printed out URL's, open each URL on more than one tab
          */
-        System.out.println("Open each URL on more than one tab");
+        System.out.println("Open each URL on more than one tab within the next 10 seconds");
         synchronized(voiceToLyricsMap) {
             int index = 0;
             for (String voice : voiceToLyricsMap.keySet()) {
@@ -320,8 +319,8 @@ public class AllADTsTest {
             }
         }
         
-        Main.promptEnterKey();
-        
+        Thread.sleep(10000);
+       
         // Initialize the sequence player 
         final double warmup = 0.125;
         Music music = piece.getMusic();

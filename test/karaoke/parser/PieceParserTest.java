@@ -1245,8 +1245,6 @@ public class PieceParserTest {
                                     Music.lyrics("test test of *day*", "voice1")));
         correctMusic = Music.concat(firstMeasure, secondMeasure);
         
-        System.out.println(correctMusic);
-        System.out.println(piece.getMusic());
         assertEquals("expected correct music", correctMusic, piece.getMusic());
     }
     

@@ -500,8 +500,6 @@ public class PieceParser {
         return combinedMusicAndLyrics;
     }
     
-
-
     /**
      * Combines the parsedLyricLine with the parsedBodyLine
      * @param parsedBodyLine a list of pairs where the first element in pair indicates the structure of the song
