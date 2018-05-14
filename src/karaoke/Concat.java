@@ -6,7 +6,7 @@ import karaoke.sound.*;
 
 /**
  * Represents two pieces of music being played sequentially 
- * Immutable and thread-safe. 
+ * Immutable.
  */
 public class Concat implements Music {
     

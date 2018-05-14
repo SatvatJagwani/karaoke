@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.net.InetAddress;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiUnavailableException;
@@ -57,11 +58,12 @@ public class Main {
         server.start(voiceToLyricsMap);
         
         // Print out URL's for each voice 
+        String myIP = InetAddress.getLocalHost().getHostAddress();
         synchronized(voiceToLyricsMap) {
             int index = 0;
             for (String voice : voiceToLyricsMap.keySet()) {
                 System.out.println("For voice " + voice + 
-                        ", go to http://localhost:" + serverPort + "/textStream/voice_" + index);
+                        ", go to http://" + myIP + ":" + serverPort + "/textStream/voice_" + index);
                 index++;
             }
         }

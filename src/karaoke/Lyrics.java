@@ -6,7 +6,7 @@ import karaoke.sound.SequencePlayer;
 
 /**
  * Represents the syllable being sung by a specific voice. 
- * Immutable and thread-safe. 
+ * Immutable.
  */
 public class Lyrics implements Music {
 

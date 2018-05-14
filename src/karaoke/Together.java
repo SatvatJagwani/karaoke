@@ -6,7 +6,7 @@ import karaoke.sound.SequencePlayer;
 
 /**
  * Represents two pieces of music being played together at the same time
- * Immutable and thread-safe. 
+ * Immutable.
  */
 public class Together implements Music {
     

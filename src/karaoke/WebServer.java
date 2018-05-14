@@ -126,11 +126,15 @@ public class WebServer {
         try {
             // IMPORTANT: some web browsers don't start displaying a page until at least 2K bytes
             // have been received.  So we'll send a line containing 2K spaces first.
-            final int enoughBytesToStartStreaming = 2048;
+            //final int enoughBytesToStartStreaming = 2048;
+            final int enoughBytesToStartStreaming = 40000;
             for (int i = 0; i < enoughBytesToStartStreaming; ++i) {
                 out.print(' ');
             }
             out.println(); // also flushes
+            
+            out.println("connected");
+            
             int counter = 0;
             while(true) {
                 synchronized(voiceToLyricsMap) {

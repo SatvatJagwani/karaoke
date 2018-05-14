@@ -6,7 +6,7 @@ import karaoke.sound.SequencePlayer;
 
 /**
  * Represents a pause in a piece of music 
- * Immutable and thread-safe. 
+ * Immutable.
  */
 public class Rest implements Music {
     

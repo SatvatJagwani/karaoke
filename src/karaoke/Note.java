@@ -6,7 +6,7 @@ import karaoke.sound.*;
 
 /**
  * Represents a note played by an instrument for a specific duration of time 
- * Immutable and thread-safe. 
+ * Immutable.
  */
 public class Note implements Music {
     
