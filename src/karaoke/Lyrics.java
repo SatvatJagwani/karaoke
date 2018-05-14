@@ -13,15 +13,15 @@ public class Lyrics implements Music {
     private final String voice, lyricLine;
     
     // Abstraction function:
-    //     AF(voice, lyricLine) = A line of lyrics lyricLine with the syllable in between asterisks in lyricLine
+    //     AF(voice, lyricLine) = a line of lyrics lyricLine with the syllable in between asterisks in lyricLine
     //                            sung by voice voice
     // Representation invariant:
-    //     voice has no newline, underscore, tilde, nor bar
-    //     lyricLine is non-empty.
-    //     lyricLine has exactly two asterisks enclosing at least one character.
-    //     Asterisks with enclosed string are surrounded by either spaces or hyphens or a combination of these two.
+    //     - voice has no newline, underscore, tilde, nor bar
+    //     - lyricLine is non-empty.
+    //     - lyricLine has exactly two asterisks enclosing at least one character.
+    //     - asterisks with enclosed string are surrounded by either spaces or hyphens or a combination of these two.
     // Safety from rep exposure:
-    //     All fields are private, final and immutable.
+    //     - all fields are private, final and immutable.
     
     private void checkRep() {
         assert voice!=null;
@@ -81,6 +81,7 @@ public class Lyrics implements Music {
     public void play(SequencePlayer player, double atBeat, Map<String, List<String>> voiceToLyricsMap) {
         player.addEvent(atBeat, (Double beat) -> {
             synchronized (voiceToLyricsMap) {
+                // Mutate the voiceToLyricsMap for the given voice, then wake up all waiting threads 
                 voiceToLyricsMap.get(voice).add(lyricLine);
                 voiceToLyricsMap.notifyAll();
             }

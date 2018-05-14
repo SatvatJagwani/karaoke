@@ -20,9 +20,7 @@ import org.junit.Test;
  */
 public class WebServerTest {
     
-    // serverPort numbers between the tests are different because tests were randomly failing;
-    // we suspect this is due to concurrency issues when running the tests and the port was
-    // still occupied by another test
+
 
     @Test(expected=AssertionError.class)
     public void testAssertionsEnabled() {
@@ -49,6 +47,11 @@ public class WebServerTest {
     //      tested in separate file with manual test cases 
     //
     // Cover each part at least once 
+    
+    // NOTE: 
+    // serverPort numbers between the tests are different because tests were randomly failing;
+    // we suspect this is due to concurrency issues when running the tests and the port was
+    // still occupied by another test
     
     // Example test - shows the flow for interacting with the web server
     @Test

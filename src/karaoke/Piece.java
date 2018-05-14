@@ -54,9 +54,6 @@ public class Piece {
     // Safety from rep exposure
     //    - every field is private, final, and immmutable type except for the set
     //    - for the set, we use defensive copying in the constructor and the observer
-    // Thread safety argument:
-    //    - Immutable references to immutable objects. No beneficent mutation.
-    //    - voices does not need to be threadsafe because we only create one in each instance of Piece
     
     /**
      * Get a piece from a file.

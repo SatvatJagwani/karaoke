@@ -63,6 +63,9 @@ public class PieceTest {
     //           no. of chords: 0, >0
     //           no. of lyrics: 0, >0
     //           no. of voices: 1, >1
+    //
+    // Cover each part at least once 
+   
 
     /*
      * Get music togethered with *no lyrics* sung by Voice 1
@@ -71,7 +74,8 @@ public class PieceTest {
         return Music.together(music, Music.lyrics("*no lyrics*", "voice1"));
     }
     
-    // covers
+    // Covers the following:
+    //
     // parseFromFile():
     //     valid filename
     // Piece():
@@ -137,7 +141,9 @@ public class PieceTest {
         String note4 = "(1.0, " + Pitch.MIDDLE_C.transpose(3*Pitch.OCTAVE).toString() + ")";
         assertEquals(givenPiece.toString(), "[Unknown, 1, 0.125, 4/4, 100, sample 1, [voice1], C, (((((0.0) && " + note1WithNoLyrics + ") && " + note2 + ") && " + note3 + ") && " + note4 + ")]");
     }
-    // covers
+
+    // Covers the following:
+    //
     // Piece():
     //     composer: unknown
     //     index: >=0
@@ -192,7 +198,8 @@ public class PieceTest {
         assertEquals(newPiece.hashCode(), givenPiece.hashCode());
     }
     
-    // covers
+    // Covers the following:
+    //
     // Piece():
     //     composer: known
     //     index: >=0
@@ -269,7 +276,8 @@ public class PieceTest {
         assertEquals(givenPiece.hashCode(), nextPiece.hashCode());
     }
     
-    // covers
+    // Covers the following:
+    //
     // parseFromFile():
     //     valid filename
     // Piece():
@@ -331,7 +339,8 @@ public class PieceTest {
         assertEquals(givenPiece.toString(), "[Unknown, 8, 0.125, 4/4, 100, Chord, [voice1], C, ((0.0) && " + chordWithNoLyrics + ")]");
     }
     
-    // covers
+    // Covers the following:
+    //
     // parseFromFile():
     //     valid filename
     // Piece():
@@ -403,7 +412,8 @@ public class PieceTest {
         assertEquals(givenPiece.toString(), "[Unknown, 1, 0.125, 4/4, 100, voices, [1, 2, 3], Cm, ((((0.0) && " + note1WithNoLyrics + ") || ((0.0) && " + note2WithNoLyrics + ")) || ((0.0) && " + note3WithNoLyrics + "))]");
     }
     
-    // covers
+    // Covers the following:
+    //
     // parseFromFile():
     //     filename: file not present
     @Test(expected=IOException.class)
@@ -411,7 +421,8 @@ public class PieceTest {
         Piece.parseFromFile("sample-abc/non-existent.abc");
     }
     
-    // covers
+    // Covers the following:
+    //
     // parseFromFile():
     //     filename: file not in right format
     @Test(expected=UnableToParseException.class)
@@ -419,7 +430,8 @@ public class PieceTest {
         Piece.parseFromFile("src/karaoke/Piece.java");
     }
 
-    // covers
+    // Covers the following:
+    //
     // equals():
     //     type of that: not Piece
     @Test
@@ -431,10 +443,12 @@ public class PieceTest {
         Piece givenPiece = new Piece("Unknown", 1, 0.125, "4/4", 100, "sample 1", Collections.singleton("Voice 1"), "C", correctMusic);
         String note1 = "(2.0, " + Pitch.MIDDLE_C.transpose(-Pitch.OCTAVE).toString() + ")";
         String note2 = "(2.0, " + Pitch.MIDDLE_C.toString() + ")";
-        assertFalse(givenPiece.equals("[Unknown, 1, 0.125, 4/4, 100, sample 1, [Voice 1], C, (((0.0) && " + note1 + ") && " + note2 + ")]"));
+        String fullPieceString = "[Unknown, 1, 0.125, 4/4, 100, sample 1, [Voice 1], C, (((0.0) && " + note1 + ") && " + note2 + ")]";
+        assertFalse(givenPiece.equals((Object) fullPieceString));
     }
     
-    // covers
+    // Covers the following:
+    //
     // equals():
     //     type of that: Piece
     //     header fields of this and that: different
@@ -449,7 +463,8 @@ public class PieceTest {
         assertFalse(piece1.equals(piece2));
     }
     
-    // covers
+    // Covers the following:
+    //
     // equals():
     //     type of that: Piece
     //     music of this and that: different structure same sound
@@ -466,7 +481,8 @@ public class PieceTest {
         assertFalse(piece1.equals(piece2));
     }
     
-    // covers
+    // Covers the following:
+    //
     // equals():
     //     type of that: Piece
     //     music of this and that: different sound

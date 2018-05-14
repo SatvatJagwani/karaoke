@@ -61,11 +61,7 @@ public class PieceParserTest {
     // checked exceptions thrown:
     //      none, UnableToParseException
     //
-    // Covers each part at least once 
-    
-    /*
-     * Tests for PieceParser.parse() 
-     */
+    // Cover each part at least once 
    
     // Covers the following:
     //

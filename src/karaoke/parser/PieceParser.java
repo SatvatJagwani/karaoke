@@ -34,12 +34,12 @@ public class PieceParser {
         String body = "";
         header = "X:1" + "\n";
         header += "T:simple song" + "\n";
-        header += "M:3/4" + "\n";
+        header += "M:1/4" + "\n";
         header += "L:1/4" + "\n";
         header += "Q:1/4=100" + "\n";
         header += "K:C" + "\n";
-        body = "A B C | A B C" + "\n";
-        body += "w:test | test of day" + "\n";
+        body = "[| A | B |: C :|" + "\n";
+        body += "w:*" + "\n";
         
         // Parse the string 
         PieceParser.parse(header + body);
@@ -128,8 +128,46 @@ public class PieceParser {
     
     /**
      * Parse a string into an abc piece.
+     * 
+     * The music in the piece corresponding the body of the given string
+     * captures the structure of the music as follows. Each measure is concatenated 
+     * together left to right, starting with a Rest of size 0. Each major section 
+     * is then a group of measures concatenated together left to right. Repeated sections
+     * are then repeated using concatenation. Lastly, major sections and repeated sections 
+     * are concatenated together left to right. 
+     * 
+     * Whenever a line does not give lyrics for a group of notes, a Lyric object with 
+     * lyricLine "*no lyrics*" is joined together with the first note whose lyrics are 
+     * not specified. The following notes do not have lyrics joined together. Moreover, 
+     * if the lyrics include an asterisk or something equivalent (double hyphen or space
+     * followed by hyphen), the note aligned with that asterisk also gets joined together
+     * with a lyricLine "*no lyrics*". 
+     *
+     * For example, the line "[| A | B || C|]" with no lyrics will have music with the following structure:
+     *      concat(
+     *              concat(concat(rest(0), together(note(A), lyrics(*no lyrics*))),     // no lyrics with the first note
+     *                     concat(rest(0), note(B))                                     // don't need no lyrics anymore 
+     *                     ),                                                           // first major section
+     *              concat(rest(0), note(C))                // second major section 
+     *             )                                        // concatenate both major sections last 
+     * 
+     * And the line  "[| A | B |: C :|" with lyrics "w: *" will have music with the following structure: 
+     *      concat(
+     *              concat(concat(rest(0), together(note(A), lyrics(*no lyrics*))),     // no lyrics because of *
+     *                     concat(rest(0), together(note(B), lyrics(*no lyrics*)))      // first note with no lyrics
+     *                     ),                                                           // first major section
+     *              concat(concat(rest(0), note(c)),        // don't add no lyrics here because B already has no lyrics
+     *                     concat(rest(0), note(c))         // repeat the last measure 
+     *                     )                                // second major section, including the repeat 
+     *             )                                        // concatenate the two major sections after doing the repeat 
+     * 
+     * If there are multiple voices, a music object is created for each voice. Then the music
+     * objects for the voices are joined together. Multiple voices are joined together in the 
+     * following order: voices with larger durations are joined together before voices with smaller 
+     * durations, and if two voices have the same duration they are joined together in alphabetical order. 
+     * 
      * @param string string to parse
-     * @return Music parsed from the string
+     * @return Piece parsed from the string
      * @throws UnableToParseException if the string doesn't match the Abc grammar
      */
     public static Piece parse(final String string) throws UnableToParseException {
@@ -248,7 +286,7 @@ public class PieceParser {
 
             // Parse the body to get the Music object 
             Music music = parseBody(bodyTree, voices, defaultNoteDuration, key);
-            
+
             return new Piece(composer, index, defaultNoteDuration, meter, beatsPerMinute, title, voices, key, music);
         } 
         else {

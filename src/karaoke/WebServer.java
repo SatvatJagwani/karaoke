@@ -26,17 +26,17 @@ public class WebServer {
     //                        a set of lyrics for a voice to different web-sites once 
     //                        start(map) is called on the ADT with a properly configured map
     // Representation invariant:
-    //     1 <= port <= 65535
+    //     - 1 <= port <= 65535
     // Safety from rep exposure:
-    //     all fields are private and final
-    //     all parameters passed into the constructor are immutable 
-    //     only immutable objects are returned to the client through observers
+    //     - all fields are private and final
+    //     - all parameters passed into the constructor are immutable 
+    //     - only immutable objects are returned to the client through observers
     // Thread safety argument:
-    //     Not a thread safe data-type by itself.
-    //     We only use one web server.
-    //     However, its use of multiple threads is safe.
-    //     Server acquires the lock for voiceToLyricsMap whenever checking for mutation.
-    //     Thread safety by synchronization (through locking).
+    //     - not a thread safe data-type by itself
+    //     - we only use one web server
+    //     - however, its use of multiple threads is safe
+    //     - server acquires the lock for voiceToLyricsMap whenever checking for mutation
+    //     - thread safety by synchronization (through locking)
     
     private void checkRep() {
         assert server!=null;
@@ -132,12 +132,14 @@ public class WebServer {
             }
             out.println(); // also flushes
             
+            // counter keeps track of the number of lines we have printed out 
             int counter = 0;
             while(true) {
                 synchronized(voiceToLyricsMap) {
                     while(voiceToLyricsMap.get(voice).size()==counter) {
                         voiceToLyricsMap.wait();
                     }
+                    // print the next line whenever the map with the given voice has been mutated 
                     counter = voiceToLyricsMap.get(voice).size();
                     out.println(voiceToLyricsMap.get(voice).get(counter-1));
                 }
