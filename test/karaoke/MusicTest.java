@@ -9,6 +9,9 @@ import org.junit.Test;
 import karaoke.sound.Instrument;
 import karaoke.sound.Pitch;
 
+/**
+ * Test cases for Music
+ */
 public class MusicTest {
     
     @Test(expected=AssertionError.class)

@@ -24,7 +24,7 @@ import karaoke.sound.Pitch;
  */
 public class PieceParser {
     /**
-     * Main method. Parses and then reprints an example piece.
+     * Main method. Parses an example piece.
      * 
      * @param args command line arguments, not used
      * @throws UnableToParseException if example expression can't be parsed

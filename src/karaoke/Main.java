@@ -24,6 +24,15 @@ public class Main {
      * The title and composer are printed out along with instructions on how to 
      * stream the lyrics with a web browser. Instructions on how to start music play-back
      * are also printed out. 
+     * 
+     * To run this from the command line, use the following command:
+     * 
+     * java -cp bin:lib/parserlib.jar karaoke.Main filename
+     * 
+     * For example, to play the abc_song in sample-abc use the following command:
+     * 
+     * java -cp bin:lib/parserlib.jar karaoke.Main sample-abc/abc_song.abc
+     * 
      * @param args contains a path to a valid abc file 
      * @throws IOException if no abc file is found at path filename
      * @throws UnableToParseException if the abc file is not in right format.

@@ -14,6 +14,9 @@ import edu.mit.eecs.parserlib.UnableToParseException;
 import karaoke.sound.Instrument;
 import karaoke.sound.Pitch;
 
+/**
+ * Test cases for Piece 
+ */
 public class PieceTest {
     
     @Test(expected=AssertionError.class)

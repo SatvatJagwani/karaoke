@@ -15,6 +15,9 @@ import java.util.TreeMap;
 
 import org.junit.Test;
 
+/**
+ * Test cases for WebServer 
+ */
 public class WebServerTest {
     
     // serverPort numbers between the tests are different because tests were randomly failing;

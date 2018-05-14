@@ -14,6 +14,9 @@ import karaoke.Piece;
 import karaoke.sound.Instrument;
 import karaoke.sound.Pitch;
 
+/**
+ * Test cases for PieceParser 
+  */
 public class PieceParserTest {
 
     @Test(expected=AssertionError.class)
