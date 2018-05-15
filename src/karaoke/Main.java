@@ -27,7 +27,8 @@ public class Main {
      * 
      * To run this from the command line, use the following command:
      * 
-     * java -cp bin:lib/parserlib.jar karaoke.Main filename
+     * java -cp bin:lib/parserlib.jar karaoke.Main filename (in Mac)
+     * java -cp "bin;lib/parserlib.jar" karaoke.Main filename (in Windows)
      * 
      * For example, to play the abc_song in sample-abc use the following command:
      * 
