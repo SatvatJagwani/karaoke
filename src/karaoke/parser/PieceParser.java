@@ -21,6 +21,10 @@ import karaoke.sound.Pitch;
 /**
  * Parser for our Karaoke project pieces of music written in standard abc notation
  * Inspiration for this code framework comes from instructor-written ps3, ExpressionParser.java
+ * 
+ * This parser plays all music in Instrument.PIANO.  We chose not to make this a global variable
+ * so that future additions to the project could implement parsing for other/multiple instruments.
+ * (RFC)
  */
 public class PieceParser {
     /**
