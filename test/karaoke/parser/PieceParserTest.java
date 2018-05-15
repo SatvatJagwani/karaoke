@@ -954,6 +954,8 @@ public class PieceParserTest {
 //        firstPassSecondMeasure = Music.concat(firstPassSecondMeasure, Music.note(1, new Pitch('G'), Instrument.PIANO));
         firstPass = Music.concat(firstMeasure, Music.concat(firstPassFirstMeasure, firstPassSecondMeasure));
         
+        correctMusic = Music.concat(correctMusic, firstPass);
+        
         secondPassFirstMeasure = Music.rest(0);
         secondPassFirstMeasure = Music.concat(secondPassFirstMeasure, Music.note(1, new Pitch('C'), Instrument.PIANO));
 //        secondPassFirstMeasure = Music.concat(secondPassFirstMeasure, Music.note(1, new Pitch('E'), Instrument.PIANO));
@@ -961,7 +963,7 @@ public class PieceParserTest {
 //        secondPassFirstMeasure = Music.concat(secondPassFirstMeasure, Music.note(1, new Pitch('F'), Instrument.PIANO));
         secondPass = Music.concat(firstMeasure, secondPassFirstMeasure);
         
-        correctMusic = Music.concat(correctMusic, Music.concat(firstPass, secondPass));
+        correctMusic = Music.concat(correctMusic, secondPass);
         
         
         firstMeasure = Music.rest(0);

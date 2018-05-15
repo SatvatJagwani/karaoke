@@ -1039,6 +1039,7 @@ public class PieceParser {
         Music givenMeasure = Music.rest(0); // A measure defined by | as delimiter
         boolean repeatedSectionStart = false;
         boolean firstEndingStart = false;
+        boolean secondEndingStart = false;
         for(SimpleImmutableEntry<String,Music> typeAndMusic : voiceMusic) {
             switch(typeAndMusic.getKey()) {
             // For music and rest, simply concatenate to given measure
@@ -1063,6 +1064,12 @@ public class PieceParser {
                 if(repeatedSectionStart) {
                     repeatSection = addMeasure(repeatSection, givenSection);
                     givenSection = Music.rest(0);
+                    if(secondEndingStart) {
+                        secondEndingStart = false;
+                        repeatedSectionStart = false;
+                        requiredMusic = addMeasure(requiredMusic, repeatSection);
+                        repeatSection = Music.rest(0);
+                    }
                 }
                 else {
                     requiredMusic = addMeasure(requiredMusic, givenSection);
@@ -1096,13 +1103,14 @@ public class PieceParser {
                     givenSection = Music.rest(0);
                     requiredMusic = addMeasure(requiredMusic, Music.concat(repeatSection, repeatSection));
                     repeatSection = Music.rest(0);
+                    repeatedSectionStart = false;
                 }
                 else {
                     requiredMusic = addMeasure(requiredMusic, Music.concat(givenSection, givenSection));
                     givenSection = Music.rest(0);
+                    repeatedSectionStart = false;
                 }
                 firstEndingStart = false;
-                repeatedSectionStart = false;
                 break;
             // Raise the flag that first ending has started.
             // If |: encountered earlier, wind up repeatSection, set commonRepeat to this current value, and move forward.
@@ -1125,6 +1133,7 @@ public class PieceParser {
                 break;
             case "[2":
                 firstEndingStart = false;
+                secondEndingStart = true;
                 break;
             default:
                 throw new AssertionError("Should never get here");
