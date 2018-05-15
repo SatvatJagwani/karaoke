@@ -16,6 +16,9 @@ public interface Music {
     //  + Concat(first: Music, second: Music)
     //  + Together(m1: Music, m2: Music)
     
+    // Constants 
+    public static String NO_LYRICS = "*no lyrics*";
+    
     /**
      * Make a rest that lasts for duration beats.
      * @param duration duration in beats, must be >= 0

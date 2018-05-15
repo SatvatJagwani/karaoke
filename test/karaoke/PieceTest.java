@@ -68,10 +68,10 @@ public class PieceTest {
    
 
     /*
-     * Get music togethered with *no lyrics* sung by Voice 1
+     * Get music togethered with Music.NO_LYRICS sung by Voice 1
      */
     private static Music defaultBeginning(Music music) {
-        return Music.together(music, Music.lyrics("*no lyrics*", "voice1"));
+        return Music.together(music, Music.lyrics(Music.NO_LYRICS, "voice1"));
     }
     
     // Covers the following:
@@ -135,7 +135,7 @@ public class PieceTest {
         assertEquals(givenPiece, parsedPiece);
         assertEquals(givenPiece.hashCode(), parsedPiece.hashCode());
         String note1 = "(2.0, " + Pitch.MIDDLE_C.transpose(-Pitch.OCTAVE).toString() + ")";
-        String note1WithNoLyrics = "(" + note1 + " || (voice1: *no lyrics*))";
+        String note1WithNoLyrics = "(" + note1 + " || (voice1: " + Music.NO_LYRICS + "))";
         String note2 = "(2.0, " + Pitch.MIDDLE_C.toString() + ")";
         String note3 = "(1.0, " + Pitch.MIDDLE_C.transpose(2*Pitch.OCTAVE).toString() + ")";
         String note4 = "(1.0, " + Pitch.MIDDLE_C.transpose(3*Pitch.OCTAVE).toString() + ")";
@@ -335,7 +335,7 @@ public class PieceTest {
         assertEquals(givenPiece.hashCode(), parsedPiece.hashCode());
         String note1 = "(1.0, " + new Pitch('E').toString() + ")";
         String note2 = "(1.0, " + new Pitch('C').toString() + ")";
-        String chordWithNoLyrics = "((" + note1 + " || " + note2 + ") || (voice1: *no lyrics*))";
+        String chordWithNoLyrics = "((" + note1 + " || " + note2 + ") || (voice1: " + Music.NO_LYRICS + "))";
         assertEquals(givenPiece.toString(), "[Unknown, 8, 0.125, 4/4, 100, Chord, [voice1], C, ((0.0) && " + chordWithNoLyrics + ")]");
     }
     
@@ -382,9 +382,9 @@ public class PieceTest {
     public void testPieceWithMultipleVoices() throws IOException, UnableToParseException {
         Instrument instrument = Instrument.PIANO;
         Music restMusic = Music.rest(0);
-        Music firstVoice = Music.concat(restMusic, Music.together(Music.note(1, new Pitch('C'), instrument), Music.lyrics("*no lyrics*", "1")));
-        Music secondVoice = Music.concat(restMusic, Music.together(Music.note(1, new Pitch('E').transpose(-1), instrument), Music.lyrics("*no lyrics*", "2")));
-        Music thirdVoice = Music.concat(restMusic, Music.together(Music.note(1, new Pitch('G'), instrument), Music.lyrics("*no lyrics*", "3")));
+        Music firstVoice = Music.concat(restMusic, Music.together(Music.note(1, new Pitch('C'), instrument), Music.lyrics(Music.NO_LYRICS, "1")));
+        Music secondVoice = Music.concat(restMusic, Music.together(Music.note(1, new Pitch('E').transpose(-1), instrument), Music.lyrics(Music.NO_LYRICS, "2")));
+        Music thirdVoice = Music.concat(restMusic, Music.together(Music.note(1, new Pitch('G'), instrument), Music.lyrics(Music.NO_LYRICS, "3")));
         Music correctMusic = Music.together(Music.together(firstVoice, secondVoice), thirdVoice);
         Set<String> voices = new HashSet<>();
         voices.add("1");
@@ -404,11 +404,11 @@ public class PieceTest {
         assertEquals(givenPiece, parsedPiece);
         assertEquals(givenPiece.hashCode(), parsedPiece.hashCode());
         String note1 = "(1.0, " + new Pitch('C').toString() + ")";
-        String note1WithNoLyrics = "(" + note1 + " || (1: *no lyrics*))";
+        String note1WithNoLyrics = "(" + note1 + " || (1: " + Music.NO_LYRICS + "))";
         String note2 = "(1.0, " + new Pitch('E').transpose(-1).toString() + ")";
-        String note2WithNoLyrics = "(" + note2 + " || (2: *no lyrics*))";
+        String note2WithNoLyrics = "(" + note2 + " || (2: " + Music.NO_LYRICS + "))";
         String note3 = "(1.0, " + new Pitch('G').toString() + ")";
-        String note3WithNoLyrics = "(" + note3 + " || (3: *no lyrics*))";
+        String note3WithNoLyrics = "(" + note3 + " || (3: " + Music.NO_LYRICS + "))";
         assertEquals(givenPiece.toString(), "[Unknown, 1, 0.125, 4/4, 100, voices, [1, 2, 3], Cm, ((((0.0) && " + note1WithNoLyrics + ") || ((0.0) && " + note2WithNoLyrics + ")) || ((0.0) && " + note3WithNoLyrics + "))]");
     }
     

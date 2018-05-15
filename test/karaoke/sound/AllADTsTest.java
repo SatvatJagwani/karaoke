@@ -159,7 +159,7 @@ public class AllADTsTest {
         SortedMap<String, List<String>> correctVoiceToLyricsMap = new TreeMap<>(); 
         correctVoiceToLyricsMap.put("voice1", new ArrayList<String>());  
         for (int i = 0; i < 17; i++) {
-            correctVoiceToLyricsMap.get("voice1").add("*no lyrics*");
+            correctVoiceToLyricsMap.get("voice1").add(Music.NO_LYRICS);
         }
         assertEquals("Expected correct map", correctVoiceToLyricsMap, voiceToLyricsMap);
     }

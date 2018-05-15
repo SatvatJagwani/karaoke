@@ -141,15 +141,15 @@ public class PieceParser {
      * are concatenated together left to right. 
      * 
      * Whenever a line does not give lyrics for a group of notes, a Lyric object with 
-     * lyricLine "*no lyrics*" is joined together with the first note whose lyrics are 
+     * lyricLine Music.NO_LYRICS is joined together with the first note whose lyrics are 
      * not specified. The following notes do not have lyrics joined together. Moreover, 
      * if the lyrics include an asterisk or something equivalent (double hyphen or space
      * followed by hyphen), the note aligned with that asterisk also gets joined together
-     * with a lyricLine "*no lyrics*". 
+     * with a lyricLine Music.NO_LYRICS. 
      *
      * For example, the line "[| A | B || C|]" with no lyrics will have music with the following structure:
      *      concat(
-     *              concat(concat(rest(0), together(note(A), lyrics(*no lyrics*))),     // no lyrics with the first note
+     *              concat(concat(rest(0), together(note(A), lyrics(Music.NO_LYRICS))),     // no lyrics with the first note
      *                     concat(rest(0), note(B))                                     // don't need no lyrics anymore 
      *                     ),                                                           // first major section
      *              concat(rest(0), note(C))                // second major section 
@@ -157,8 +157,8 @@ public class PieceParser {
      * 
      * And the line  "[| A | B |: C :|" with lyrics "w: *" will have music with the following structure: 
      *      concat(
-     *              concat(concat(rest(0), together(note(A), lyrics(*no lyrics*))),     // no lyrics because of *
-     *                     concat(rest(0), together(note(B), lyrics(*no lyrics*)))      // first note with no lyrics
+     *              concat(concat(rest(0), together(note(A), lyrics(Music.NO_LYRICS))),     // no lyrics because of *
+     *                     concat(rest(0), together(note(B), lyrics(Music.NO_LYRICS)))      // first note with no lyrics
      *                     ),                                                           // first major section
      *              concat(concat(rest(0), note(c)),        // don't add no lyrics here because B already has no lyrics
      *                     concat(rest(0), note(c))         // repeat the last measure 
@@ -601,7 +601,7 @@ public class PieceParser {
                 // We are looking at a music object in the parsedBodyLine 
                 Music music = musicPair.getValue();
                 SimpleImmutableEntry<String, Music> noLyrics = new SimpleImmutableEntry<>(label, 
-                        Music.together(music, Music.lyrics("*no lyrics*", voice)));
+                        Music.together(music, Music.lyrics(Music.NO_LYRICS, voice)));
 
                 if (index == parsedLyricBoolean.size()) {
                     // We have looked through all the lyrics, so we add one noLyrics at the end
@@ -863,8 +863,8 @@ public class PieceParser {
         
         for (ParseTree<PieceGrammar> lyricElement : lyric.children()) {
             if (lyricElement.text().equals("*")) {
-                // A single asterisk is stored as (*no lyrics*, 1) 
-                SimpleImmutableEntry<String, Integer> skip = new SimpleImmutableEntry<>("*no lyrics*", 1);
+                // A single asterisk is stored as (Music.NO_LYRICS, 1) 
+                SimpleImmutableEntry<String, Integer> skip = new SimpleImmutableEntry<>(Music.NO_LYRICS, 1);
                 lyricList.add(skip);
             }
             else if (lyricElement.text().equals("|")) {
@@ -890,7 +890,7 @@ public class PieceParser {
                         ParseTree<PieceGrammar> separator = subword;
                         if (separator.children().get(0).name() == PieceGrammar.SPACE) {
                             // Any number of spaces is the same as a single asterisk 
-                            SimpleImmutableEntry<String, Integer> skip = new SimpleImmutableEntry<>("*no lyrics*", 1);
+                            SimpleImmutableEntry<String, Integer> skip = new SimpleImmutableEntry<>(Music.NO_LYRICS, 1);
                             lyricList.add(skip);
                         } 
                         
@@ -912,7 +912,7 @@ public class PieceParser {
                         
                         for (int i=1; i<hyphens.text().length(); ++i) {
                             // Every extra hyphen beyond the first one acts like an asterisk 
-                            SimpleImmutableEntry<String, Integer> hyphenSkip = new SimpleImmutableEntry<>("*no lyrics*", 1);
+                            SimpleImmutableEntry<String, Integer> hyphenSkip = new SimpleImmutableEntry<>(Music.NO_LYRICS, 1);
                             lyricList.add(hyphenSkip);
                         }
                         
@@ -946,7 +946,7 @@ public class PieceParser {
 
         for (int i=0; i<lyricList.size(); ++i) {
             SimpleImmutableEntry<String, Integer> pair = lyricList.get(i);
-            if (pair.getKey().equals("|") || pair.getKey().equals("*no lyrics*")) {
+            if (pair.getKey().equals("|") || pair.getKey().equals(Music.NO_LYRICS)) {
                 // Always add bars and no lyrics 
                 secondLyricList.add(pair);
             } 
@@ -967,7 +967,7 @@ public class PieceParser {
                             fullLyricLine += "-";
                         }
                         else if (!(secondPair.getKey().equals("|") ||
-                                secondPair.getKey().equals("*no lyrics*"))) {
+                                secondPair.getKey().equals(Music.NO_LYRICS))) {
                             // Also add all the other syllables (these do not include bars and no lyrics) 
                             fullLyricLine += secondPair.getKey();
                         }
@@ -975,7 +975,7 @@ public class PieceParser {
                     
                     if ((j != lyricList.size() - 1) && 
                          !(secondPair.getKey().equals("|") ||
-                           secondPair.getKey().equals("*no lyrics*") ||
+                           secondPair.getKey().equals(Music.NO_LYRICS) ||
                            secondPair.getKey().equals("-"))) {
                         // In the second iteration, if we are not at the end of the list and we are an actual syllable
                         if (!(lyricList.get(j+1).getKey().equals("-"))){
