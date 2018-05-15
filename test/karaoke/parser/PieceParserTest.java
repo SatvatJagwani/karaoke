@@ -909,27 +909,15 @@ public class PieceParserTest {
         firstMeasure = Music.concat(firstMeasure, 
                        Music.together(Music.note(1, new Pitch('C'), Instrument.PIANO),
                        Music.lyrics("*no lyrics*", "voice1")));
-//        firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('D'), Instrument.PIANO));
-//        firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('E'), Instrument.PIANO));
-//        firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('F'), Instrument.PIANO));
         
         firstPassFirstMeasure = Music.rest(0);
         firstPassFirstMeasure = Music.concat(firstPassFirstMeasure, Music.note(1, new Pitch('G'), Instrument.PIANO));
-//        firstPassFirstMeasure = Music.concat(firstPassFirstMeasure, Music.note(1, new Pitch('A'), Instrument.PIANO));
-//        firstPassFirstMeasure = Music.concat(firstPassFirstMeasure, Music.note(1, new Pitch('B'), Instrument.PIANO));
-//        firstPassFirstMeasure = Music.concat(firstPassFirstMeasure, Music.note(1, new Pitch('C'), Instrument.PIANO));
         firstPassSecondMeasure = Music.rest(0); 
-//        firstPassSecondMeasure = Music.concat(firstPassSecondMeasure, Music.note(1, new Pitch('G'), Instrument.PIANO));
-//        firstPassSecondMeasure = Music.concat(firstPassSecondMeasure, Music.note(1, new Pitch('A'), Instrument.PIANO));
-//        firstPassSecondMeasure = Music.concat(firstPassSecondMeasure, Music.note(1, new Pitch('B'), Instrument.PIANO));
         firstPassSecondMeasure = Music.concat(firstPassSecondMeasure, Music.note(1, new Pitch('B'), Instrument.PIANO));
         firstPass = Music.concat(firstMeasure, Music.concat(firstPassFirstMeasure, firstPassSecondMeasure));
         
         secondPassFirstMeasure = Music.rest(0);
         secondPassFirstMeasure = Music.concat(secondPassFirstMeasure, Music.note(1, new Pitch('F'), Instrument.PIANO));
-//        secondPassFirstMeasure = Music.concat(secondPassFirstMeasure, Music.note(1, new Pitch('E'), Instrument.PIANO));
-//        secondPassFirstMeasure = Music.concat(secondPassFirstMeasure, Music.note(1, new Pitch('D'), Instrument.PIANO));
-//        secondPassFirstMeasure = Music.concat(secondPassFirstMeasure, Music.note(1, new Pitch('C'), Instrument.PIANO));
         secondPass = Music.concat(firstMeasure, secondPassFirstMeasure);
         
         correctMusic = Music.concat(firstPass, secondPass);
@@ -938,29 +926,17 @@ public class PieceParserTest {
         firstMeasure = Music.concat(firstMeasure, 
                        Music.together(Music.note(1, new Pitch('E'), Instrument.PIANO),
                        Music.lyrics("*no lyrics*", "voice1")));
-//        firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('F'), Instrument.PIANO));
-//        firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('D'), Instrument.PIANO));
-//        firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('C'), Instrument.PIANO));
         
         firstPassFirstMeasure = Music.rest(0);
         firstPassFirstMeasure = Music.concat(firstPassFirstMeasure, Music.note(1, new Pitch('A'), Instrument.PIANO));
-//        firstPassFirstMeasure = Music.concat(firstPassFirstMeasure, Music.note(1, new Pitch('G'), Instrument.PIANO));
-//        firstPassFirstMeasure = Music.concat(firstPassFirstMeasure, Music.note(1, new Pitch('B'), Instrument.PIANO));
-//        firstPassFirstMeasure = Music.concat(firstPassFirstMeasure, Music.note(1, new Pitch('C'), Instrument.PIANO));
         firstPassSecondMeasure = Music.rest(0); 
         firstPassSecondMeasure = Music.concat(firstPassSecondMeasure, Music.note(1, new Pitch('D'), Instrument.PIANO));
-//        firstPassSecondMeasure = Music.concat(firstPassSecondMeasure, Music.note(1, new Pitch('B'), Instrument.PIANO));
-//        firstPassSecondMeasure = Music.concat(firstPassSecondMeasure, Music.note(1, new Pitch('B'), Instrument.PIANO));
-//        firstPassSecondMeasure = Music.concat(firstPassSecondMeasure, Music.note(1, new Pitch('G'), Instrument.PIANO));
         firstPass = Music.concat(firstMeasure, Music.concat(firstPassFirstMeasure, firstPassSecondMeasure));
         
         correctMusic = Music.concat(correctMusic, firstPass);
         
         secondPassFirstMeasure = Music.rest(0);
         secondPassFirstMeasure = Music.concat(secondPassFirstMeasure, Music.note(1, new Pitch('C'), Instrument.PIANO));
-//        secondPassFirstMeasure = Music.concat(secondPassFirstMeasure, Music.note(1, new Pitch('E'), Instrument.PIANO));
-//        secondPassFirstMeasure = Music.concat(secondPassFirstMeasure, Music.note(1, new Pitch('D'), Instrument.PIANO));
-//        secondPassFirstMeasure = Music.concat(secondPassFirstMeasure, Music.note(1, new Pitch('F'), Instrument.PIANO));
         secondPass = Music.concat(firstMeasure, secondPassFirstMeasure);
         
         correctMusic = Music.concat(correctMusic, secondPass);
@@ -970,22 +946,14 @@ public class PieceParserTest {
         firstMeasure = Music.concat(firstMeasure, 
                        Music.together(Music.note(1, new Pitch('F'), Instrument.PIANO),
                        Music.lyrics("*no lyrics*", "voice1")));
-//        firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('E'), Instrument.PIANO));
-//        firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('F'), Instrument.PIANO));
-//        firstMeasure = Music.concat(firstMeasure, Music.note(1, new Pitch('A'), Instrument.PIANO));
-        
+      
         secondMeasure = Music.rest(0);
         secondMeasure = Music.concat(secondMeasure, Music.note(1, new Pitch('D'), Instrument.PIANO));
-//        secondMeasure = Music.concat(secondMeasure, Music.note(1, new Pitch('A'), Instrument.PIANO));
-//        secondMeasure = Music.concat(secondMeasure, Music.note(1, new Pitch('B'), Instrument.PIANO));
-//        secondMeasure = Music.concat(secondMeasure, Music.note(1, new Pitch('C'), Instrument.PIANO));
-        
+
         repeatMeasure = Music.concat(firstMeasure, secondMeasure);
         repeatMeasure = Music.concat(repeatMeasure, repeatMeasure);
         correctMusic = Music.concat(correctMusic, repeatMeasure);
 
-        System.out.println(correctMusic);
-        System.out.println(piece.getMusic());
         assertEquals("expected correct music", correctMusic, piece.getMusic());
         
     }
